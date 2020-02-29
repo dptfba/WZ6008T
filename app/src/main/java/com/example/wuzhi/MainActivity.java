@@ -617,5 +617,28 @@ public class MainActivity extends AppCompatActivity {
         return 1;
     }
 
+
+
+    /**
+     * CRC校验正确标志
+     * @param modbusdata
+     * @param length
+     * @return 0-failed 1-success
+     */
+    protected int crc32_flage(byte[] modbusdata, int length)
+    {
+        int Receive_CRC = 0, calculation = 0;//接收到的CRC,计算的CRC
+
+        Receive_CRC = crc16_modbus(modbusdata, length);
+        calculation = modbusdata[length];
+        calculation <<= 8;
+        calculation += modbusdata[length+1];
+        if (calculation != Receive_CRC)
+        {
+            return 0;
+        }
+        return 1;
+    }
+
 }
 //范玉鹏更新
