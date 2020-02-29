@@ -625,7 +625,7 @@ public class MainActivity extends AppCompatActivity {
      * @param length
      * @return 0-failed 1-success
      */
-    protected int crc32_flage(byte[] modbusdata, int length)
+    protected int crc42_flage(byte[] modbusdata, int length)
     {
         int Receive_CRC = 0, calculation = 0;//接收到的CRC,计算的CRC
 
