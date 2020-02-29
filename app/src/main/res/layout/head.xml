@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:gravity="center"
+    android:background="@color/colorHeadBackground"
+    android:layout_height="@dimen/headLayoutHeight">
+    <ImageView
+        android:id="@+id/iv_head_logo"
+        app:srcCompat="@drawable/logo_big1"
+        android:layout_width="@dimen/logoWidth"
+        android:layout_height="@dimen/logoHeight"/>
+    <TextView
+        android:id="@+id/tv_head_text1"
+        android:text="@string/headTextView"
+        android:textSize="@dimen/fontNum"
+        android:layout_marginTop="@dimen/stateBtnMargin"
+        android:textColor="@color/colorBackground"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <LinearLayout
+        android:layout_marginTop="@dimen/linearLayoutPadding"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <TextView
+            android:text="@string/tvIp"
+            android:textSize="@dimen/fontHead"
+            android:textColor="@color/colorBackground"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/tv_ip"
+            android:hint="@string/ipHint"
+            android:textColor="@color/colorBackground"
+            android:textSize="@dimen/fontHead"
+            android:layout_marginLeft="@dimen/tv_ip_margin4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+</LinearLayout>

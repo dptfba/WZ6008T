@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WuZhi</string>
+    <string name="app_title">QDWZ</string>
+    <string name="app_subtitle">MT-20</string>
+    <string name="tv_connect">connect</string>
+    <string name="tv_save">save</string>
+    <string name="headTextView">WuZhi Intelligence Technology</string>
+    <string name="tvIp">local IP:</string>
+    <string name="ipHint">IP address</string>
+    <string name="menu_net_title"> network settings</string>
+    <string name="menu_address_title">Slave address</string>
+    <string name="menu_language_title">language</string>
+    <string name="menu_about_title">About</string>
+    <string name="lineChart_label1">current</string>
+    <string name="lineChart_label2">voltage</string>
+    <string name="tv_voltage_title">VOLTAGE(V)</string>
+    <string name="tv_current_title">CURRENT(A)</string>
+    <string name="tv_power_title">POWER(W)</string>
+    <string name="tv_energy_title">E(WH)</string>
+    <string name="tv_capacity_title">CY(AH)</string>
+    <string name="tv_writeTime_title">CLOCK</string>
+    <string name="btnTextStart">START</string>
+    <string name="btnTextStop">P</string>
+    <string name="btnTextClear">RST</string>
+    <string name="setUTitle">U_SET:</string>
+    <string name="setITitle">I_SET:</string>
+    <string name="ovpTitle">OVP:</string>
+    <string name="ocpTitle">OCP:</string>
+    <string name="inputVoltageTitle">Vin(V):</string>
+    <string name="bootTimeTitle">upTime:</string>
+    <string-array name="language">
+        <item>simplifiedChinese</item>
+        <item>English</item>
+    </string-array>
+    <string name="language_label">language</string>
+    <string name="about_label">about</string>
+    <string name="address_dialog_title">Slave address</string>
+    <string name="positiveButton">CONFIRM</string>
+    <string name="negativeButton">CANCEL</string>
+
+    <string name="ssid_title">SSID: </string>
+    <string name="bssid_title">BSSID: </string>
+    <string name="password_title">WiFi Password: </string>
+    <string name="device_count_title">Device count: </string>
+    <string name="package_broadcast">Broadcast</string>
+    <string name="package_multicast">Multicast</string>
+    <string name="confirm">Confirm</string>
+    <string name="wifi_5g_message">Device don\'t support 5G Wifi, please make sure the currently connected Wifi is 3G 4G</string>
+    <string name="location_disable_message">Location(GPS) is disable</string>
+    <string name="no_wifi_connection">No Wifi connection</string>
+    <string name="configuring_message"> is configuring, please wait for a moment…</string>
+    <string name="configure_wifi_change_message">Wifi disconnected or changed</string>
+    <string name="configure_result_failed">failed</string>
+    <string name="configure_result_failed_port">Create  the distribution network task failed, the  port could be used by other thread</string>
+    <string name="configure_result_success">network to complete</string>
+    <string name="configure_result_success_item">BSSID = %1$s, InetAddress = %2$s</string>
+
+
+</resources>

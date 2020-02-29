@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/linearLayoutPadding"
+    android:paddingRight="@dimen/linearLayoutPadding"
+    tools:context=".NetworkActivity">
+    <TextView
+        android:id="@+id/ap_ssid_label"
+        android:text="@string/ssid_title"
+        android:textSize="@dimen/fontNum"
+        android:textColor="@color/wifiFont"
+        android:layout_marginTop="@dimen/margin6"
+        android:layout_marginBottom="@dimen/margin6"
+        android:maxLines="1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:id="@+id/ap_ssid_text"
+        android:maxLines="1"
+        android:textSize="@dimen/fontBig"
+        android:textColor="@color/wifiFont"
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"/>
+    <TextView
+        android:background="@color/btnAddTextBackground"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"/>
+
+    <TextView
+        android:id="@+id/ap_bssid_label"
+        android:text="@string/bssid_title"
+        android:textSize="@dimen/fontNum"
+        android:textColor="@color/wifiFont"
+        android:layout_marginTop="@dimen/margin6"
+        android:layout_marginBottom="@dimen/margin6"
+        android:maxLines="1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:id="@+id/ap_bssid_text"
+        android:maxLines="1"
+        android:textSize="@dimen/fontBig"
+        android:textColor="@color/wifiFont"
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"/>
+    <TextView
+        android:background="@color/btnAddTextBackground"
+        android:layout_width="match_parent"
+        android:layout_marginBottom="@dimen/margin6"
+        android:layout_height="1dp"/>
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/ap_password_layout"
+        android:hint="@string/password_title"
+        app:passwordToggleEnabled="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/ap_password_edit"
+            android:inputType="textPassword"
+            android:maxLines="1"
+            android:layout_marginBottom="@dimen/margin6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/device_count_layout"
+        android:hint="@string/device_count_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/device_count_edit"
+            android:inputType="number"
+            android:layout_marginBottom="@dimen/margin6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <RadioGroup
+        android:id="@+id/package_mode_group"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/package_broadcast"
+            android:checked="true"
+            android:text="@string/package_broadcast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <RadioButton
+            android:id="@+id/package_multicast"
+            android:text="@string/package_multicast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/message"
+        android:gravity="top"
+        android:textColor="@color/colorRed"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/confirm_btn"
+        android:text="@string/confirm"
+        android:gravity="center"
+        android:textSize="@dimen/font22"
+        android:layout_gravity="center_horizontal|bottom"
+        android:textAppearance="?android:attr/textAppearanceButton"
+        android:backgroundTint="@color/wifiBtnBackground"
+        app:cornerRadius="@dimen/tvConnectMarginRight"
+        app:rippleColor="@color/btnAddTextBackground"
+        android:layout_width="300dp"
+        android:layout_height="60dp"/>
+
+
+</LinearLayout>

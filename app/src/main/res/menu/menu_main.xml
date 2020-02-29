@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/item_net"
+        android:icon="@drawable/icon_net"
+        android:title="@string/menu_net_title">
+    </item>
+
+    <item android:id="@+id/item_address"
+        android:icon="@drawable/icon_address"
+        android:title="@string/menu_address_title">
+    </item>
+
+    <item android:id="@+id/item_language"
+        android:icon="@drawable/icon_language"
+        android:title="@string/menu_language_title">
+    </item>
+
+    <item android:id="@+id/item_about"
+        android:icon="@drawable/icon_about"
+        android:title="@string/menu_about_title">
+    </item>
+
+</menu>
