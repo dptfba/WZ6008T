@@ -648,20 +648,23 @@ public class MainActivity extends AppCompatActivity {
 
             if(ReadByte!=null){
                 if((ReadByte[0]==0xAA)&&(ReadByte.length==20)){
+
                     switch (ReadByte[2]){//根据命令字判断
                         case 29:
                             int value=ReadByte[3]<<8+ReadByte[4];
-                            tv_voltage.setText(Integer.toString(value));
+                           tv_voltage.setText(Integer.toString(value));
                             break;
                         case 42:
                             int value1=ReadByte[3]<<8+ReadByte[4];
                             tv_current.setText(Integer.toString(value1));
+
                             break;
                     }
 
+
                 }
 
-                tv_voltage.setText( bytyToHexstr(ReadByte));
+                //tv_voltage.setText( bytyToHexstr(ReadByte));
             }
         }
     };
