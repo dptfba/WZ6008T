@@ -393,6 +393,7 @@ public class MainActivity extends AppCompatActivity {
             Vout[i] = Vout[i-1];
         }
         Vout[0] = 5;//接受电压值
+        Vout[0] = 5;//接受电压值
 
         values1.clear();
         for (int i = 0; i < 100; i++) {
