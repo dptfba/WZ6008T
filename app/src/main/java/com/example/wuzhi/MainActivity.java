@@ -389,15 +389,15 @@ public class MainActivity extends AppCompatActivity {
         //折线1
         ArrayList<Entry> values1 = new ArrayList<>();
         //提供折线中的点的数据
-        for (int i = 99; i > 0; i--) {
-            Vout[i] = Vout[i-1];
-        }
-        Vout[0] = 5;//接受电压值
+//        for (int i = 99; i > 0; i--) {
+//            Vout[i] = Vout[i-1];
+//        }
+//        Vout[0] = 5;//接受电压值
 
         values1.clear();
         for (int i = 0; i < 100; i++) {
             /**真正的数据也是封装在Entry里,修改(int) (Math.random() * 65) + 40这部分**/
-            values1.add(new Entry(i,  (Vout[i])));
+            values1.add(new Entry(i,  i));
         }
 
 
