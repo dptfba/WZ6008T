@@ -125,9 +125,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -516,19 +513,52 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
 
+                    //发送第一条数据 输入电压
                     String SendVoltageStr = "AA 00 20 01 40 5D C0 00 00 00 00 00 00 00 00 00 00 00 00 28";
                     byte[] SendBuffer0 = HexString2Bytes(SendVoltageStr.replace(" ", ""));//16进制发送
-
-
                     for (int i = 0; i < SendBuffer0.length; i++) {
                         SendBuffer[i] = SendBuffer0[i];
 
                     }
                     SendDataCnt = SendBuffer0.length;
+                    outputStream.write(SendBuffer, 0, SendDataCnt);//写数据,发送数据
+                    SendDataCnt = 0;//清零发送的个数
 
+                    //发送第二条数据 输出电流
+                    String SendCurrentStr = "AA 00 21 01 40 5D C0 00 00 00 00 00 00 00 00 00 00 00 00 28";
+                    byte[] SendBuffer1 = HexString2Bytes(SendCurrentStr.replace(" ", ""));//16进制发送
+                    for (int i = 0; i < SendBuffer1.length; i++) {
+                        SendBuffer[i] = SendBuffer1[i];
+                    }
+                    SendDataCnt = SendBuffer1.length;
                     outputStream.write(SendBuffer, 0, SendDataCnt);//byte[] SendBuffer=new byte[2048];
                     // 存储发送的数据
                     SendDataCnt = 0;//清零发送的个数
+
+
+                    //发送第三条数据 输出功率
+                    String SendPowerStr = "AA 00 22 01 40 5D C0 00 00 00 00 00 00 00 00 00 00 00 00 28";
+                    byte[] SendBuffer2 = HexString2Bytes(SendPowerStr.replace(" ", ""));//16进制发送
+                    for (int i = 0; i < SendBuffer2.length; i++) {
+                        SendBuffer[i] = SendBuffer2[i];
+                    }
+                    SendDataCnt = SendBuffer2.length;
+                    outputStream.write(SendBuffer, 0, SendDataCnt);//byte[] SendBuffer=new byte[2048];
+                    // 存储发送的数据
+                    SendDataCnt = 0;//清零发送的个数
+
+                    //发送第四条数据 U_SET
+                    String SendSetUStr = "AA 00 23 01 40 5D C0 00 00 00 00 00 00 00 00 00 00 00 00 28";
+                    byte[] SendBuffer3 = HexString2Bytes(SendSetUStr.replace(" ", ""));//16进制发送
+                    for (int i = 0; i < SendBuffer3.length; i++) {
+                        SendBuffer[i] = SendBuffer3[i];
+                    }
+                    SendDataCnt = SendBuffer3.length;
+                    outputStream.write(SendBuffer, 0, SendDataCnt);//byte[] SendBuffer=new byte[2048];
+                    // 存储发送的数据
+                    SendDataCnt = 0;//清零发送的个数
+
+
 
                 } catch (Exception e) {
                     sendHandleMsg(mHandler,"ConState","ConNo");//向Handle发送消息
@@ -618,17 +648,23 @@ public class MainActivity extends AppCompatActivity {
 
             if(ReadByte!=null){
                 if((ReadByte[0]==0xAA)&&(ReadByte.length==20)){
+
                     switch (ReadByte[2]){//根据命令字判断
                         case 29:
                             int value=ReadByte[3]<<8+ReadByte[4];
-                            tv_voltage.setText(Integer.toString(value));
+                           tv_voltage.setText(Integer.toString(value));
                             break;
+                        case 42:
+                            int value1=ReadByte[3]<<8+ReadByte[4];
+                            tv_current.setText(Integer.toString(value1));
 
+                            break;
                     }
+
 
                 }
 
-                tv_voltage.setText( bytyToHexstr(ReadByte));
+                //tv_voltage.setText( bytyToHexstr(ReadByte));
             }
         }
     };
@@ -667,8 +703,6 @@ public class MainActivity extends AppCompatActivity {
      */
     // 折线,折线点的数据方法
     private LineData generateDataLine(int cnt) {
-
-
 
         //折线1
         ArrayList<Entry> values1 = new ArrayList<>();
