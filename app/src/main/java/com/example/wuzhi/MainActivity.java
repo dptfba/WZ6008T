@@ -941,14 +941,13 @@ public class MainActivity extends AppCompatActivity {
         return 1;
     }
 
-//返回键
-/**
+  //返回键
     @Override
     public void onBackPressed() {
         //判断侧滑界面是否打开
         boolean open = drawerLayout.isDrawerOpen(GravityCompat.START);
         //如果打开,就关闭
-        if (open = true) {
+        if (open == true) {
             drawerLayout.closeDrawer(GravityCompat.START);
             return;
         }
@@ -958,49 +957,13 @@ public class MainActivity extends AppCompatActivity {
             eixtTime = System.currentTimeMillis();
         } else {
             //彻底关闭整个app
-            int currentVersion= Build.VERSION.SDK_INT;
-            if(currentVersion> Build.VERSION_CODES.ECLAIR_MR1){
                 Intent startMain = new Intent(Intent.ACTION_MAIN);
                 startMain.addCategory(Intent.CATEGORY_HOME);
                 startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(startMain);
                 System.exit(0);
-            }else {
-                ActivityManager am= (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-                am.restartPackage(getPackageName());
-
-            }
-
 
         }
-
-
     }
-    **/
-
-
-      @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-
-        //判断侧滑界面是否打开
-        boolean open = drawerLayout.isDrawerOpen(GravityCompat.START);
-        //如果打开,就关闭
-        if (open = true) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        }
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if ((System.currentTimeMillis() - eixtTime) > 2000) {
-                Toast.makeText(MainActivity.this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
-                eixtTime = System.currentTimeMillis();
-            } else {
-                //彻底关闭整个app
-                finish();
-
-            }
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
 
 }
