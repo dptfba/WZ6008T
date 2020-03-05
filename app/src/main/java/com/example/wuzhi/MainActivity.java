@@ -22,6 +22,7 @@ import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -61,6 +62,8 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity {
 
     String tag = "=======err";
+
+    private long eixtTime=0;//存在时间
 
 
     NavigationView navigationView;
@@ -953,6 +956,35 @@ public class MainActivity extends AppCompatActivity {
             return 0;
         }
         return 1;
+    }
+
+//返回键
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+        //判断侧滑界面是否打开
+        boolean open=drawerLayout.isDrawerOpen(GravityCompat.START);
+        //如果打开,就关闭
+        if(open=true){
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if ((System.currentTimeMillis() - eixtTime) > 2000) {
+                Toast.makeText(MainActivity.this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                eixtTime = System.currentTimeMillis();
+            } else {
+             finish();
+                //彻底关闭整个app
+//            Intent startMain=new Intent(Intent.ACTION_MAIN);
+//           startMain.addCategory(Intent.CATEGORY_HOME);
+//            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//           startActivity(startMain);
+//            System.exit(0);
+
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode,event);
     }
 
 }
