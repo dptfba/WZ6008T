@@ -62,6 +62,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
+    UpdateManager updateManager;//APP自动更新类
 
     String tag = "=======err";
 
@@ -129,6 +130,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //软件更新的检查调用
+        updateManager=new UpdateManager(MainActivity.this);
+      //  updateManager.checkUpdateInfo();
 
 
         toolbar = findViewById(R.id.toolbar);
