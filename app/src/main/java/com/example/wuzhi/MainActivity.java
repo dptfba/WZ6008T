@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
 
         //软件更新的检查调用
         updateManager=new UpdateManager(MainActivity.this);
-      //  updateManager.checkUpdateInfo();
+        updateManager.checkUpdateInfo();
 
 
         toolbar = findViewById(R.id.toolbar);
