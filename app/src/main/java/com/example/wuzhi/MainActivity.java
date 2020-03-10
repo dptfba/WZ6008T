@@ -527,39 +527,7 @@ public class MainActivity extends AppCompatActivity {
                     outputStream.write(SendBuffer, 0, SendDataCnt);//写数据,发送数据
                     SendDataCnt = 0;//清零发送的个数
 
-                    //发送第二条数据 输出电流
-                    String SendCurrentStr = "AA 00 21 01 40 5D C0 00 00 00 00 00 00 00 00 00 00 00 00 28";
-                    byte[] SendBuffer1 = HexString2Bytes(SendCurrentStr.replace(" ", ""));//16进制发送
-                    for (int i = 0; i < SendBuffer1.length; i++) {
-                        SendBuffer[i] = SendBuffer1[i];
-                    }
-                    SendDataCnt = SendBuffer1.length;
-                    outputStream.write(SendBuffer, 0, SendDataCnt);//byte[] SendBuffer=new byte[2048];
-                    // 存储发送的数据
-                    SendDataCnt = 0;//清零发送的个数
 
-
-                    //发送第三条数据 输出功率
-                    String SendPowerStr = "AA 00 22 01 40 5D C0 00 00 00 00 00 00 00 00 00 00 00 00 28";
-                    byte[] SendBuffer2 = HexString2Bytes(SendPowerStr.replace(" ", ""));//16进制发送
-                    for (int i = 0; i < SendBuffer2.length; i++) {
-                        SendBuffer[i] = SendBuffer2[i];
-                    }
-                    SendDataCnt = SendBuffer2.length;
-                    outputStream.write(SendBuffer, 0, SendDataCnt);//byte[] SendBuffer=new byte[2048];
-                    // 存储发送的数据
-                    SendDataCnt = 0;//清零发送的个数
-
-                    //发送第四条数据 U_SET
-                    String SendSetUStr = "AA 00 23 01 40 5D C0 00 00 00 00 00 00 00 00 00 00 00 00 28";
-                    byte[] SendBuffer3 = HexString2Bytes(SendSetUStr.replace(" ", ""));//16进制发送
-                    for (int i = 0; i < SendBuffer3.length; i++) {
-                        SendBuffer[i] = SendBuffer3[i];
-                    }
-                    SendDataCnt = SendBuffer3.length;
-                    outputStream.write(SendBuffer, 0, SendDataCnt);//byte[] SendBuffer=new byte[2048];
-                    // 存储发送的数据
-                    SendDataCnt = 0;//清零发送的个数
 
 
                 } catch (Exception e) {
