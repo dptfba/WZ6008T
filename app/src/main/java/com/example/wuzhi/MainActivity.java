@@ -1,16 +1,21 @@
 package com.example.wuzhi;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -18,6 +23,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
@@ -37,6 +43,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.wuzhi.Utils.ExcelUtils;
 import com.example.wuzhi.Utils.LocaleUtils;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Description;
@@ -50,13 +57,20 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.navigation.NavigationView;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.FormatFlagsConversionMismatchException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -65,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
     UpdateManager updateManager;//APP自动更新类
 
     String tag = "=======err";
+    private DecimalFormat mDecimalFormat=new DecimalFormat("#.00");//格式化浮点数位两位小数
 
     private long eixtTime = 0;//存在时间
 
@@ -125,6 +140,13 @@ public class MainActivity extends AppCompatActivity {
     Thread mthreadSendData;//记录发送任务
     Thread mthreadReadData;//记录接收任务
 
+    /** Excel表格相关**/
+    private String excelFilePath="";
+
+    private String[] colNames=new String[]{"电流","电压","电流","电压","电流","电压",};//每列列头标题
+    String[] pess=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE};
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,6 +188,9 @@ public class MainActivity extends AppCompatActivity {
         btn_stateButton = findViewById(R.id.btn_stateButton);//状态按钮
         btn_hintButton = findViewById(R.id.btn_hintButton);//CC CV按钮
         tv_inputVoltage = findViewById(R.id.tv_inputVoltage);//输入电压
+
+
+        initLineChart();//初始化折线图
 
 
         /**界面数据通信部分**/
@@ -292,11 +317,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        /**点击存储的点击事件**/
+        /**点击存储把数据导出到Excel表格**/
         tv_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "点击了存储", Toast.LENGTH_LONG).show();
+                export();
             }
         });
 
@@ -385,71 +410,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-        /**下面是图表部分**/
-        lineChart = findViewById(R.id.lineChart);//实例化图表
-        lineChart.fitScreen();//设置自适应屏幕
-
-        //设置折线图右下角描述,""为不添加
-        Description description = new Description();
-        description.setText("");
-        lineChart.setDescription(description);
-
-        //设置折线图左下角的图例标签,false为不显示
-        Legend legend = lineChart.getLegend();
-        legend.setEnabled(true);
-        legend.setFormSize(10f);//设置图例大小
-        legend.setTextColor(Color.WHITE);//设置图例文字颜色
-        legend.setTextSize(12f);//设置图例文字大小
-        legend.setXEntrySpace(20f);//设置在水平轴上的间隙
-        legend.setFormToTextSpace(10f);//图例与文字间的距离
-
-        //设置显示边界
-        lineChart.setDrawBorders(true);
-
-        //是否绘制网格背景
-        lineChart.setDrawGridBackground(false);
-
-        //获取x轴
-        XAxis xAxis = lineChart.getXAxis();
-        //设置x轴的显示位置
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        //是否设置x轴的网格线
-        xAxis.setDrawGridLines(true);
-        //是否设置x轴的轴线
-        xAxis.setDrawAxisLine(true);
-        //设置x轴的坐标字体的大小
-        xAxis.setTextSize(14f);
-        //设置x轴的坐标字体的颜色
-        xAxis.setTextColor(Color.WHITE);
-        //设置x轴的最小值
-        xAxis.setAxisMinimum(0f);
-        //设置x轴的最大值
-        xAxis.setAxisMaximum(5f);
-
-        //获取y轴
-        YAxis leftAxis = lineChart.getAxisLeft();//左侧y轴
-        //参数1:左边y轴提供的区间个数,参数2:是否均匀分布,false为均匀
-        leftAxis.setLabelCount(5, false);
-        //设置左边y轴的字体颜色
-        leftAxis.setTextColor(Color.WHITE);
-
-        YAxis rightAxis = lineChart.getAxisRight();//右侧y轴
-        rightAxis.setLabelCount(5, false);//y轴网格线
-        //设置右边y轴的字体颜色
-        rightAxis.setTextColor(Color.WHITE);
-
-        leftAxis.setAxisMinimum(0.00f);//设置左侧y轴的最小值
-        leftAxis.setAxisMaximum(2.00f);//设置左侧y轴的最大值
-        rightAxis.setAxisMinimum(0.000f);//设置右侧y轴的最小值
-        rightAxis.setAxisMaximum(2.000f);//设置右侧y轴的最大值
-
-        //提供折线数据(获取到的数据)
-        LineData lineData = generateDataLine(1);
-        lineChart.setData(lineData);
-
-        //刷新数据
-        lineChart.invalidate();
 
 
     }
@@ -668,29 +628,112 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 数据方法generateDataLine,修改数据在方法中就行
+     * 初始化折线图
+     *
+     **/
+    private void initLineChart(){
+        lineChart = findViewById(R.id.lineChart);//实例化图表
+
+        lineChart.fitScreen();//设置自适应屏幕
+        lineChart.setDrawGridBackground(false);//是否展示网格线
+        lineChart.setDrawBorders(true);//设置显示边界
+        lineChart.setTouchEnabled(true);//是否有触摸事件
+        lineChart.setDragEnabled(true);//可拖拽
+        lineChart.setScaleEnabled(true);//可缩放
+
+
+        //设置折线图右下角描述,""为不添加
+        Description description = new Description();
+        description.setText("");
+        lineChart.setDescription(description);
+
+        //设置折线图左下角的图例标签,false为不显示
+        Legend legend = lineChart.getLegend();
+        legend.setEnabled(true);
+        legend.setFormSize(10f);//设置图例大小
+        legend.setTextColor(Color.WHITE);//设置图例文字颜色
+        legend.setTextSize(12f);//设置图例文字大小
+        legend.setXEntrySpace(20f);//设置在水平轴上的间隙
+        legend.setFormToTextSpace(10f);//图例与文字间的距离
+
+
+
+        //获取x轴
+        XAxis xAxis = lineChart.getXAxis();
+        //设置x轴的显示位置
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        //是否设置x轴的网格线
+        xAxis.setDrawGridLines(true);
+        //是否设置x轴的轴线
+        xAxis.setDrawAxisLine(true);
+        //设置x轴的坐标字体的大小
+        xAxis.setTextSize(14f);
+        //设置x轴的坐标字体的颜色
+        xAxis.setTextColor(Color.WHITE);
+        //设置x轴的最小值
+        xAxis.setAxisMinimum(0);
+        //设置x轴的最大值
+        xAxis.setAxisMaximum(6);
+        //设置x轴的刻度数量,第二个参数表示是否评价分配
+       // xAxis.setLabelCount(20,false);
+        //设置x轴坐标之间的最小间隔
+        xAxis.setGranularity(1f);
+
+        //获取y轴
+        YAxis leftAxis = lineChart.getAxisLeft();//左侧y轴
+        //参数1:左边y轴提供的区间个数,参数2:是否均匀分布,false为均匀
+        leftAxis.setLabelCount(5, false);
+        //设置左边y轴的字体颜色
+        leftAxis.setTextColor(Color.WHITE);
+
+        YAxis rightAxis = lineChart.getAxisRight();//右侧y轴
+        rightAxis.setLabelCount(5, false);//y轴网格线
+        //设置右边y轴的字体颜色
+        rightAxis.setTextColor(Color.WHITE);
+
+        leftAxis.setAxisMinimum(0.00f);//设置左侧y轴的最小值
+        leftAxis.setAxisMaximum(1.20f);//设置左侧y轴的最大值
+        //设置y轴坐标之间的最小间隔
+        //leftAxis.setGranularity(0.2f);
+
+        rightAxis.setAxisMinimum(0.00f);//设置右侧y轴的最小值
+        rightAxis.setAxisMaximum(1.20f);//设置右侧y轴的最大值
+
+
+
+        //提供折线数据(获取到的数据)
+        LineData lineData = generateDataLine(1);
+        lineChart.setData(lineData);
+
+        //刷新数据
+        lineChart.invalidate();
+
+    }
+
+
+    /**
+     * 图表的数据方法generateDataLine,修改数据在方法中就行
      *
      * @param cnt
      * @return
      */
+
+
+    float[] currentValues={0.1f,0.5f,0.7f,0.6f,0.2f,0.2f,0.5f};//电流
+    float[] voltageValues={0.8f,0.8f,0.8f,0.8f,0.8f,0.8f,0.8f};//电压
+
     // 折线,折线点的数据方法
     private LineData generateDataLine(int cnt) {
+
 
         //折线1
         ArrayList<Entry> values1 = new ArrayList<>();
         //提供折线中的点的数据
-        for (int i = 99; i > 0; i--) {
-            Vout[i] = Vout[i - 1];
-        }
-        Vout[0] = 5;//接受电压值
-        Vout[0] = 5;//接受电压值
-
-        values1.clear();
-        for (int i = 0; i < 10; i++) {
-            /**真正的数据也是封装在Entry里,修改(int) (Math.random() * 65) + 40这部分**/
-            values1.add(new Entry(i, (Vout[i])));
+        for (int i = 0; i<7; i++) {
+           values1.add(new Entry(i,currentValues[i]));
         }
 
+       // values1.clear();
 
         LineDataSet d1 = new LineDataSet(values1, this.getString(R.string.lineChart_label1));//第一条折线
         d1.setLineWidth(1.5f);//设置线的宽度
@@ -702,9 +745,8 @@ public class MainActivity extends AppCompatActivity {
 
         //折线2
         ArrayList<Entry> values2 = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
-            /**真正的数据也是封装在Entry里,修改(int) (Math.random() * 65) + 40这部分**/
-            values2.add(new Entry(i, values1.get(i).getY() - 3));
+        for (int i = 0; i<7; i++) {
+            values2.add(new Entry(i,voltageValues[i]));
         }
 
         LineDataSet d2 = new LineDataSet(values2, this.getString(R.string.lineChart_label2));
@@ -937,6 +979,185 @@ public class MainActivity extends AppCompatActivity {
                 System.exit(0);
 
         }
+    }
+
+
+    /**==============对表格的导出操作================**/
+
+
+    /**
+     *导出表格的操作
+     * 新的运行时权限机制"只在应用程序的targetSdkVersion>=23时生效，并且只在6.0系统之上有这种机制，
+     * 在低于6.0的系统上应用程序和以前一样不受影响。
+     *  当前应用程序的targetSdkVersion小于23（为22），系统会默认其尚未适配新的运行时权限机制，
+     *  安装后将和以前一样不受影响：即用户在安装应用程序的时候默认允许所有被申明的权限
+     **/
+    private void export(){
+        if(this.getApplicationInfo().targetSdkVersion>=23&& Build.VERSION.SDK_INT>=23){
+            requestPermission();
+
+        }else {
+            writeExcel();
+        }
+    }
+
+    /**
+     * 动态请求读写权限
+     **/
+    private void requestPermission(){
+        if(!checkPermission()){//如果没有权限则请求权限再写
+            ActivityCompat.requestPermissions(this,pess,100);
+        }else {//如果有权限则直接写
+            writeExcel();
+
+        }
+    }
+    /**
+     * 检测权限
+     *
+     **/
+    private boolean checkPermission(){
+        for(String permission:pess){
+            if(ContextCompat.checkSelfPermission(this,permission)!= PackageManager.PERMISSION_GRANTED){
+                //只要有一个权限没有被授予,则直接返回false
+                return false;
+
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull
+            int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode==100){
+            boolean isAllGranted=true;
+            for(int grant:grantResults){
+                if(grant!=PackageManager.PERMISSION_GRANTED){
+                    isAllGranted=false;
+                    break;
+
+                }
+
+            }
+            if(isAllGranted){//请求到权限了,写Excel
+                writeExcel();
+            }else {//权限被拒绝,不能写
+                Toast.makeText(this,"读写手机存储权限被禁止,请在权限管理中心手动打开权限",
+                        Toast.LENGTH_LONG).show();
+
+            }
+
+        }
+    }
+
+    /**
+     * 将数据写入Excel表格
+     **/
+    private void writeExcel(){
+        if(getExternalStoragePath()==null){
+            return;
+        }
+        //SD卡指定文件夹
+        excelFilePath=getExternalStoragePath()+"/Excel/mine.xls";//Excel是子文件夹,mine.xls是表格文件
+        // excelFilePath=getExternalFilesDir("Excel")+"mine.xls";
+        if(checkFile(excelFilePath)){
+            deleteByPath(excelFilePath);//如果文件存在则先删除原有的文件
+            //  Toast.makeText(this,"删除了",Toast.LENGTH_LONG).show();
+
+        }
+        File file=new File(getExternalStoragePath()+"/Excel");
+
+        makeDir(file);
+        ExcelUtils.initExcel(excelFilePath,"电压电流数据表格",colNames);//需要写入权限
+        ExcelUtils.writeObjListToExcel(getTraveData(),excelFilePath,this);
+    }
+
+    /**
+     *
+     * 根据路径生成文件夹
+     **/
+
+    public static void makeDir(File filePath){
+        if(!filePath.getParentFile().exists()){
+            makeDir(filePath.getParentFile());
+        }
+        filePath.mkdir();
+    }
+    /**
+     * 获取外部存储路径
+     **/
+    public String getExternalStoragePath(){
+        File sdDir=null;
+        boolean sdCardExist= Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+        if(sdCardExist){
+            sdDir=getExternalFilesDir(null);
+            return sdDir.toString();
+
+        }else {
+            Toast.makeText(this,"找不到外部存储路径,读写手机存储权限被禁止,请在权限管理中心手动打开权限",
+                    Toast.LENGTH_LONG).show();
+            return null;
+        }
+    }
+
+    /**
+     * 测试数据
+     **/
+    public ArrayList<ArrayList<String>> getTraveData(){
+       // String s="测试string";//这里是数据内容
+        int value=22;
+        ArrayList<ArrayList<String>> datas=new ArrayList<>();
+        ArrayList<String> data=null;
+        for(int i=0;i<8;i++){//列
+            data=new ArrayList<>();
+            data.clear();
+            for(int j=0;j<6;j++){//行
+               // data.add(s+j);
+                data.add(String.valueOf(value)+j);
+
+            }
+            datas.add(data);
+
+        }
+        return datas;
+
+    }
+
+    /**
+     *
+     * 根据文件路径检查文件是否存在,需要读取权限
+     * filePath 文件路径
+     * true 存在
+     **/
+    private boolean checkFile(String filePath){
+        File file=new File(filePath);
+        if(file.exists()){
+            if(file.isFile()){
+                return true;
+            }else {
+                return false;
+            }
+
+        }else {
+            return false;
+        }
+    }
+
+    /**
+     * 根据文件路径删除文件
+     * filePath
+     **/
+    private void deleteByPath(String filePath){
+        File file=new File(filePath);
+        if(file.exists()){
+            if(file.isFile()){
+                file.delete();
+
+            }
+        }
+
     }
 
 }
