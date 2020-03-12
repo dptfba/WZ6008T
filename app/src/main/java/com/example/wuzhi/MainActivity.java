@@ -58,6 +58,7 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.navigation.NavigationView;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -139,6 +140,9 @@ public class MainActivity extends AppCompatActivity {
     Thread mthreadConnectSerice;//记录连接任务
     Thread mthreadSendData;//记录发送任务
     Thread mthreadReadData;//记录接收任务
+
+    byte[] sendByteArray={(byte) 0xAA, 0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00,};//初始化发送给服务器的字节数组
 
     MyHandler mHandler;//handler
 
@@ -478,18 +482,13 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
 
-                    //发送第一条数据 输入电压
-                   // String SendVoltageStr = "AA 00 20 01 40 5D C0 00 00 00 00 00 00 00 00 00 00 00 00 28";
-                   // byte[] SendBuffer0 = HexString2Bytes(SendVoltageStr.replace(" ", ""));//16进制发送
+                    sendByteArray[2]=0x20;//命令字
+                    sendByteArray[3]=0x01;
+                    sendDataToService(sendByteArray);//发送到服务器数据的方法
 
-                    byte[] SendBuffer0 = {(byte) 0xAA,0x00,0x20,0x01,0x40, 0x5D};
-                    for (int i = 0; i < SendBuffer0.length; i++) {
-                        SendBuffer[i] = SendBuffer0[i];
-
-                    }
-                    SendDataCnt = SendBuffer0.length;
-                    outputStream.write(SendBuffer, 0, SendDataCnt);//写数据,发送数据
-                    SendDataCnt = 0;//清零发送的个数
+                    sendByteArray[3]=0x00;
+                    sendByteArray[2]=0x29;//命令字
+                    sendDataToService(sendByteArray);//发送到服务器数据的方法
 
 
 
@@ -509,6 +508,26 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }, 1000, 2000);
+    }
+
+    /**   发送到服务器数据的方法  **/
+    private byte[] sendDataToService(byte[] bytes){
+
+        bytes = sendByteArray;
+
+        for (int i = 0; i <bytes.length; i++) {
+            SendBuffer[i] =bytes[i];
+        }
+        SendDataCnt = bytes.length;
+        try {
+            outputStream.write(SendBuffer, 0, SendDataCnt);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // 存储发送的数据
+        SendDataCnt = 0;//清零发送的个数
+        return bytes;
+
     }
 
     /**
