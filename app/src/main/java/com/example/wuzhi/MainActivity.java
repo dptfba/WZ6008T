@@ -140,6 +140,8 @@ public class MainActivity extends AppCompatActivity {
     Thread mthreadSendData;//记录发送任务
     Thread mthreadReadData;//记录接收任务
 
+    MyHandler mHandler;//handler
+
     /** Excel表格相关**/
     private String excelFilePath="";
 
@@ -189,6 +191,8 @@ public class MainActivity extends AppCompatActivity {
         btn_hintButton = findViewById(R.id.btn_hintButton);//CC CV按钮
         tv_inputVoltage = findViewById(R.id.tv_inputVoltage);//输入电压
 
+        mHandler=new MyHandler();
+
 
         initLineChart();//初始化折线图
 
@@ -203,8 +207,6 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         threadConnectService.start();//启动连接服务器的线程任务
                         mthreadConnectSerice = threadConnectService;
-                        Toast.makeText(getApplicationContext(), "连接服务器成功", Toast.LENGTH_SHORT).show();
-
                         autoSendData();//自动发送数据
 
 
@@ -477,8 +479,10 @@ public class MainActivity extends AppCompatActivity {
                 try {
 
                     //发送第一条数据 输入电压
-                    String SendVoltageStr = "AA 00 20 01 40 5D C0 00 00 00 00 00 00 00 00 00 00 00 00 28";
-                    byte[] SendBuffer0 = HexString2Bytes(SendVoltageStr.replace(" ", ""));//16进制发送
+                   // String SendVoltageStr = "AA 00 20 01 40 5D C0 00 00 00 00 00 00 00 00 00 00 00 00 28";
+                   // byte[] SendBuffer0 = HexString2Bytes(SendVoltageStr.replace(" ", ""));//16进制发送
+
+                    byte[] SendBuffer0 = {(byte) 0xAA,0x00,0x20,0x01,0x40, 0x5D};
                     for (int i = 0; i < SendBuffer0.length; i++) {
                         SendBuffer[i] = SendBuffer0[i];
 
@@ -558,16 +562,19 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Handler
      **/
-    private Handler mHandler = new Handler() {
+    class MyHandler extends Handler{
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
             Bundle bundle = msg.getData();
-            String string = bundle.getString("ConState");
-            try {
-                if (string.equals("ConOK")) {
+            String string=bundle.getString("ConState");
+            try
+            {
+                if(string.equals("ConOK"))
+                {
                     Toast.makeText(getApplicationContext(), "连接成功", Toast.LENGTH_SHORT).show();
-                } else if (string.equals("ConNO")) {
+                }
+                else if (string.equals("ConNO")) {
                     Toast.makeText(getApplicationContext(), "与服务器断开连接", Toast.LENGTH_SHORT).show();
                 }
 
@@ -578,28 +585,32 @@ public class MainActivity extends AppCompatActivity {
 
             byte[] ReadByte = bundle.getByteArray("ReadData");//接收到的字节数组
 
-            if (ReadByte != null) {
-                if ((ReadByte[0] == 0xAA) && (ReadByte.length == 20)) {
+            if(ReadByte!=null){
 
-                    switch (ReadByte[2]) {//根据命令字判断
-                        case 29:
-                            int value = ReadByte[3] << 8 + ReadByte[4];
-                            tv_voltage.setText(Integer.toString(value));
-                            break;
-                        case 42:
-                            int value1 = ReadByte[3] << 8 + ReadByte[4];
-                            tv_current.setText(Integer.toString(value1));
-
-                            break;
-                    }
-
+                switch (ReadByte[2]){//根据命令字判断
+                    case 0x29:
+                        Log.d("========","数组长度为20时,case为0x29");
+                        int value=ReadByte[3]<<8+ReadByte[4];
+                        tv_voltage.setText(Integer.toString(value));
+                        break;
+                    case 0x20:
+                        Log.d("========","数组长度为20时");
+                        int value1=ReadByte[3]<<8+ReadByte[4];
+                        tv_current.setText(Integer.toString(value1));
+                        break;
 
                 }
 
-                //tv_voltage.setText( bytyToHexstr(ReadByte));
+
             }
+            //  Toast.makeText(getApplicationContext(),byteToHexStr(ReadByte),Toast.LENGTH_LONG).show();
+
+
+            // tv_voltage.setText(byteToHexStr(ReadByte));
         }
-    };
+
+    }
+
 
 
     /**
