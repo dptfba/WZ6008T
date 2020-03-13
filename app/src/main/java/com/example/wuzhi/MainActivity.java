@@ -143,6 +143,8 @@ public class MainActivity extends AppCompatActivity {
 
     byte[] sendByteArray={(byte) 0xAA, 0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00,};//初始化发送给服务器的字节数组
+    int sendFlag=0;//用来记录发送的变量
+    boolean isSend=true;//是否发送数据
 
     MyHandler mHandler;//handler
 
@@ -481,16 +483,36 @@ public class MainActivity extends AppCompatActivity {
 
 
                 try {
+                    if(isSend){//如果连接成功,就发送数据
+                        switch (sendFlag) {
+                            case 0://设置操作模式
+                                sendByteArray[2] = 0x20;//命令字
+                                sendByteArray[3] = 0x01;
+                                sendDataToService(sendByteArray);//发送到服务器数据的方法
+                                sendFlag=1;
+                                break;
+                            case 1://电流 电压 功率
+                                sendByteArray[2] = 0x29;//命令字
+                                sendByteArray[3] = 0x00;
+                                sendDataToService(sendByteArray);//发送到服务器数据的方法
+                                sendFlag=2;
+                                break;
+                            case 2:
+                                sendByteArray[2] = 0x2A;//命令字
+                                sendDataToService(sendByteArray);
+                                sendFlag=3;
+                                break;
+                            case 3:
+                                sendByteArray[2] = 0x2C;//命令字
+                                sendDataToService(sendByteArray);
+                                sendFlag=4;
+                                break;
+                            case 4:
+                                sendFlag=1;
+                                break;
 
-                    sendByteArray[2]=0x20;//命令字
-                    sendByteArray[3]=0x01;
-                    sendDataToService(sendByteArray);//发送到服务器数据的方法
-
-                    sendByteArray[3]=0x00;
-                    sendByteArray[2]=0x29;//命令字
-                    sendDataToService(sendByteArray);//发送到服务器数据的方法
-
-
+                        }
+                    }
 
 
                 } catch (Exception e) {
@@ -502,7 +524,6 @@ public class MainActivity extends AppCompatActivity {
                     } catch (Exception e2) {
                     }
                     SendDataCnt = 0;
-
 
                 }
             }
@@ -604,26 +625,53 @@ public class MainActivity extends AppCompatActivity {
 
             byte[] ReadByte = bundle.getByteArray("ReadData");//接收到的字节数组
 
-            if(ReadByte!=null){
+            if(ReadByte!=null&&ReadByte.length==20){
 
-                switch (ReadByte[2]){//根据命令字判断
-                    case 0x29:
-                        Log.d("========","数组长度为20时,case为0x29");
-                        int value=ReadByte[3]<<8+ReadByte[4];
-                        tv_voltage.setText(Integer.toString(value));
-                        break;
+                switch (ReadByte[2]) {//根据命令字判断
                     case 0x20:
-                        Log.d("========","数组长度为20时");
-                        int value1=ReadByte[3]<<8+ReadByte[4];
-                        tv_current.setText(Integer.toString(value1));
+
                         break;
+                    case 0x29:
+                        //输入电压
+                        int inputVoltageValue = ReadByte[3] << 8 + ReadByte[4];
+                        tv_inputVoltage.setText(Integer.toString(inputVoltageValue));
+                        //输出电压
+                        int value = ReadByte[5] << 8 + ReadByte[6];
+                        tv_voltage.setText(Integer.toString(value));
+                        //输出电流
+                        int currentValue = ReadByte[7] << 8 + ReadByte[8];
+                        tv_current.setText(Integer.toString(currentValue));
+                        //功率
+                        int powerValue = ReadByte[9] << 8 + ReadByte[10];
+                        tv_power.setText(Integer.toString(powerValue));
+                        break;
+                    case 0x2A:
+                        //时间
+
+                        //能量
+                        int energyValue=ReadByte[8] << 8 + ReadByte[9]<<4+ReadByte[10];
+                        tv_energy.setText(Integer.toString(energyValue));
+
+                        //容量
+                        int capacityValue=ReadByte[11] << 8 + ReadByte[12]<<4+ReadByte[13];
+                        tv_capacity.setText(Integer.toString(capacityValue));
+                        //  sendFlag=3;
+                        break;
+                    case 0x2C:
+                        //设置电压
+                        int setUValue=ReadByte[7] << 8 + ReadByte[8];
+                        et_setU.setText(Integer.toString(setUValue));
+
+                        //设置电流
+                        int setIValue=ReadByte[9] << 8 + ReadByte[10];
+                        et_setI.setText(Integer.toString(setIValue));
+                        //  sendFlag=4;
+                        break;
+
 
                 }
 
-
             }
-            //  Toast.makeText(getApplicationContext(),byteToHexStr(ReadByte),Toast.LENGTH_LONG).show();
-
 
             // tv_voltage.setText(byteToHexStr(ReadByte));
         }
@@ -754,7 +802,6 @@ public class MainActivity extends AppCompatActivity {
 
     // 折线,折线点的数据方法
     private LineData generateDataLine(int cnt) {
-
 
         //折线1
         ArrayList<Entry> values1 = new ArrayList<>();
