@@ -99,7 +99,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     Chronometer chronometer_bootTime;//开机时间
-    Chronometer chronometer_writeTime;//记录时间
+   // Chronometer chronometer_writeTime;//记录时间
+    TextView tv_writeTime;//记录时间
     int miss1 = 0;
     int miss2 = 0;
     private boolean isPause = false;//用于判断是否为暂停状态
@@ -175,9 +176,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         chronometer_bootTime = findViewById(R.id.chronometer_bootTime);
-        chronometer_writeTime = findViewById(R.id.chronometer_writeTime);
+       // chronometer_writeTime = findViewById(R.id.chronometer_writeTime);
+        tv_writeTime=findViewById(R.id.tv_writeTime);
         startChronometer();//开机计时
-        writeChronometer();//记录时间计时
+      //  writeChronometer();//记录时间计时
         btn_pause = findViewById(R.id.btn_startOrPause);//暂停或开始按钮
         btn_clear = findViewById(R.id.btn_clear);//暂停按钮
 
@@ -259,22 +261,11 @@ public class MainActivity extends AppCompatActivity {
         btn_pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chronometer_writeTime.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
-                    @Override
-                    public void onChronometerTick(Chronometer chronometer) {
-                        miss2++;
-                        chronometer.setText(FormatMiss(miss2));
-                    }
-                });
-
-                chronometer_writeTime.start();
 
                 if (!isPause) {//暂停计时
                     btn_pause.setText(getString(R.string.btnTextStart));
-                    chronometer_writeTime.stop();
                 } else {//继续计时
                     btn_pause.setText(getString(R.string.btnTextStop));
-                    chronometer_writeTime.start();
                 }
                 isPause = !isPause;
             }
@@ -285,16 +276,7 @@ public class MainActivity extends AppCompatActivity {
         btn_clear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chronometer_writeTime.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
-                    @Override
-                    public void onChronometerTick(Chronometer chronometer) {
-                        miss2 = 0;
-                        chronometer.setText(FormatMiss(miss2));
-                    }
-                });
-
-                chronometer_writeTime.stop();
-                chronometer_writeTime.setBase(SystemClock.elapsedRealtime());
+                tv_writeTime.setText("00:00:00");
 
                 if (btn_pause.getText() == getString(R.string.btnTextStop)) {
                     btn_pause.setText(getString(R.string.btnTextStart));
@@ -887,18 +869,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         chronometer_bootTime.start();
-    }
-
-    //记录时间计时的方法
-    public void writeChronometer() {
-        chronometer_writeTime.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
-            @Override
-            public void onChronometerTick(Chronometer chronometer) {
-                miss2++;
-                chronometer.setText(FormatMiss(miss2));
-            }
-        });
-        chronometer_writeTime.start();
     }
 
 
