@@ -1,27 +1,36 @@
 package com.example.wuzhi;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.Manifest;
+import android.app.ActivityManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -34,6 +43,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.wuzhi.Utils.ExcelUtils;
 import com.example.wuzhi.Utils.LocaleUtils;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Description;
@@ -47,20 +57,32 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.navigation.NavigationView;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.FormatFlagsConversionMismatchException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
+    UpdateManager updateManager;//APP自动更新类
 
     String tag = "=======err";
+    private DecimalFormat mDecimalFormat=new DecimalFormat("#.00");//格式化浮点数位两位小数
+
+    private long eixtTime = 0;//存在时间
 
 
     NavigationView navigationView;
@@ -73,22 +95,21 @@ public class MainActivity extends AppCompatActivity {
     TextView tv_ip;//IP地址显示文本框
 
     LineChart lineChart;//折线表,存线集合
-    int[] Vout=new int[100];//假设的电压数组
-
+    int[] Vout = new int[100];//假设的电压数组
 
 
     Chronometer chronometer_bootTime;//开机时间
-    Chronometer chronometer_writeTime;//记录时间
-    int miss1=0;
-    int miss2=0;
-    private boolean isPause=false;//用于判断是否为暂停状态
+   // Chronometer chronometer_writeTime;//记录时间
+    TextView tv_writeTime;//记录时间
+    int miss1 = 0;
+    int miss2 = 0;
+    private boolean isPause = false;//用于判断是否为暂停状态
     Button btn_pause;//暂停按钮
     Button btn_clear;//清除按钮
 
 
-
     ImageButton btn_switch;//开机关机开关
-    private boolean isOn=false;//用于判断是否是开机状态
+    private boolean isOn = false;//用于判断是否是开机状态
 
     TextView tv_voltage;//输出电压
     TextView tv_current;//输入电流
@@ -103,25 +124,36 @@ public class MainActivity extends AppCompatActivity {
     Button btn_hintButton;//CC CV按钮
     TextView tv_inputVoltage;//输入电压
 
-    final Timer timer=new Timer();
-    boolean ConnectFlage=true;//连接标志
+    final Timer timer = new Timer();
+    boolean ConnectFlage = true;//连接标志
     Socket socket;//创建socket对象
     InputStream inputStream;//获取输入流
     OutputStream outputStream;//获得输出流
-    ThreadConnectService threadConnectService=new ThreadConnectService();//建立一个连接任务的对象
-    ThreadReadData threadReadData=new ThreadReadData();//接收数据的任务
-    boolean threadReadDataFlage=false;//接收数据任务一直运行控制
-    boolean threadSendDataFlage=false;//发送数据任务一直运行控制
-    byte[] ReadBuffer=new byte[2048];//存储接收到的数据
-    byte[] SendBuffer=new byte[2048];//存储发送的数据
-    int ReadBufferLength=0;//接收到数据的长度
-    int SendDataCnt=0;//控制发送数据的个数
+    ThreadConnectService threadConnectService = new ThreadConnectService();//建立一个连接任务的对象
+    ThreadReadData threadReadData = new ThreadReadData();//接收数据的任务
+    boolean threadReadDataFlage = false;//接收数据任务一直运行控制
+    boolean threadSendDataFlage = false;//发送数据任务一直运行控制
+    byte[] ReadBuffer = new byte[2048];//存储接收到的数据
+    byte[] SendBuffer = new byte[2048];//存储发送的数据
+    int ReadBufferLength = 0;//接收到数据的长度
+    int SendDataCnt = 0;//控制发送数据的个数
 
     Thread mthreadConnectSerice;//记录连接任务
     Thread mthreadSendData;//记录发送任务
     Thread mthreadReadData;//记录接收任务
 
+    byte[] sendByteArray={(byte) 0xAA, 0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00,};//初始化发送给服务器的字节数组
+    int sendFlag=0;//用来记录发送的变量
+    boolean isSend=true;//是否发送数据
 
+    MyHandler mHandler;//handler
+
+    /** Excel表格相关**/
+    private String excelFilePath="";
+
+    private String[] colNames=new String[]{"电流","电压","电流","电压","电流","电压",};//每列列头标题
+    String[] pess=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE};
 
 
 
@@ -129,6 +161,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //软件更新的检查调用
+       // updateManager=new UpdateManager(MainActivity.this);
+      //  updateManager.checkUpdateInfo();
 
 
         toolbar = findViewById(R.id.toolbar);
@@ -139,30 +175,34 @@ public class MainActivity extends AppCompatActivity {
         tv_save = findViewById(R.id.tv_save);//存储
 
 
-        chronometer_bootTime=findViewById(R.id.chronometer_bootTime);
-        chronometer_writeTime=findViewById(R.id.chronometer_writeTime);
+        chronometer_bootTime = findViewById(R.id.chronometer_bootTime);
+       // chronometer_writeTime = findViewById(R.id.chronometer_writeTime);
+        tv_writeTime=findViewById(R.id.tv_writeTime);
         startChronometer();//开机计时
-        writeChronometer();//记录时间计时
+      //  writeChronometer();//记录时间计时
         btn_pause = findViewById(R.id.btn_startOrPause);//暂停或开始按钮
         btn_clear = findViewById(R.id.btn_clear);//暂停按钮
 
-        btn_switch=findViewById(R.id.btn_switch);//开关按钮
+        btn_switch = findViewById(R.id.btn_switch);//开关按钮
 
 
         tv_voltage = findViewById(R.id.tv_voltage);//输出电压
         tv_current = findViewById(R.id.tv_current);//输入电流
         tv_power = findViewById(R.id.tv_power);//输出功率
-        tv_energy=findViewById(R.id.tv_energy);//能量
-        tv_capacity=findViewById(R.id.tv_capacity);//容量
+        tv_energy = findViewById(R.id.tv_energy);//能量
+        tv_capacity = findViewById(R.id.tv_capacity);//容量
         et_setU = findViewById(R.id.et_setU);//U_SET
         et_setI = findViewById(R.id.et_setI);//I_SET
         et_ovp = findViewById(R.id.et_ovp);//ovp
         et_ocp = findViewById(R.id.et_ocp);//ocp
-        btn_stateButton=findViewById(R.id.btn_stateButton);//状态按钮
-        btn_hintButton=findViewById(R.id.btn_hintButton);//CC CV按钮
-        tv_inputVoltage=findViewById(R.id.tv_inputVoltage);//输入电压
+        btn_stateButton = findViewById(R.id.btn_stateButton);//状态按钮
+        btn_hintButton = findViewById(R.id.btn_hintButton);//CC CV按钮
+        tv_inputVoltage = findViewById(R.id.tv_inputVoltage);//输入电压
+
+        mHandler=new MyHandler();
 
 
+        initLineChart();//初始化折线图
 
 
         /**界面数据通信部分**/
@@ -175,8 +215,6 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         threadConnectService.start();//启动连接服务器的线程任务
                         mthreadConnectSerice = threadConnectService;
-                        Toast.makeText(getApplicationContext(), "连接服务器成功", Toast.LENGTH_SHORT).show();
-
                         autoSendData();//自动发送数据
 
 
@@ -223,24 +261,13 @@ public class MainActivity extends AppCompatActivity {
         btn_pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chronometer_writeTime.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
-                    @Override
-                    public void onChronometerTick(Chronometer chronometer) {
-                        miss2++;
-                        chronometer.setText(FormatMiss(miss2));
-                    }
-                });
 
-               chronometer_writeTime.start();
-
-                if(!isPause){//暂停计时
+                if (!isPause) {//暂停计时
                     btn_pause.setText(getString(R.string.btnTextStart));
-                    chronometer_writeTime.stop();
-                }else {//继续计时
+                } else {//继续计时
                     btn_pause.setText(getString(R.string.btnTextStop));
-                    chronometer_writeTime.start();
                 }
-                isPause=!isPause;
+                isPause = !isPause;
             }
 
         });
@@ -249,21 +276,12 @@ public class MainActivity extends AppCompatActivity {
         btn_clear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chronometer_writeTime.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
-                    @Override
-                    public void onChronometerTick(Chronometer chronometer) {
-                        miss2=0;
-                        chronometer.setText(FormatMiss(miss2));
-                    }
-                });
+                tv_writeTime.setText("00:00:00");
 
-                chronometer_writeTime.stop();
-                chronometer_writeTime.setBase(SystemClock.elapsedRealtime());
-
-                if(btn_pause.getText()==getString(R.string.btnTextStop)){
+                if (btn_pause.getText() == getString(R.string.btnTextStop)) {
                     btn_pause.setText(getString(R.string.btnTextStart));
 
-                    isPause=!isPause;
+                    isPause = !isPause;
 
                 }
 
@@ -275,25 +293,25 @@ public class MainActivity extends AppCompatActivity {
         btn_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!isOn){//关闭状态下
+                if (!isOn) {//关闭状态下
                     btn_switch.setImageResource(R.drawable.btn_on);
 
-                }else {//打开状态下
+                } else {//打开状态下
 
                     btn_switch.setImageResource(R.drawable.btn_off);
                 }
-                isOn=!isOn;
+                isOn = !isOn;
 
 
             }
         });
 
 
-        /**点击存储的点击事件**/
+        /**点击存储把数据导出到Excel表格**/
         tv_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "点击了存储", Toast.LENGTH_LONG).show();
+                export();
             }
         });
 
@@ -323,8 +341,8 @@ public class MainActivity extends AppCompatActivity {
 
         //单击头部或者菜单出现信息,首先引用头部文件
         //定义一个view
-        View view=navigationView.getHeaderView(0);
-        tv_ip=view.findViewById(R.id.tv_ip);//IP地址显示文本框
+        View view = navigationView.getHeaderView(0);
+        tv_ip = view.findViewById(R.id.tv_ip);//IP地址显示文本框
         /** ImageView imageView=view.findViewById(R.id.iv_head_logo);
          imageView.setOnClickListener(new View.OnClickListener() {
         @Override public void onClick(View v) {
@@ -344,7 +362,7 @@ public class MainActivity extends AppCompatActivity {
                 //点击菜单各项时:
                 switch (menuItem.getItemId()) {
                     case R.id.item_net://智能配网菜单项
-                        Intent intent2 = new Intent(MainActivity.this,NetworkActivity.class);
+                        Intent intent2 = new Intent(MainActivity.this, NetworkActivity.class);
                         startActivity(intent2);
                         break;
                     case R.id.item_address://地址选择
@@ -358,10 +376,10 @@ public class MainActivity extends AppCompatActivity {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         //按下确定键
-                                        Toast.makeText(MainActivity.this, getString(R.string.address_dialog_title)+":"+editText
+                                        Toast.makeText(MainActivity.this, getString(R.string.address_dialog_title) + ":" + editText
                                                         .getText().toString(),
                                                 Toast.LENGTH_SHORT).show();
-                                       // restartAct();
+                                        // restartAct();
 
                                     }
                                 }).setNegativeButton(getString(R.string.negativeButton), null).show();
@@ -382,73 +400,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-        /**下面是图表部分**/
-        lineChart = findViewById(R.id.lineChart);//实例化图表
-        lineChart.fitScreen();//设置自适应屏幕
-
-        //设置折线图右下角描述,""为不添加
-        Description description = new Description();
-        description.setText("");
-        lineChart.setDescription(description);
-
-        //设置折线图左下角的图例标签,false为不显示
-        Legend legend = lineChart.getLegend();
-        legend.setEnabled(true);
-        legend.setFormSize(10f);//设置图例大小
-        legend.setTextColor(Color.WHITE);//设置图例文字颜色
-        legend.setTextSize(12f);//设置图例文字大小
-        legend.setXEntrySpace(20f);//设置在水平轴上的间隙
-        legend.setFormToTextSpace(10f);//图例与文字间的距离
-
-        //设置显示边界
-        lineChart.setDrawBorders(true);
-
-        //是否绘制网格背景
-        lineChart.setDrawGridBackground(false);
-
-        //获取x轴
-        XAxis xAxis = lineChart.getXAxis();
-        //设置x轴的显示位置
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        //是否设置x轴的网格线
-        xAxis.setDrawGridLines(true);
-        //是否设置x轴的轴线
-        xAxis.setDrawAxisLine(true);
-        //设置x轴的坐标字体的大小
-        xAxis.setTextSize(14f);
-        //设置x轴的坐标字体的颜色
-        xAxis.setTextColor(Color.WHITE);
-        //设置x轴的最小值
-        xAxis.setAxisMinimum(0f);
-        //设置x轴的最大值
-        xAxis.setAxisMaximum(5f);
-
-        //获取y轴
-        YAxis leftAxis = lineChart.getAxisLeft();//左侧y轴
-        //参数1:左边y轴提供的区间个数,参数2:是否均匀分布,false为均匀
-        leftAxis.setLabelCount(5, false);
-        //设置左边y轴的字体颜色
-        leftAxis.setTextColor(Color.WHITE);
-
-        YAxis rightAxis = lineChart.getAxisRight();//右侧y轴
-        rightAxis.setLabelCount(5, false);//y轴网格线
-        //设置右边y轴的字体颜色
-        rightAxis.setTextColor(Color.WHITE);
-
-        leftAxis.setAxisMinimum(0.00f);//设置左侧y轴的最小值
-        leftAxis.setAxisMaximum(2.00f);//设置左侧y轴的最大值
-        rightAxis.setAxisMinimum(0.000f);//设置右侧y轴的最小值
-        rightAxis.setAxisMaximum(2.000f);//设置右侧y轴的最大值
-
-        //提供折线数据(获取到的数据)
-        LineData lineData = generateDataLine(1);
-        lineChart.setData(lineData);
-
-        //刷新数据
-        lineChart.invalidate();
-
-
     }
 
     //点击菜单导航图标,让滑块显示
@@ -466,8 +417,8 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * 连接服务器的任务线程
-     * **/
-    class ThreadConnectService extends Thread{
+     **/
+    class ThreadConnectService extends Thread {
 
         @Override
         public void run() {
@@ -480,7 +431,7 @@ public class MainActivity extends AppCompatActivity {
 
                 socket = new Socket(ip, port);//创建连接地址和端口号
 
-                ConnectFlage=false;//是控制连接按钮显示的
+                ConnectFlage = false;//是控制连接按钮显示的
                 sendHandleMsg(mHandler, "ConState", "ConOK");//向Handle发送连接成功的消息
 
                 inputStream = socket.getInputStream();//获得通道的数据流
@@ -505,79 +456,85 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 用线程实现每隔一段时间自动执行发送代码
      **/
-    private void autoSendData(){
+    private void autoSendData() {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
 
 
                 try {
+                    if(isSend){//如果连接成功,就发送数据
+                        switch (sendFlag) {
+                            case 0://设置操作模式
+                                sendByteArray[2] = 0x20;//命令字
+                                sendByteArray[3] = 0x01;
+                                sendDataToService(sendByteArray);//发送到服务器数据的方法
+                                sendFlag=1;
+                                break;
+                            case 1://电流 电压 功率
+                                sendByteArray[2] = 0x29;//命令字
+                                sendByteArray[3] = 0x00;
+                                sendDataToService(sendByteArray);//发送到服务器数据的方法
+                                sendFlag=2;
+                                break;
+                            case 2:
+                                sendByteArray[2] = 0x2A;//命令字
+                                sendDataToService(sendByteArray);
+                                sendFlag=3;
+                                break;
+                            case 3:
+                                sendByteArray[2] = 0x2C;//命令字
+                                sendDataToService(sendByteArray);
+                                sendFlag=4;
+                                break;
+                            case 4:
+                                sendFlag=1;
+                                break;
 
-                    //发送第一条数据 输入电压
-                    String SendVoltageStr = "AA 00 20 01 40 5D C0 00 00 00 00 00 00 00 00 00 00 00 00 28";
-                    byte[] SendBuffer0 = HexString2Bytes(SendVoltageStr.replace(" ", ""));//16进制发送
-                    for (int i = 0; i < SendBuffer0.length; i++) {
-                        SendBuffer[i] = SendBuffer0[i];
-
+                        }
                     }
-                    SendDataCnt = SendBuffer0.length;
-                    outputStream.write(SendBuffer, 0, SendDataCnt);//写数据,发送数据
-                    SendDataCnt = 0;//清零发送的个数
-
-                    //发送第二条数据 输出电流
-                    String SendCurrentStr = "AA 00 21 01 40 5D C0 00 00 00 00 00 00 00 00 00 00 00 00 28";
-                    byte[] SendBuffer1 = HexString2Bytes(SendCurrentStr.replace(" ", ""));//16进制发送
-                    for (int i = 0; i < SendBuffer1.length; i++) {
-                        SendBuffer[i] = SendBuffer1[i];
-                    }
-                    SendDataCnt = SendBuffer1.length;
-                    outputStream.write(SendBuffer, 0, SendDataCnt);//byte[] SendBuffer=new byte[2048];
-                    // 存储发送的数据
-                    SendDataCnt = 0;//清零发送的个数
-
-
-                    //发送第三条数据 输出功率
-                    String SendPowerStr = "AA 00 22 01 40 5D C0 00 00 00 00 00 00 00 00 00 00 00 00 28";
-                    byte[] SendBuffer2 = HexString2Bytes(SendPowerStr.replace(" ", ""));//16进制发送
-                    for (int i = 0; i < SendBuffer2.length; i++) {
-                        SendBuffer[i] = SendBuffer2[i];
-                    }
-                    SendDataCnt = SendBuffer2.length;
-                    outputStream.write(SendBuffer, 0, SendDataCnt);//byte[] SendBuffer=new byte[2048];
-                    // 存储发送的数据
-                    SendDataCnt = 0;//清零发送的个数
-
-                    //发送第四条数据 U_SET
-                    String SendSetUStr = "AA 00 23 01 40 5D C0 00 00 00 00 00 00 00 00 00 00 00 00 28";
-                    byte[] SendBuffer3 = HexString2Bytes(SendSetUStr.replace(" ", ""));//16进制发送
-                    for (int i = 0; i < SendBuffer3.length; i++) {
-                        SendBuffer[i] = SendBuffer3[i];
-                    }
-                    SendDataCnt = SendBuffer3.length;
-                    outputStream.write(SendBuffer, 0, SendDataCnt);//byte[] SendBuffer=new byte[2048];
-                    // 存储发送的数据
-                    SendDataCnt = 0;//清零发送的个数
-
 
 
                 } catch (Exception e) {
-                    sendHandleMsg(mHandler,"ConState","ConNo");//向Handle发送消息
+                    sendHandleMsg(mHandler, "ConState", "ConNo");//向Handle发送消息
                     threadReadDataFlage = false;//关掉接收任务,预防产生多的任务
                     threadSendDataFlage = false;//关掉发送任务,预防产生多的任务
-                    try {mthreadSendData.interrupt();} catch (Exception e2) {}
+                    try {
+                        mthreadSendData.interrupt();
+                    } catch (Exception e2) {
+                    }
                     SendDataCnt = 0;
-
 
                 }
             }
 
-        },1000,2000);
+        }, 1000, 2000);
+    }
+
+    /**   发送到服务器数据的方法  **/
+    private byte[] sendDataToService(byte[] bytes){
+
+        bytes = sendByteArray;
+
+        for (int i = 0; i <bytes.length; i++) {
+            SendBuffer[i] =bytes[i];
+        }
+        SendDataCnt = bytes.length;
+        try {
+            outputStream.write(SendBuffer, 0, SendDataCnt);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // 存储发送的数据
+        SendDataCnt = 0;//清零发送的个数
+        return bytes;
+
     }
 
     /**
      * 接收数据的任务
-     * **/
-    class ThreadReadData extends Thread{
+     **/
+    class ThreadReadData extends Thread {
 
         boolean mThreadReadDataFlage = true;
 
@@ -597,7 +554,7 @@ public class MainActivity extends AppCompatActivity {
                     if (ReadBufferLength == -1) {
                         mThreadReadDataFlage = false;
                         threadReadDataFlage = false;//关掉接收任务,预防产生多的任务
-                        ConnectFlage=true;
+                        ConnectFlage = true;
                         threadSendDataFlage = false;//关掉发送任务,预防产生多的任务
                         SendDataCnt = 0;
 
@@ -609,7 +566,10 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     mThreadReadDataFlage = false;
                     threadReadDataFlage = false;//关掉接收任务,预防产生多的任务
-                    try {mthreadReadData.interrupt();} catch (Exception e2) {}
+                    try {
+                        mthreadReadData.interrupt();
+                    } catch (Exception e2) {
+                    }
                     SendDataCnt = 0;
 
                 }
@@ -621,8 +581,8 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Handler
-    **/
-    private Handler mHandler=new Handler(){
+     **/
+    class MyHandler extends Handler{
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
@@ -643,31 +603,61 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
-
             byte[] ReadByte = bundle.getByteArray("ReadData");//接收到的字节数组
 
-            if(ReadByte!=null){
-                if((ReadByte[0]==0xAA)&&(ReadByte.length==20)){
+            if(ReadByte!=null&&ReadByte.length==20){
 
-                    switch (ReadByte[2]){//根据命令字判断
-                        case 29:
-                            int value=ReadByte[3]<<8+ReadByte[4];
-                           tv_voltage.setText(Integer.toString(value));
-                            break;
-                        case 42:
-                            int value1=ReadByte[3]<<8+ReadByte[4];
-                            tv_current.setText(Integer.toString(value1));
+                switch (ReadByte[2]) {//根据命令字判断
+                    case 0x20:
 
-                            break;
-                    }
+                        break;
+                    case 0x29:
+                        //输入电压
+                        int inputVoltageValue = ReadByte[3] << 8 + ReadByte[4];
+                        tv_inputVoltage.setText(Integer.toString(inputVoltageValue));
+                        //输出电压
+                        int value = ReadByte[5] << 8 + ReadByte[6];
+                        tv_voltage.setText(Integer.toString(value));
+                        //输出电流
+                        int currentValue = ReadByte[7] << 8 + ReadByte[8];
+                        tv_current.setText(Integer.toString(currentValue));
+                        //功率
+                        int powerValue = ReadByte[9] << 8 + ReadByte[10];
+                        tv_power.setText(Integer.toString(powerValue));
+                        break;
+                    case 0x2A:
+                        //时间
+
+                        //能量
+                        int energyValue=ReadByte[8] << 8 + ReadByte[9]<<4+ReadByte[10];
+                        tv_energy.setText(Integer.toString(energyValue));
+
+                        //容量
+                        int capacityValue=ReadByte[11] << 8 + ReadByte[12]<<4+ReadByte[13];
+                        tv_capacity.setText(Integer.toString(capacityValue));
+                        //  sendFlag=3;
+                        break;
+                    case 0x2C:
+                        //设置电压
+                        int setUValue=ReadByte[7] << 8 + ReadByte[8];
+                        et_setU.setText(Integer.toString(setUValue));
+
+                        //设置电流
+                        int setIValue=ReadByte[9] << 8 + ReadByte[10];
+                        et_setI.setText(Integer.toString(setIValue));
+                        //  sendFlag=4;
+                        break;
 
 
                 }
 
-                //tv_voltage.setText( bytyToHexstr(ReadByte));
             }
+
+            // tv_voltage.setText(byteToHexStr(ReadByte));
         }
-    };
+
+    }
+
 
 
     /**
@@ -696,30 +686,111 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 数据方法generateDataLine,修改数据在方法中就行
+     * 初始化折线图
+     *
+     **/
+    private void initLineChart(){
+        lineChart = findViewById(R.id.lineChart);//实例化图表
+
+        lineChart.fitScreen();//设置自适应屏幕
+        lineChart.setDrawGridBackground(false);//是否展示网格线
+        lineChart.setDrawBorders(true);//设置显示边界
+        lineChart.setTouchEnabled(true);//是否有触摸事件
+        lineChart.setDragEnabled(true);//可拖拽
+        lineChart.setScaleEnabled(true);//可缩放
+
+
+        //设置折线图右下角描述,""为不添加
+        Description description = new Description();
+        description.setText("");
+        lineChart.setDescription(description);
+
+        //设置折线图左下角的图例标签,false为不显示
+        Legend legend = lineChart.getLegend();
+        legend.setEnabled(true);
+        legend.setFormSize(10f);//设置图例大小
+        legend.setTextColor(Color.WHITE);//设置图例文字颜色
+        legend.setTextSize(12f);//设置图例文字大小
+        legend.setXEntrySpace(20f);//设置在水平轴上的间隙
+        legend.setFormToTextSpace(10f);//图例与文字间的距离
+
+
+
+        //获取x轴
+        XAxis xAxis = lineChart.getXAxis();
+        //设置x轴的显示位置
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        //是否设置x轴的网格线
+        xAxis.setDrawGridLines(true);
+        //是否设置x轴的轴线
+        xAxis.setDrawAxisLine(true);
+        //设置x轴的坐标字体的大小
+        xAxis.setTextSize(14f);
+        //设置x轴的坐标字体的颜色
+        xAxis.setTextColor(Color.WHITE);
+        //设置x轴的最小值
+        xAxis.setAxisMinimum(0);
+        //设置x轴的最大值
+        xAxis.setAxisMaximum(6);
+        //设置x轴的刻度数量,第二个参数表示是否评价分配
+       // xAxis.setLabelCount(20,false);
+        //设置x轴坐标之间的最小间隔
+        xAxis.setGranularity(1f);
+
+        //获取y轴
+        YAxis leftAxis = lineChart.getAxisLeft();//左侧y轴
+        //参数1:左边y轴提供的区间个数,参数2:是否均匀分布,false为均匀
+        leftAxis.setLabelCount(5, false);
+        //设置左边y轴的字体颜色
+        leftAxis.setTextColor(Color.WHITE);
+
+        YAxis rightAxis = lineChart.getAxisRight();//右侧y轴
+        rightAxis.setLabelCount(5, false);//y轴网格线
+        //设置右边y轴的字体颜色
+        rightAxis.setTextColor(Color.WHITE);
+
+        leftAxis.setAxisMinimum(0.00f);//设置左侧y轴的最小值
+        leftAxis.setAxisMaximum(1.20f);//设置左侧y轴的最大值
+        //设置y轴坐标之间的最小间隔
+        //leftAxis.setGranularity(0.2f);
+
+        rightAxis.setAxisMinimum(0.00f);//设置右侧y轴的最小值
+        rightAxis.setAxisMaximum(1.20f);//设置右侧y轴的最大值
+
+
+
+        //提供折线数据(获取到的数据)
+        LineData lineData = generateDataLine(1);
+        lineChart.setData(lineData);
+
+        //刷新数据
+        lineChart.invalidate();
+
+    }
+
+
+    /**
+     * 图表的数据方法generateDataLine,修改数据在方法中就行
      *
      * @param cnt
      * @return
      */
+
+
+    float[] currentValues={0.1f,0.5f,0.7f,0.6f,0.2f,0.2f,0.5f};//电流
+    float[] voltageValues={0.8f,0.8f,0.8f,0.8f,0.8f,0.8f,0.8f};//电压
+
     // 折线,折线点的数据方法
     private LineData generateDataLine(int cnt) {
 
         //折线1
         ArrayList<Entry> values1 = new ArrayList<>();
         //提供折线中的点的数据
-        for (int i = 99; i > 0; i--) {
-            Vout[i] = Vout[i-1];
-        }
-        Vout[0] = 5;//接受电压值
-        Vout[0] = 5;//接受电压值
-
-        values1.clear();
-        for (int i = 0; i < 10; i++) {
-            /**真正的数据也是封装在Entry里,修改(int) (Math.random() * 65) + 40这部分**/
-            values1.add(new Entry(i,  (Vout[i])));
+        for (int i = 0; i<7; i++) {
+           values1.add(new Entry(i,currentValues[i]));
         }
 
-
+       // values1.clear();
 
         LineDataSet d1 = new LineDataSet(values1, this.getString(R.string.lineChart_label1));//第一条折线
         d1.setLineWidth(1.5f);//设置线的宽度
@@ -731,9 +802,8 @@ public class MainActivity extends AppCompatActivity {
 
         //折线2
         ArrayList<Entry> values2 = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
-            /**真正的数据也是封装在Entry里,修改(int) (Math.random() * 65) + 40这部分**/
-            values2.add(new Entry(i, values1.get(i).getY() - 3));
+        for (int i = 0; i<7; i++) {
+            values2.add(new Entry(i,voltageValues[i]));
         }
 
         LineDataSet d2 = new LineDataSet(values2, this.getString(R.string.lineChart_label2));
@@ -766,11 +836,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     *
      * 获取WIFI下ip地址
      */
     private String getLocalIpAddress() {
-        WifiManager wifiManager = (WifiManager)getApplicationContext().getSystemService(WIFI_SERVICE);
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         // 获取32位整型IP地址
         int ipAddress = wifiInfo.getIpAddress();
@@ -783,15 +852,15 @@ public class MainActivity extends AppCompatActivity {
 
 
     //时分秒显示时间格式方法
-    public static String FormatMiss(int miss){
-        String hh=miss/3600>9?miss/3600+"":"0"+miss/3600;
-        String mm=(miss%3600)/60>9?(miss%3600)/60+"":"0"+(miss%3600)/60;
-        String ss=(miss%3600)%60>9?(miss%3600)%60+"":"0"+(miss%3600)%60;
-        return hh+":"+mm+":"+ss;
+    public static String FormatMiss(int miss) {
+        String hh = miss / 3600 > 9 ? miss / 3600 + "" : "0" + miss / 3600;
+        String mm = (miss % 3600) / 60 > 9 ? (miss % 3600) / 60 + "" : "0" + (miss % 3600) / 60;
+        String ss = (miss % 3600) % 60 > 9 ? (miss % 3600) % 60 + "" : "0" + (miss % 3600) % 60;
+        return hh + ":" + mm + ":" + ss;
     }
 
     //APP开启时间开始计时的方法
-    public void startChronometer(){
+    public void startChronometer() {
         chronometer_bootTime.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
             @Override
             public void onChronometerTick(Chronometer chronometer) {
@@ -802,53 +871,41 @@ public class MainActivity extends AppCompatActivity {
         chronometer_bootTime.start();
     }
 
-    //记录时间计时的方法
-    public void writeChronometer(){
-        chronometer_writeTime.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
-            @Override
-            public void onChronometerTick(Chronometer chronometer) {
-                miss2++;
-                chronometer.setText(FormatMiss(miss2));
-            }
-        });
-        chronometer_writeTime.start();
-    }
-
 
     //16进制字节数组转换为16进制字符串
-    public static String bytyToHexstr(byte[] bytes){
+    public static String bytyToHexstr(byte[] bytes) {
 
-        String str_msg="";
-        for(int i=0;i<bytes.length;i++){
-            str_msg=str_msg+String.format("%02X",bytes[i])+"";
+        String str_msg = "";
+        for (int i = 0; i < bytes.length; i++) {
+            str_msg = str_msg + String.format("%02X", bytes[i]) + "";
 
         }
         return str_msg;
     }
 
     //发送时,把获取到的字符串转换为16进制
+
     /**
      * 添上格式,实际上咱获取的文本框里面的都是字符串,咱需要把字符串转化为  如"33"==>0x33
      * 将已十六进制编码后的字符串src,以每两个字符分割转换为16进制形式
      * 如:"2B44EED9"--> byte[]{0x2B,0x44,0xEF0xD9}
-     *
-     * **/
-    public static byte[] HexString2Bytes(String str){
-        StringBuilder sb=null;
-        String src=null;
-        if((str.length()%2)!=0){//数据不是偶数
-            sb=new StringBuilder(str);//构造一个StringBuilder对象
-            sb.insert(str.length()-1,"0");//在指定的位置1,插入指定的字符串
-            src=sb.toString();
+     **/
+    public static byte[] HexString2Bytes(String str) {
+        StringBuilder sb = null;
+        String src = null;
+        if ((str.length() % 2) != 0) {//数据不是偶数
+            sb = new StringBuilder(str);//构造一个StringBuilder对象
+            sb.insert(str.length() - 1, "0");//在指定的位置1,插入指定的字符串
+            src = sb.toString();
 
-        }else {
-            src=str;
+        } else {
+            src = str;
         }
-      //  Log.e("error","str.length"+str.length());
-        byte[] ret=new byte[src.length()/2];
-        byte[] tmp=src.getBytes();
-        for(int i=0;i<tmp.length/2;i++){
-            ret[i]=uniteBytes(tmp[i*2],tmp[i*2+1]);
+        //  Log.e("error","str.length"+str.length());
+        byte[] ret = new byte[src.length() / 2];
+        byte[] tmp = src.getBytes();
+        for (int i = 0; i < tmp.length / 2; i++) {
+            ret[i] = uniteBytes(tmp[i * 2], tmp[i * 2 + 1]);
 
         }
         return ret;
@@ -856,17 +913,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //将两个ASCII字符合成一个字节;如:"EF"-->0xEF.Byte.decode()将String解码为 Byte
-    public static byte uniteBytes(byte src0,byte src1){
+    public static byte uniteBytes(byte src0, byte src1) {
 
-        try{
-            byte _b0=Byte.decode("0x"+new String(new byte[]{src0})).byteValue();//.byteValue()转换为byte类型的数
+        try {
+            byte _b0 = Byte.decode("0x" + new String(new byte[]{src0})).byteValue();//.byteValue()转换为byte类型的数
             // 该方法的作用是以byte类型返回该 Integer 的值。只取低八位的值，高位不要。
-            _b0= (byte) (_b0<<4);//左移4位
-            byte _b1=Byte.decode("0x"+new String(new  byte[]{src1})).byteValue();
-            byte ret= (byte) (_b0^_b1);//按位异或运算符(^)是二元运算符，要化为二进制才能进行计算
+            _b0 = (byte) (_b0 << 4);//左移4位
+            byte _b1 = Byte.decode("0x" + new String(new byte[]{src1})).byteValue();
+            byte ret = (byte) (_b0 ^ _b1);//按位异或运算符(^)是二元运算符，要化为二进制才能进行计算
             return ret;
 
-        }catch (Exception e){
+        } catch (Exception e) {
             //TODO:handle exception
         }
 
@@ -875,36 +932,28 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * CRC检验值
+     *
      * @param modbusdata
      * @param length
      * @return CRC检验值
      */
-    protected int crc16_modbus(byte[] modbusdata, int length)
-    {
-        int i=0, j=0;
+    protected int crc16_modbus(byte[] modbusdata, int length) {
+        int i = 0, j = 0;
         int crc = 0xffff;//有的用0,有的用0xff
-        try
-        {
-            for (i = 0; i < length; i++)
-            {
+        try {
+            for (i = 0; i < length; i++) {
                 //注意这里要&0xff,因为byte是-128~127,&0xff 就是0x0000 0000 0000 0000  0000 0000 1111 1111
-                crc ^= (modbusdata[i]&(0xff));
-                for (j = 0; j < 8; j++)
-                {
-                    if ((crc & 0x01) == 1)
-                    {
-                        crc = (crc >> 1) ;
+                crc ^= (modbusdata[i] & (0xff));
+                for (j = 0; j < 8; j++) {
+                    if ((crc & 0x01) == 1) {
+                        crc = (crc >> 1);
                         crc = crc ^ 0xa001;
-                    }
-                    else
-                    {
+                    } else {
                         crc >>= 1;
                     }
                 }
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
 
         }
 
@@ -913,46 +962,247 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * CRC校验正确标志
+     *
      * @param modbusdata
      * @param length
      * @return 0-failed 1-success
      */
-    protected int crc16_flage(byte[] modbusdata, int length)
-    {
+    protected int crc16_flage(byte[] modbusdata, int length) {
         int Receive_CRC = 0, calculation = 0;//接收到的CRC,计算的CRC
 
         Receive_CRC = crc16_modbus(modbusdata, length);
         calculation = modbusdata[length];
         calculation <<= 8;
-        calculation += modbusdata[length+1];
-        if (calculation != Receive_CRC)
-        {
+        calculation += modbusdata[length + 1];
+        if (calculation != Receive_CRC) {
             return 0;
         }
         return 1;
     }
 
 
-
     /**
      * CRC校验正确标志
+     *
      * @param modbusdata
      * @param length
      * @return 0-failed 1-success
      */
-    protected int crc42_flage(byte[] modbusdata, int length)
-    {
+    protected int crc42_flage(byte[] modbusdata, int length) {
         int Receive_CRC = 0, calculation = 0;//接收到的CRC,计算的CRC
 
         Receive_CRC = crc16_modbus(modbusdata, length);
         calculation = modbusdata[length];
         calculation <<= 8;
-        calculation += modbusdata[length+1];
-        if (calculation != Receive_CRC)
-        {
+        calculation += modbusdata[length + 1];
+        if (calculation != Receive_CRC) {
             return 0;
         }
         return 1;
+    }
+
+  //返回键
+    @Override
+    public void onBackPressed() {
+        //判断侧滑界面是否打开
+        boolean open = drawerLayout.isDrawerOpen(GravityCompat.START);
+        //如果打开,就关闭
+        if (open == true) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return;
+        }
+        //连点两次关闭app
+        if ((System.currentTimeMillis() - eixtTime) > 2000) {
+            Toast.makeText(MainActivity.this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+            eixtTime = System.currentTimeMillis();
+        } else {
+            //彻底关闭整个app
+                Intent startMain = new Intent(Intent.ACTION_MAIN);
+                startMain.addCategory(Intent.CATEGORY_HOME);
+                startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(startMain);
+                System.exit(0);
+
+        }
+    }
+
+
+    /**==============对表格的导出操作================**/
+
+
+    /**
+     *导出表格的操作
+     * 新的运行时权限机制"只在应用程序的targetSdkVersion>=23时生效，并且只在6.0系统之上有这种机制，
+     * 在低于6.0的系统上应用程序和以前一样不受影响。
+     *  当前应用程序的targetSdkVersion小于23（为22），系统会默认其尚未适配新的运行时权限机制，
+     *  安装后将和以前一样不受影响：即用户在安装应用程序的时候默认允许所有被申明的权限
+     **/
+    private void export(){
+        if(this.getApplicationInfo().targetSdkVersion>=23&& Build.VERSION.SDK_INT>=23){
+            requestPermission();
+
+        }else {
+            writeExcel();
+        }
+    }
+
+    /**
+     * 动态请求读写权限
+     **/
+    private void requestPermission(){
+        if(!checkPermission()){//如果没有权限则请求权限再写
+            ActivityCompat.requestPermissions(this,pess,100);
+        }else {//如果有权限则直接写
+            writeExcel();
+
+        }
+    }
+    /**
+     * 检测权限
+     *
+     **/
+    private boolean checkPermission(){
+        for(String permission:pess){
+            if(ContextCompat.checkSelfPermission(this,permission)!= PackageManager.PERMISSION_GRANTED){
+                //只要有一个权限没有被授予,则直接返回false
+                return false;
+
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull
+            int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode==100){
+            boolean isAllGranted=true;
+            for(int grant:grantResults){
+                if(grant!=PackageManager.PERMISSION_GRANTED){
+                    isAllGranted=false;
+                    break;
+
+                }
+
+            }
+            if(isAllGranted){//请求到权限了,写Excel
+                writeExcel();
+            }else {//权限被拒绝,不能写
+                Toast.makeText(this,"读写手机存储权限被禁止,请在权限管理中心手动打开权限",
+                        Toast.LENGTH_LONG).show();
+
+            }
+
+        }
+    }
+
+    /**
+     * 将数据写入Excel表格
+     **/
+    private void writeExcel(){
+        if(getExternalStoragePath()==null){
+            return;
+        }
+        //SD卡指定文件夹
+        excelFilePath=getExternalStoragePath()+"/Excel/mine.xls";//Excel是子文件夹,mine.xls是表格文件
+        // excelFilePath=getExternalFilesDir("Excel")+"mine.xls";
+        if(checkFile(excelFilePath)){
+            deleteByPath(excelFilePath);//如果文件存在则先删除原有的文件
+            //  Toast.makeText(this,"删除了",Toast.LENGTH_LONG).show();
+
+        }
+        File file=new File(getExternalStoragePath()+"/Excel");
+
+        makeDir(file);
+        ExcelUtils.initExcel(excelFilePath,"电压电流数据表格",colNames);//需要写入权限
+        ExcelUtils.writeObjListToExcel(getTraveData(),excelFilePath,this);
+    }
+
+    /**
+     *
+     * 根据路径生成文件夹
+     **/
+
+    public static void makeDir(File filePath){
+        if(!filePath.getParentFile().exists()){
+            makeDir(filePath.getParentFile());
+        }
+        filePath.mkdir();
+    }
+    /**
+     * 获取外部存储路径
+     **/
+    public String getExternalStoragePath(){
+        File sdDir=null;
+        boolean sdCardExist= Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+        if(sdCardExist){
+            sdDir=getExternalFilesDir(null);
+            return sdDir.toString();
+
+        }else {
+            Toast.makeText(this,"找不到外部存储路径,读写手机存储权限被禁止,请在权限管理中心手动打开权限",
+                    Toast.LENGTH_LONG).show();
+            return null;
+        }
+    }
+
+    /**
+     * 测试数据
+     **/
+    public ArrayList<ArrayList<String>> getTraveData(){
+       // String s="测试string";//这里是数据内容
+        int value=22;
+        ArrayList<ArrayList<String>> datas=new ArrayList<>();
+        ArrayList<String> data=null;
+        for(int i=0;i<8;i++){//列
+            data=new ArrayList<>();
+            data.clear();
+            for(int j=0;j<6;j++){//行
+               // data.add(s+j);
+                data.add(String.valueOf(value)+j);
+
+            }
+            datas.add(data);
+
+        }
+        return datas;
+
+    }
+
+    /**
+     *
+     * 根据文件路径检查文件是否存在,需要读取权限
+     * filePath 文件路径
+     * true 存在
+     **/
+    private boolean checkFile(String filePath){
+        File file=new File(filePath);
+        if(file.exists()){
+            if(file.isFile()){
+                return true;
+            }else {
+                return false;
+            }
+
+        }else {
+            return false;
+        }
+    }
+
+    /**
+     * 根据文件路径删除文件
+     * filePath
+     **/
+    private void deleteByPath(String filePath){
+        File file=new File(filePath);
+        if(file.exists()){
+            if(file.isFile()){
+                file.delete();
+
+            }
+        }
+
     }
 
 }
