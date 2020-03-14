@@ -162,8 +162,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //软件更新的检查调用
-        updateManager=new UpdateManager(MainActivity.this);
-        updateManager.checkUpdateInfo();
+       // updateManager=new UpdateManager(MainActivity.this);
+      //  updateManager.checkUpdateInfo();
 
 
         toolbar = findViewById(R.id.toolbar);
@@ -417,8 +417,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-
-
 
     }
 
