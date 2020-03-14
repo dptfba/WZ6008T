@@ -362,6 +362,7 @@ public class MainActivity extends AppCompatActivity {
                 //点击菜单各项时:
                 switch (menuItem.getItemId()) {
                     case R.id.item_net://智能配网菜单项
+
                         Intent intent2 = new Intent(MainActivity.this, NetworkActivity.class);
                         startActivity(intent2);
                         break;

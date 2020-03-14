@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
@@ -31,14 +32,15 @@ public class UpdateManager {
     private String updateMsg="有最新的软件包,点击下载";
 
     //返回的安装包url.就是下载安装包的网络路径
-    private String apkUrl;
+    private String apkUrl="http://xxx.apk";
 
     private Dialog noticeDialog;//提示有软件更新的对话框
 
     private Dialog downloadDialog;//下载对话框
 
     //下载包安装路径
-    private static final String savePath="/sdcard/wuzhi/";//保存apk的文件夹
+   // private static final String savePath="/storage/emulated/0/Android/data/com.example.file/files";//保存apk的文件夹
+    private static final String savePath=String.valueOf(Environment.getDownloadCacheDirectory()) ;//保存apk的文件夹
 
     private static String saveFileName;//如 savePath+"wuzhi.apk"
 
@@ -77,7 +79,7 @@ public class UpdateManager {
     //构造方法
     public UpdateManager(Context context){
         this.mContext=context;
-        this.apkUrl=apkUrl;
+       // this.apkUrl=apkUrl;
         this.saveFileName=savePath+saveFileName;
 
     }
