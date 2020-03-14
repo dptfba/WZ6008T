@@ -43,6 +43,7 @@ import java.util.List;
 public class NetworkActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = NetworkActivity.class.getSimpleName();
+    MainActivity mainActivity;
 
     private static final int REQUEST_PERMISSION = 0x01;
 
@@ -87,6 +88,7 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_network);
+        mainActivity=new MainActivity();
 
         mApSsidTV = findViewById(R.id.ap_ssid_text);//wifi名称文本框
         mApBssidTV = findViewById(R.id.ap_bssid_text);//Mac地址文本框
@@ -235,12 +237,18 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
             byte[] deviceCount = mDeviceCountET.getText().toString().getBytes();
             byte[] broadcast = {(byte) (mPackageModeGroup.getCheckedRadioButtonId() == R.id.package_broadcast
                     ? 1 : 0)};
+            //byte[] ip = ByteUtil.getBytesByString( mainActivity.tv_ip.getText().toString());
+            byte[] ip = ByteUtil.getBytesByString(" 192.168.1.1");
+            //byte[] ip =
 
             if (mTask != null) {
                 mTask.cancelEsptouch();
             }
             mTask = new EsptouchAsyncTask4(this);
-            mTask.execute(ssid, bssid, password, deviceCount, broadcast);
+            mTask.execute(ip, bssid, password, deviceCount, broadcast);
+
+
+            //mTask.execute(ssid, bssid, password, deviceCount, broadcast);
 
         }
 

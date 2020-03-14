@@ -201,6 +201,7 @@
                 android:textColor="@color/colorBackground"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/energyTitleHeight"/>
+            <!--
             <Chronometer
                 android:id="@+id/chronometer_writeTime"
                 android:format="00:00:00"
@@ -210,6 +211,15 @@
                 android:layout_width="match_parent"
                 android:layout_marginTop="@dimen/marginOne"
                 android:layout_height="@dimen/energyTvHeight"/>
+                -->
+            <TextView
+                android:id="@+id/tv_writeTime"
+                android:text="00:00:00"
+                android:gravity="center"
+                android:textSize="@dimen/fontHead"
+                android:textColor="@color/colorBackground"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/energyTitleHeight"/>
 
         </LinearLayout>
         <!--暂停,清除按钮-->
