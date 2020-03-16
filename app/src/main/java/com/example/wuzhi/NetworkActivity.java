@@ -284,8 +284,6 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
             mTask = new EsptouchAsyncTask4(this);
             //mTask.execute(ip, bssid, password, deviceCount, broadcast);
             mTask.execute(ssid, bssid, password, deviceCount, broadcast);
-
-
         }
 
         //保存密码
