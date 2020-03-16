@@ -39,12 +39,18 @@ import com.example.wuzhi.Esptouch.TouchNetUtil;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class NetworkActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = NetworkActivity.class.getSimpleName();
 
     private static final int REQUEST_PERMISSION = 0x01;
+
+    //保存密码
+    private String passwordStr;//保存密码的字符串
+    private SharedHelper sh;//保存数据类
+    private Context mContext;//上下文
 
 
     private TextView mApSsidTV;//显示WiFi名称的文本框
@@ -102,8 +108,15 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
         mConfirmBtn = findViewById(R.id.confirm_btn);//确定按钮
         mConfirmBtn.setEnabled(false);
         mConfirmBtn.setOnClickListener(this);
+        uDPsend();
 
-       uDPsend();
+        //保存密码
+        mContext=getApplicationContext();
+        sh=new SharedHelper(mContext);
+
+
+
+
 
 
         //判断父Activity是否为空,不为空设置导航图表显示
@@ -127,8 +140,9 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
         } else {
             registerBroadcastReceiver();
         }
-       // UDPsend();
+
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -234,24 +248,21 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
 
     private void uDPsend() {
         //得到intent
-        Intent intent=getIntent();
+        Intent intent = getIntent();
         //把传送进来的String类型的message的值赋给新的变量
-        String message=intent.getStringExtra("ip_message");
+        String message = intent.getStringExtra("ip_message");
         byte[] ssid = ByteUtil.getBytesByString("WZ6008");
         byte[] password = ByteUtil.getBytesByString(message);
-        byte[] bssid = ByteUtil.getBytesByString("21:df:5f:7b:ac:30");
+        // byte[] bssid = ByteUtil.getBytesByString("21 df:5f:7b:ac:30");
+        byte[] bssid = TouchNetUtil.parseBssid2bytes("21:df:5f:7b:ac:30");
         byte[] deviceCount = "255".getBytes();
-        byte[] broadcast = {(byte) (0)};
-        //byte[] ip = ByteUtil.getBytesByString( mainActivity.tv_ip.getText().toString());
-        //password = ByteUtil.getBytesByString(" 192.168.1.1");
-        //byte[] ip =
+        byte[] broadcast = {(byte) (1)};
+
 
         if (mUDPTask != null) {
             mUDPTask.cancelEsptouch();
         }
         mUDPTask = new EsptouchAsyncTask5(this);
-        //mTask.execute(ip, bssid, password, deviceCount, broadcast);
-
 
         mUDPTask.execute(ssid, bssid, password, deviceCount, broadcast);
     }
@@ -266,9 +277,6 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
             byte[] deviceCount = mDeviceCountET.getText().toString().getBytes();
             byte[] broadcast = {(byte) (mPackageModeGroup.getCheckedRadioButtonId() == R.id.package_broadcast
                     ? 1 : 0)};
-            //byte[] ip = ByteUtil.getBytesByString( mainActivity.tv_ip.getText().toString());
-            password = ByteUtil.getBytesByString(" 192.168.1.1");
-            //byte[] ip =
 
             if (mTask != null) {
                 mTask.cancelEsptouch();
@@ -279,7 +287,12 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
 
             mTask.execute(ssid, bssid, password, deviceCount, broadcast);
 
+
         }
+
+        //保存密码
+         passwordStr= mApPasswordET.getText().toString();
+         sh.save(passwordStr);
 
     }
 
@@ -429,17 +442,17 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
                 resultMsgList.add(message);
 
             }
-            CharSequence[] items=new CharSequence[resultMsgList.size()];
-            mResultDialog=new AlertDialog.Builder(activity)
+            CharSequence[] items = new CharSequence[resultMsgList.size()];
+            mResultDialog = new AlertDialog.Builder(activity)
                     .setTitle(R.string.configure_result_success)
-                    .setItems(resultMsgList.toArray(items),null)
-                    .setPositiveButton(android.R.string.ok,null)
+                    .setItems(resultMsgList.toArray(items), null)
+                    .setPositiveButton(android.R.string.ok, null)
                     .show();
             mResultDialog.setCanceledOnTouchOutside(false);
 
         }
     }
-    //异步任务类加载数据
+    //异步任务类加载数据,配网前显示对话框任务
 
     private static class EsptouchAsyncTask5 extends AsyncTask<byte[], IEsptouchResult, List<IEsptouchResult>> {
         private WeakReference<NetworkActivity> mActivity1;//弱引用 当前activity类 类型
@@ -463,7 +476,7 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
                 mResultDialog1.dismiss();
             }
             if (mEsptouchTask1 != null) {
-                mEsptouchTask1.interrupt();
+                mEsptouchTask1.interrupt();//中断 打断
             }
         }
 
@@ -491,7 +504,8 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
                 }
             });
 
-            mProgressDialog1.setButton(DialogInterface.BUTTON_NEGATIVE, activity.getText(android.R.string.cancel),
+
+            mProgressDialog1.setButton("下一步",
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -585,14 +599,22 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
                 resultMsgList.add(message);
 
             }
-            CharSequence[] items=new CharSequence[resultMsgList.size()];
-            mResultDialog1=new AlertDialog.Builder(activity)
+            CharSequence[] items = new CharSequence[resultMsgList.size()];
+            mResultDialog1 = new AlertDialog.Builder(activity)
                     .setTitle(R.string.configure_result_success)
-                    .setItems(resultMsgList.toArray(items),null)
-                    .setPositiveButton(android.R.string.ok,null)
+                    .setItems(resultMsgList.toArray(items), null)
+                    .setPositiveButton(android.R.string.ok, null)
                     .show();
             mResultDialog1.setCanceledOnTouchOutside(false);
 
         }
     }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Map<String,String> data=sh.read();
+        mApPasswordET.setText(data.get("password"));
+
+    }
+
 }
