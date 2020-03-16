@@ -260,11 +260,11 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
 
 
         if (mUDPTask != null) {
-            mUDPTask.cancelEsptouch();
+            //mUDPTask.cancelEsptouch();
         }
-        mUDPTask = new EsptouchAsyncTask5(this);
+        //mUDPTask = new EsptouchAsyncTask5(this);
 
-        mUDPTask.execute(ssid, bssid, password, deviceCount, broadcast);
+
     }
 
     @Override
