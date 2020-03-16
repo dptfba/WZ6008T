@@ -43,7 +43,6 @@ import java.util.List;
 public class NetworkActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = NetworkActivity.class.getSimpleName();
-    MainActivity mainActivity;
 
     private static final int REQUEST_PERMISSION = 0x01;
 
@@ -92,7 +91,6 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_network);
-        mainActivity=new MainActivity();
 
         mApSsidTV = findViewById(R.id.ap_ssid_text);//wifi名称文本框
         mApBssidTV = findViewById(R.id.ap_bssid_text);//Mac地址文本框
@@ -104,6 +102,8 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
         mConfirmBtn = findViewById(R.id.confirm_btn);//确定按钮
         mConfirmBtn.setEnabled(false);
         mConfirmBtn.setOnClickListener(this);
+
+       uDPsend();
 
 
         //判断父Activity是否为空,不为空设置导航图表显示
@@ -127,7 +127,7 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
         } else {
             registerBroadcastReceiver();
         }
-        //UDPsend();
+       // UDPsend();
     }
 
     @Override
@@ -232,10 +232,14 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
-    private void UDPsend() {
-        byte[] ssid = ByteUtil.getBytesByString("fan");
-        byte[] password = ByteUtil.getBytesByString( mainActivity.tv_ip.getText().toString());
-        byte[] bssid = TouchNetUtil.parseBssid2bytes(mApBssidTV.getText().toString());
+    private void uDPsend() {
+        //得到intent
+        Intent intent=getIntent();
+        //把传送进来的String类型的message的值赋给新的变量
+        String message=intent.getStringExtra("ip_message");
+        byte[] ssid = ByteUtil.getBytesByString("WZ6008");
+        byte[] password = ByteUtil.getBytesByString(message);
+        byte[] bssid = ByteUtil.getBytesByString("21:df:5f:7b:ac:30");
         byte[] deviceCount = "255".getBytes();
         byte[] broadcast = {(byte) (0)};
         //byte[] ip = ByteUtil.getBytesByString( mainActivity.tv_ip.getText().toString());
@@ -438,28 +442,28 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
     //异步任务类加载数据
 
     private static class EsptouchAsyncTask5 extends AsyncTask<byte[], IEsptouchResult, List<IEsptouchResult>> {
-        private WeakReference<NetworkActivity> mActivity;//弱引用 当前activity类 类型
+        private WeakReference<NetworkActivity> mActivity1;//弱引用 当前activity类 类型
 
-        private final Object mLock = new Object();
-        private ProgressDialog mProgressDialog;
-        private AlertDialog mResultDialog;
-        private IEsptouchTask mEsptouchTask;
+        private final Object mLock1 = new Object();
+        private ProgressDialog mProgressDialog1;
+        private AlertDialog mResultDialog1;
+        private IEsptouchTask mEsptouchTask1;
 
         EsptouchAsyncTask5(NetworkActivity activity) {
-            mActivity = new WeakReference<>(activity);
+            mActivity1 = new WeakReference<>(activity);
 
         }
 
         void cancelEsptouch() {
             cancel(true);
-            if (mProgressDialog != null) {
-                mProgressDialog.dismiss();
+            if (mProgressDialog1 != null) {
+                mProgressDialog1.dismiss();
             }
-            if (mResultDialog != null) {
-                mResultDialog.dismiss();
+            if (mResultDialog1 != null) {
+                mResultDialog1.dismiss();
             }
-            if (mEsptouchTask != null) {
-                mEsptouchTask.interrupt();
+            if (mEsptouchTask1 != null) {
+                mEsptouchTask1.interrupt();
             }
         }
 
@@ -470,16 +474,16 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
          * */
         @Override
         protected void onPreExecute() {
-            Activity activity = mActivity.get();
-            mProgressDialog = new ProgressDialog(activity);
-            mProgressDialog.setMessage(activity.getString(R.string.configuring_UDP_message));
-            mProgressDialog.setCanceledOnTouchOutside(false);
-            mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            Activity activity = mActivity1.get();
+            mProgressDialog1 = new ProgressDialog(activity);
+            mProgressDialog1.setMessage(activity.getString(R.string.configuring_UDP_message));
+            mProgressDialog1.setCanceledOnTouchOutside(false);
+            mProgressDialog1.setOnCancelListener(new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
-                    synchronized (mLock) {
-                        if (mEsptouchTask != null) {
-                            mEsptouchTask.interrupt();
+                    synchronized (mLock1) {
+                        if (mEsptouchTask1 != null) {
+                            mEsptouchTask1.interrupt();
                         }
 
                     }
@@ -487,18 +491,18 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
                 }
             });
 
-            mProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, activity.getText(android.R.string.cancel),
+            mProgressDialog1.setButton(DialogInterface.BUTTON_NEGATIVE, activity.getText(android.R.string.cancel),
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            synchronized (mLock) {
-                                if (mEsptouchTask != null) {
-                                    mEsptouchTask.interrupt();
+                            synchronized (mLock1) {
+                                if (mEsptouchTask1 != null) {
+                                    mEsptouchTask1.interrupt();
                                 }
                             }
                         }
                     });
-            mProgressDialog.show();
+            mProgressDialog1.show();
 
         }
 
@@ -509,7 +513,7 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
 
         @Override
         protected void onProgressUpdate(IEsptouchResult... values) {
-            Context context = mActivity.get();
+            Context context = mActivity1.get();
             if (context != null) {
                 IEsptouchResult result = values[0];
                 Log.i(TAG, "EspTouchResult" + result);
@@ -521,9 +525,9 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
 
         @Override
         protected List<IEsptouchResult> doInBackground(byte[]... bytes) {
-            NetworkActivity activity = mActivity.get();
+            NetworkActivity activity = mActivity1.get();
             int taskResultCount;
-            synchronized (mLock) {
+            synchronized (mLock1) {
                 byte[] apSsid = bytes[0];
                 byte[] apBssid = bytes[1];
                 byte[] apPassword = bytes[2];
@@ -531,13 +535,13 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
                 byte[] broadcastData = bytes[4];
                 taskResultCount = deviceCountData.length == 0 ? -1 : Integer.parseInt(new String(deviceCountData));
                 Context context = activity.getApplicationContext();
-                mEsptouchTask = new EsptouchTask(apSsid, apBssid, apPassword, context);
-                mEsptouchTask.setPackageBroadcast(broadcastData[0] == 1);
-                mEsptouchTask.setEsptouchListener(this::publishProgress);//publishProgress用来刷新,这个方法调用之后
+                mEsptouchTask1 = new EsptouchTask(apSsid, apBssid, apPassword, context);
+                mEsptouchTask1.setPackageBroadcast(broadcastData[0] == 1);
+                mEsptouchTask1.setEsptouchListener(this::publishProgress);//publishProgress用来刷新,这个方法调用之后
                 //会自动调用onProgressUpdate方法,将对ui是实时更新重写在onProgressUpdate方法中即可
 
             }
-            return mEsptouchTask.executeForResults(taskResultCount);
+            return mEsptouchTask1.executeForResults(taskResultCount);
         }
 
         /***
@@ -546,15 +550,15 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
          * */
         @Override
         protected void onPostExecute(List<IEsptouchResult> iEsptouchResults) {
-            NetworkActivity activity = mActivity.get();
+            NetworkActivity activity = mActivity1.get();
             activity.mTask = null;
-            mProgressDialog.dismiss();
+            mProgressDialog1.dismiss();
             if (iEsptouchResults == null) {
-                mResultDialog = new AlertDialog.Builder(activity)
+                mResultDialog1 = new AlertDialog.Builder(activity)
                         .setMessage(R.string.configure_result_failed_port)
                         .setPositiveButton(android.R.string.ok, null)
                         .show();
-                mResultDialog.setCanceledOnTouchOutside(false);
+                mResultDialog1.setCanceledOnTouchOutside(false);
                 return;
             }
             //检查任务是否被取消,是否没有收到结果
@@ -565,11 +569,11 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
 
             //该任务收到了一些结果,包括取消了.在收到足够的结果之前执行
             if (!firstResult.isSuc()) {
-                mResultDialog = new AlertDialog.Builder(activity)
+                mResultDialog1 = new AlertDialog.Builder(activity)
                         .setMessage(R.string.configure_UDP_result_failed)
                         .setPositiveButton(android.R.string.ok, null)
                         .show();
-                mResultDialog.setCanceledOnTouchOutside(false);
+                mResultDialog1.setCanceledOnTouchOutside(false);
                 return;
 
             }
@@ -582,12 +586,12 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
 
             }
             CharSequence[] items=new CharSequence[resultMsgList.size()];
-            mResultDialog=new AlertDialog.Builder(activity)
+            mResultDialog1=new AlertDialog.Builder(activity)
                     .setTitle(R.string.configure_result_success)
                     .setItems(resultMsgList.toArray(items),null)
                     .setPositiveButton(android.R.string.ok,null)
                     .show();
-            mResultDialog.setCanceledOnTouchOutside(false);
+            mResultDialog1.setCanceledOnTouchOutside(false);
 
         }
     }

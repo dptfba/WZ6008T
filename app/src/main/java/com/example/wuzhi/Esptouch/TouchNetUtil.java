@@ -95,6 +95,7 @@ public class TouchNetUtil {
         return result;
     }
 
+
     public static byte[] getOriginalSsidBytes(WifiInfo info) {
         try {
             Method method = info.getClass().getMethod("getWifiSsid");

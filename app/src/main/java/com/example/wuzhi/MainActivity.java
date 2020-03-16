@@ -364,6 +364,11 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.item_net://智能配网菜单项
 
                         Intent intent2 = new Intent(MainActivity.this, NetworkActivity.class);
+
+                        //把ip文本框的内容赋值给String类型的message
+                        String message=tv_ip.getText().toString();
+                        //给message起一个名字,并传给另外一个activity
+                        intent2.putExtra("ip_message",message);
                         startActivity(intent2);
                         break;
                     case R.id.item_address://地址选择
