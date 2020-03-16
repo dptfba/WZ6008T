@@ -54,7 +54,8 @@
     <string name="configure_wifi_change_message">Wifi disconnected or changed</string>
     <string name="configure_result_failed">failed</string>
     <string name="configuring_UDP_message"> is configuring, please wait for a moment</string>
-    <string name="configure_UDP_result_failed"> failed</string>
+    <string name="configure_UDP_result_failed"> If not, make sure that WZ6008 is waiting for the distribution network,
+        and then open this configuration option to redistribute the network</string>
 
     <string name="configure_result_failed_port">Create  the distribution network task failed, the  port could be used by other thread</string>
     <string name="configure_result_success">network to complete</string>
