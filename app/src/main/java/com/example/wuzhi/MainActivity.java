@@ -15,6 +15,7 @@ import android.Manifest;
 import android.app.ActivityManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -126,11 +127,15 @@ public class MainActivity extends AppCompatActivity {
 
     final Timer timer = new Timer();
     boolean ConnectFlage = true;//连接标志
+    private ServerSocket serverSocket=null;//创建ServerSocket对象
+    int socketPort=9999;//端口号
     Socket socket;//创建socket对象
     InputStream inputStream;//获取输入流
     OutputStream outputStream;//获得输出流
     ThreadConnectService threadConnectService = new ThreadConnectService();//建立一个连接任务的对象
     ThreadReadData threadReadData = new ThreadReadData();//接收数据的任务
+
+    WifiManager wifiManager;
     boolean threadReadDataFlage = false;//接收数据任务一直运行控制
     boolean threadSendDataFlage = false;//发送数据任务一直运行控制
     byte[] ReadBuffer = new byte[2048];//存储接收到的数据
@@ -141,6 +146,9 @@ public class MainActivity extends AppCompatActivity {
     Thread mthreadConnectSerice;//记录连接任务
     Thread mthreadSendData;//记录发送任务
     Thread mthreadReadData;//记录接收任务
+
+    ArrayList<Socket> arrayListSockets=new ArrayList<>();//存储连接的Socket
+
 
     byte[] sendByteArray={(byte) 0xAA, 0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00,};//初始化发送给服务器的字节数组
@@ -160,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//竖屏
         setContentView(R.layout.activity_main);
 
         //软件更新的检查调用

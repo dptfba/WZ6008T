@@ -29,7 +29,8 @@
         android:theme="@style/AppTheme">
         <activity android:name=".NetworkActivity"
             android:configChanges="locale"
-            android:label="@string/menu_net_title">
+            android:label="@string/menu_net_title"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -37,7 +38,8 @@
         <activity
             android:name=".LanguageActivity"
             android:configChanges="locale"
-            android:label="@string/language_label">
+            android:label="@string/language_label"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -45,7 +47,8 @@
         <activity
             android:name=".AboutActivity"
             android:configChanges="locale"
-            android:label="@string/about_label">
+            android:label="@string/about_label"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
