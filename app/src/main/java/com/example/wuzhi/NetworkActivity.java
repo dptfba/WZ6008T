@@ -58,7 +58,11 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
 
     private EsptouchAsyncTask4 mTask;//异步任务加载数据类
 
+    private EsptouchAsyncTask5 mUDPTask;//异步任务加载数据类
+
     private boolean mReceiverRegistered = false;//是否接收注册
+
+    public boolean mStep = false;
 
     //广播
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -123,6 +127,7 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
         } else {
             registerBroadcastReceiver();
         }
+        //UDPsend();
     }
 
     @Override
@@ -227,6 +232,26 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
+    private void UDPsend() {
+        byte[] ssid = ByteUtil.getBytesByString("fan");
+        byte[] password = ByteUtil.getBytesByString( mainActivity.tv_ip.getText().toString());
+        byte[] bssid = TouchNetUtil.parseBssid2bytes(mApBssidTV.getText().toString());
+        byte[] deviceCount = "255".getBytes();
+        byte[] broadcast = {(byte) (0)};
+        //byte[] ip = ByteUtil.getBytesByString( mainActivity.tv_ip.getText().toString());
+        //password = ByteUtil.getBytesByString(" 192.168.1.1");
+        //byte[] ip =
+
+        if (mUDPTask != null) {
+            mUDPTask.cancelEsptouch();
+        }
+        mUDPTask = new EsptouchAsyncTask5(this);
+        //mTask.execute(ip, bssid, password, deviceCount, broadcast);
+
+
+        mUDPTask.execute(ssid, bssid, password, deviceCount, broadcast);
+    }
+
     @Override
     public void onClick(View v) {
         if (v == mConfirmBtn) {
@@ -238,17 +263,17 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
             byte[] broadcast = {(byte) (mPackageModeGroup.getCheckedRadioButtonId() == R.id.package_broadcast
                     ? 1 : 0)};
             //byte[] ip = ByteUtil.getBytesByString( mainActivity.tv_ip.getText().toString());
-            byte[] ip = ByteUtil.getBytesByString(" 192.168.1.1");
+            password = ByteUtil.getBytesByString(" 192.168.1.1");
             //byte[] ip =
 
             if (mTask != null) {
                 mTask.cancelEsptouch();
             }
             mTask = new EsptouchAsyncTask4(this);
-            mTask.execute(ip, bssid, password, deviceCount, broadcast);
+            //mTask.execute(ip, bssid, password, deviceCount, broadcast);
 
 
-            //mTask.execute(ssid, bssid, password, deviceCount, broadcast);
+            mTask.execute(ssid, bssid, password, deviceCount, broadcast);
 
         }
 
@@ -291,6 +316,7 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
             Activity activity = mActivity.get();
             mProgressDialog = new ProgressDialog(activity);
             mProgressDialog.setMessage(activity.getString(R.string.configuring_message));
+
             mProgressDialog.setCanceledOnTouchOutside(false);
             mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                 @Override
@@ -385,6 +411,162 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
             if (!firstResult.isSuc()) {
                 mResultDialog = new AlertDialog.Builder(activity)
                         .setMessage(R.string.configure_result_failed)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show();
+                mResultDialog.setCanceledOnTouchOutside(false);
+                return;
+
+            }
+
+            ArrayList<CharSequence> resultMsgList = new ArrayList<>(iEsptouchResults.size());
+            for (IEsptouchResult touchResult : iEsptouchResults) {
+                String message = activity.getString(R.string.configure_result_success_item,
+                        touchResult.getBssid(), touchResult.getInetAddress().getHostAddress());
+                resultMsgList.add(message);
+
+            }
+            CharSequence[] items=new CharSequence[resultMsgList.size()];
+            mResultDialog=new AlertDialog.Builder(activity)
+                    .setTitle(R.string.configure_result_success)
+                    .setItems(resultMsgList.toArray(items),null)
+                    .setPositiveButton(android.R.string.ok,null)
+                    .show();
+            mResultDialog.setCanceledOnTouchOutside(false);
+
+        }
+    }
+    //异步任务类加载数据
+
+    private static class EsptouchAsyncTask5 extends AsyncTask<byte[], IEsptouchResult, List<IEsptouchResult>> {
+        private WeakReference<NetworkActivity> mActivity;//弱引用 当前activity类 类型
+
+        private final Object mLock = new Object();
+        private ProgressDialog mProgressDialog;
+        private AlertDialog mResultDialog;
+        private IEsptouchTask mEsptouchTask;
+
+        EsptouchAsyncTask5(NetworkActivity activity) {
+            mActivity = new WeakReference<>(activity);
+
+        }
+
+        void cancelEsptouch() {
+            cancel(true);
+            if (mProgressDialog != null) {
+                mProgressDialog.dismiss();
+            }
+            if (mResultDialog != null) {
+                mResultDialog.dismiss();
+            }
+            if (mEsptouchTask != null) {
+                mEsptouchTask.interrupt();
+            }
+        }
+
+        /***
+         * 重写onPreExecute()方法
+         * 这里是最终用户调用Excute时的接口，当任务执行之前开始调用此方法，可以在这里显示进度对话框。
+         * 在线程上调用start()之前执行的语句.运行在UI线程
+         * */
+        @Override
+        protected void onPreExecute() {
+            Activity activity = mActivity.get();
+            mProgressDialog = new ProgressDialog(activity);
+            mProgressDialog.setMessage(activity.getString(R.string.configuring_UDP_message));
+            mProgressDialog.setCanceledOnTouchOutside(false);
+            mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    synchronized (mLock) {
+                        if (mEsptouchTask != null) {
+                            mEsptouchTask.interrupt();
+                        }
+
+                    }
+
+                }
+            });
+
+            mProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, activity.getText(android.R.string.cancel),
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            synchronized (mLock) {
+                                if (mEsptouchTask != null) {
+                                    mEsptouchTask.interrupt();
+                                }
+                            }
+                        }
+                    });
+            mProgressDialog.show();
+
+        }
+
+        /**
+         * 重写onProgressUpdate(Progress…) 
+         *   可以使用进度条增加用户体验度。 此方法在主线程执行，用于显示任务执行的进度。
+         **/
+
+        @Override
+        protected void onProgressUpdate(IEsptouchResult... values) {
+            Context context = mActivity.get();
+            if (context != null) {
+                IEsptouchResult result = values[0];
+                Log.i(TAG, "EspTouchResult" + result);
+                String text = result.getBssid() + "正在已连接wifi";
+                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+            }
+        }
+
+
+        @Override
+        protected List<IEsptouchResult> doInBackground(byte[]... bytes) {
+            NetworkActivity activity = mActivity.get();
+            int taskResultCount;
+            synchronized (mLock) {
+                byte[] apSsid = bytes[0];
+                byte[] apBssid = bytes[1];
+                byte[] apPassword = bytes[2];
+                byte[] deviceCountData = bytes[3];
+                byte[] broadcastData = bytes[4];
+                taskResultCount = deviceCountData.length == 0 ? -1 : Integer.parseInt(new String(deviceCountData));
+                Context context = activity.getApplicationContext();
+                mEsptouchTask = new EsptouchTask(apSsid, apBssid, apPassword, context);
+                mEsptouchTask.setPackageBroadcast(broadcastData[0] == 1);
+                mEsptouchTask.setEsptouchListener(this::publishProgress);//publishProgress用来刷新,这个方法调用之后
+                //会自动调用onProgressUpdate方法,将对ui是实时更新重写在onProgressUpdate方法中即可
+
+            }
+            return mEsptouchTask.executeForResults(taskResultCount);
+        }
+
+        /***
+         * 重写onPostExecute(),运行在UI线程即在主线程中执行.从线程调用View上的runOnUiThread()或post(),
+         * 提供要在主应用程序线程上执行的
+         * */
+        @Override
+        protected void onPostExecute(List<IEsptouchResult> iEsptouchResults) {
+            NetworkActivity activity = mActivity.get();
+            activity.mTask = null;
+            mProgressDialog.dismiss();
+            if (iEsptouchResults == null) {
+                mResultDialog = new AlertDialog.Builder(activity)
+                        .setMessage(R.string.configure_result_failed_port)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show();
+                mResultDialog.setCanceledOnTouchOutside(false);
+                return;
+            }
+            //检查任务是否被取消,是否没有收到结果
+            IEsptouchResult firstResult = iEsptouchResults.get(0);
+            if (firstResult.isCancelled()) {
+                return;
+            }
+
+            //该任务收到了一些结果,包括取消了.在收到足够的结果之前执行
+            if (!firstResult.isSuc()) {
+                mResultDialog = new AlertDialog.Builder(activity)
+                        .setMessage(R.string.configure_UDP_result_failed)
                         .setPositiveButton(android.R.string.ok, null)
                         .show();
                 mResultDialog.setCanceledOnTouchOutside(false);

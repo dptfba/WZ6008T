@@ -39,6 +39,7 @@
     <string name="positiveButton">CONFIRM</string>
     <string name="negativeButton">CANCEL</string>
 
+
     <string name="ssid_title">SSID: </string>
     <string name="bssid_title">BSSID: </string>
     <string name="password_title">WiFi Password: </string>
@@ -52,6 +53,9 @@
     <string name="configuring_message"> is configuring, please wait for a moment…</string>
     <string name="configure_wifi_change_message">Wifi disconnected or changed</string>
     <string name="configure_result_failed">failed</string>
+    <string name="configuring_UDP_message"> is configuring, please wait for a moment</string>
+    <string name="configure_UDP_result_failed"> failed</string>
+
     <string name="configure_result_failed_port">Create  the distribution network task failed, the  port could be used by other thread</string>
     <string name="configure_result_success">network to complete</string>
     <string name="configure_result_success_item">BSSID = %1$s, InetAddress = %2$s</string>

@@ -51,6 +51,8 @@
     <string name="configure_wifi_change_message">Wifi 已断开或发生了变化</string>
     <string name="configuring_message"> 正在执行配网, 请稍等片刻…</string>
     <string name="configure_result_failed"> 配网失败</string>
+    <string name="configuring_UDP_message"> 初始化中，请稍等片刻，等待WZ6008显示本机IP地址时点击下一步</string>
+    <string name="configure_UDP_result_failed"> 初始化结束，请检查WZ6008是否已经显示本机IP，如果不显示请确认WZ6008正在等待配网，然后打开此配置选项从新配网</string>
     <string name="configure_result_failed_port">建立配网任务失败, 端口可能被其他程序占用</string>
     <string name="configure_result_success">配网完成</string>
     <string name="configure_result_success_item">BSSID = %1$s, 地址 = %2$s</string>
