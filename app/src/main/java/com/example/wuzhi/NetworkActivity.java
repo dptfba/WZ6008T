@@ -262,9 +262,9 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
         if (mUDPTask != null) {
             //mUDPTask.cancelEsptouch();
         }
-        //mUDPTask = new EsptouchAsyncTask5(this);
+        mUDPTask = new EsptouchAsyncTask5(this);
 
-
+        mUDPTask.execute(ssid, bssid, password, deviceCount, broadcast);
     }
 
     @Override
@@ -284,10 +284,7 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
             mTask = new EsptouchAsyncTask4(this);
             //mTask.execute(ip, bssid, password, deviceCount, broadcast);
             mTask.execute(ssid, bssid, password, deviceCount, broadcast);
-
-
         }
-
         //保存密码
          passwordStr= mApPasswordET.getText().toString();
          sh.save(passwordStr);
