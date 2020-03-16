@@ -285,6 +285,9 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
             //mTask.execute(ip, bssid, password, deviceCount, broadcast);
 
 
+
+
+
             mTask.execute(ssid, bssid, password, deviceCount, broadcast);
 
 
