@@ -15,6 +15,7 @@ import android.Manifest;
 import android.app.ActivityManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -96,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
     TextView tv_ip;//IP地址显示文本框
 
     LineChart lineChart;//折线表,存线集合
-    int[] Vout = new int[100];//假设的电压数组
 
 
     Chronometer chronometer_bootTime;//开机时间
@@ -125,37 +125,48 @@ public class MainActivity extends AppCompatActivity {
     Button btn_hintButton;//CC CV按钮
     TextView tv_inputVoltage;//输入电压
 
-    final Timer timer = new Timer();
-    boolean ConnectFlage = true;//连接标志
+
+    //数据通信
+    boolean MonitorFlage=false;//连接按钮循环显示连接和断开
+    boolean MonitorConnectFlage=true;//监听任务
     private ServerSocket serverSocket=null;//创建ServerSocket对象
-    int socketPort=9999;//端口号
-    Socket socket;//创建socket对象
+    int socketPort=18041;
+    Socket socket=null;//连接通道,创建Socket对象
+    OutputStream outputStream;//获取输出流
     InputStream inputStream;//获取输入流
-    OutputStream outputStream;//获得输出流
-    ThreadConnectService threadConnectService = new ThreadConnectService();//建立一个连接任务的对象
-    ThreadReadData threadReadData = new ThreadReadData();//接收数据的任务
+    ThreadMonitorConnect threadMonitorConnect=new ThreadMonitorConnect();//监听连接的线程
 
-    WifiManager wifiManager;
-    boolean threadReadDataFlage = false;//接收数据任务一直运行控制
-    boolean threadSendDataFlage = false;//发送数据任务一直运行控制
-    byte[] ReadBuffer = new byte[2048];//存储接收到的数据
-    byte[] SendBuffer = new byte[2048];//存储发送的数据
-    int ReadBufferLength = 0;//接收到数据的长度
-    int SendDataCnt = 0;//控制发送数据的个数
+    boolean threadReadDataFlage=false;//接收数据任务运行控制
+    boolean threadSendDataFlage=false;//发送数据任务运行控制
+    boolean sendDataFlage=false;//可以发送数据
 
-    Thread mthreadConnectSerice;//记录连接任务
-    Thread mthreadSendData;//记录发送任务
-    Thread mthreadReadData;//记录接收任务
+    byte[] sendBuffer=new byte[2048];//存储发送的数据
+    byte[] ReadBuffer=new byte[2048];//存储接收的数据
+    int ReadBufferLenght=0;//接收到数据的长度
+    int sendDataCnt=0;//控制发送数据的个数
+
 
     ArrayList<Socket> arrayListSockets=new ArrayList<>();//存储连接的Socket
+    private List<String> listClient=new ArrayList<>();//字符串集合
+
+    private SharedPreferences sharedPreferences;//存储数据
+    private SharedPreferences.Editor editor;//存储数据
+
+    String portSaveData="";
+    String sendDataString="";
+
+    Thread mthreadSendData;//记下发送任务,便于停止
+    Thread mthreadMonitorConnect;//记下监听任务,便于停止
+
+    byte[] sendByteArray = {(byte) 0xAA, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00,};
+    int sendFlag=0;//发送变量
 
 
-    byte[] sendByteArray={(byte) 0xAA, 0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00,};//初始化发送给服务器的字节数组
-    int sendFlag=0;//用来记录发送的变量
-    boolean isSend=true;//是否发送数据
-
+    final Timer timer = new Timer();
     MyHandler mHandler;//handler
+
+
 
     /** Excel表格相关**/
     private String excelFilePath="";
@@ -215,53 +226,23 @@ public class MainActivity extends AppCompatActivity {
 
 
         /**界面数据通信部分**/
+        sharedPreferences=MainActivity.this.getSharedPreferences("portSaveData",MODE_PRIVATE);
+        portSaveData=sharedPreferences.getString("portData","18041");
+        sendDataString=sharedPreferences.getString("sendData","");
 
-        //连接按钮的点击事件
+        statrtMonitor();//启动监听方法
+
+        //点击连接发送数据
         tv_connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ConnectFlage) {//如果连接成功
-                    try {
-                        threadConnectService.start();//启动连接服务器的线程任务
-                        mthreadConnectSerice = threadConnectService;
-                        autoSendData();//自动发送数据
-
-
-                    } catch (Exception e) {
-
-                    }
-                } else {
-                    ConnectFlage = true;
-                    threadSendDataFlage = false;//关掉发送任务,预防产生多的任务
-                    SendDataCnt = 0;
-                    threadReadDataFlage = false;//关掉接收任务,预防产生多的任务
-                    Toast.makeText(getApplicationContext(), "请连接服务器", Toast.LENGTH_SHORT).show();
-
-                    try {
-                        mthreadConnectSerice.interrupt();
-                    } catch (Exception e) {
-                    }
-                    try {
-                        mthreadSendData.interrupt();
-                    } catch (Exception e2) {
-                    }
-                    try {
-                        mthreadReadData.interrupt();
-                    } catch (Exception e2) {
-                    }
-                    try {
-                        socket.close();//关闭socket
-                        inputStream.close();//关闭数据流
-                    } catch (Exception e) {
-                        // TODO: handle exception
-                    }
-
+                if(MonitorFlage){//如果连接成功
+                    tv_connect.setText("断开");
+                    autoSendData();
 
                 }
 
             }
-
-
         });
 
 
@@ -430,42 +411,179 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    /**启动监听方法**/
+
+    private void statrtMonitor(){
+        if(MonitorFlage==false){
+            try {
+                serverSocket=new ServerSocket(socketPort);
+                MonitorConnectFlage=true;
+                threadMonitorConnect.start();//监听线程开启
+                mthreadMonitorConnect=threadMonitorConnect;//记下监听任务
+                MonitorFlage=true;
+            } catch (IOException e1) {
+               // Toast.makeText(getApplicationContext(),"提示\r\n监听出错,请检查端口号",Toast.LENGTH_SHORT).show();
+            }
+        }else {
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try{
+                for(Socket sk:arrayListSockets){
+                    try {
+                        sk.close();
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+
+                }
+
+            }catch (Exception e){
+
+            }
+            MonitorConnectFlage=false;
+            try {
+                mthreadMonitorConnect.interrupt();//只是改变中断状态,不会中断一个正在运行的线程
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            MonitorFlage=false;
+            threadSendDataFlage=false;//关闭发送的任务
+
+            try {
+                mthreadSendData.interrupt();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            listClient.clear();
+
+        }
+
+    }
+
     /**
-     * 连接服务器的任务线程
+     * 监听连接线程
+     *
      **/
-    class ThreadConnectService extends Thread {
+    private class ThreadMonitorConnect extends Thread{
+        boolean mThreadMonitorConnectFlag=true;
 
         @Override
         public void run() {
+            while (mThreadMonitorConnectFlag&&MonitorConnectFlage){
+                try {
+                    socket=serverSocket.accept();//等待客户端连接
+                    arrayListSockets.add(socket);//添加socket
+                    String mString=(socket.getInetAddress()+":"+socket.getPort()).replace("/"," ");
+                    listClient.add(mString);
+                    sendHandleMsg(mHandler,"ConState","new");
 
+                    threadReadDataFlage=true;//接收任务
+                    ThreadReadData threadReadData=new ThreadReadData(socket,mString);
+                    threadReadData.start();//开启接收数据线程
+                    if(threadSendDataFlage==false){
+                        threadSendDataFlage=true;//发送任务
+                        ThreadSendData threadSendData=new ThreadSendData();
+                        threadSendData.start();//开启发送数据线程
+                        mthreadSendData=threadSendData;
 
-            try {
+                    }
 
-                String ip = "192.168.1.115";
-                int port = 9999;//端口号
+                } catch (Exception e) {
+                    try{
+                        for(Socket sk:arrayListSockets){
+                            try {
+                                sk.close();
 
-                socket = new Socket(ip, port);//创建连接地址和端口号
+                            }catch (Exception e1){
+                                e1.printStackTrace();
 
-                ConnectFlage = false;//是控制连接按钮显示的
-                sendHandleMsg(mHandler, "ConState", "ConOK");//向Handle发送连接成功的消息
+                            }
 
-                inputStream = socket.getInputStream();//获得通道的数据流
-                outputStream = socket.getOutputStream();//获得通道的输出流
-                threadReadDataFlage = true;//一直接受数据
-                threadSendDataFlage = true;//一直循环的判断是否发送数据
+                        }
 
+                    }catch (Exception e2){
 
-                threadReadData = new ThreadReadData();
-                threadReadData.start();//接收数据线程开启
-                mthreadReadData = threadReadData;
-
-
-            } catch (Exception e) {
-                Log.e(tag, e.toString());
-
+                    }
+                    mThreadMonitorConnectFlag=false;
+                    MonitorConnectFlage=false;
+                    MonitorFlage=false;
+                    sendHandleMsg(mHandler,"ConState","ConError");//向Handler发送消息
+                }
             }
         }
+    }
 
+    /**
+     * 接收数据任务线程
+     **/
+
+    private class ThreadReadData extends Thread{
+        boolean mThreadReadDataFlage=true;
+        String mStringSocketMsg="";//存储连接的信息,方便删除
+        private byte[] ReadBuffer0=new byte[1024];//数据缓存区,存储接收到的数据
+        private Socket mySocket;//获取传进来的Socket
+
+        public ThreadReadData(Socket socket,String socketMsg){
+            mySocket=socket;
+            mStringSocketMsg=socketMsg;
+            try {
+                inputStream=mySocket.getInputStream();//获取输入流
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            sendHandleMsg(mHandler,"Toast",mStringSocketMsg+"连接");//向Handler发送消息
+
+        }
+
+        @Override
+        public void run() {
+            while (mThreadReadDataFlage&&threadReadDataFlage){
+                try {
+                    ReadBufferLenght=inputStream.read(ReadBuffer);//服务器断开会返回-1
+
+                    ReadBuffer0=new byte[ReadBufferLenght];//存储接收到的数据
+                    for(int i=0;i<ReadBufferLenght;i++){
+                        ReadBuffer0[i]=ReadBuffer[i];
+                    }
+                    sendHandleMsg(mHandler,"ReadData",ReadBuffer0);//向Handler发送消息
+
+                    if(ReadBufferLenght==-1){
+                        mThreadReadDataFlage=false;
+                        threadReadDataFlage=false;//关掉接收任务
+                        threadSendDataFlage=false;//关掉发送任务
+                        sendHandleMsg(mHandler,"ConClose",mStringSocketMsg);//向Handler发送消息
+                        sendHandleMsg(mHandler,"Toast",mStringSocketMsg+"断开");//向Handler发送消息
+                        try {
+                            arrayListSockets.remove(mySocket);
+                        }catch (Exception e){
+
+                        }
+                    }
+
+                } catch (Exception e) {
+                    if(mThreadReadDataFlage){
+                        mThreadReadDataFlage=false;
+                        threadReadDataFlage=false;//关掉接收任务
+                        sendHandleMsg(mHandler,"ConClose",mStringSocketMsg);//向Handler发送消息
+                        sendHandleMsg(mHandler,"Toast",mStringSocketMsg+"断开");//向Handler发送消息
+                        try{
+                            arrayListSockets.remove(mySocket);
+                        }catch (Exception e1){
+
+                        }
+
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -473,33 +591,34 @@ public class MainActivity extends AppCompatActivity {
      **/
     private void autoSendData() {
         timer.scheduleAtFixedRate(new TimerTask() {
+
             @Override
             public void run() {
 
-
                 try {
-                    if(isSend){//如果连接成功,就发送数据
+                    if(MonitorFlage){
                         switch (sendFlag) {
-                            case 0://设置操作模式
+                            case 0:
                                 sendByteArray[2] = 0x20;//命令字
                                 sendByteArray[3] = 0x01;
-                                sendDataToService(sendByteArray);//发送到服务器数据的方法
-                                sendFlag=1;
+                                sendDataToClient(sendByteArray);//发送到客户端数据的方法
+//                                sendFlag=1;
                                 break;
-                            case 1://电流 电压 功率
-                                sendByteArray[2] = 0x29;//命令字
+                            case 1:
                                 sendByteArray[3] = 0x00;
-                                sendDataToService(sendByteArray);//发送到服务器数据的方法
-                                sendFlag=2;
+                                sendByteArray[2] = 0x29;//命令字
+                                sendDataToClient(sendByteArray);//发送到客户端数据的方法
+                               // sendFlag=2;
+
                                 break;
                             case 2:
                                 sendByteArray[2] = 0x2A;//命令字
-                                sendDataToService(sendByteArray);
+                                sendDataToClient(sendByteArray);
                                 sendFlag=3;
                                 break;
                             case 3:
                                 sendByteArray[2] = 0x2C;//命令字
-                                sendDataToService(sendByteArray);
+                                sendDataToClient(sendByteArray);
                                 sendFlag=4;
                                 break;
                             case 4:
@@ -509,122 +628,131 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
-
                 } catch (Exception e) {
-                    sendHandleMsg(mHandler, "ConState", "ConNo");//向Handle发送消息
                     threadReadDataFlage = false;//关掉接收任务,预防产生多的任务
                     threadSendDataFlage = false;//关掉发送任务,预防产生多的任务
                     try {
                         mthreadSendData.interrupt();
                     } catch (Exception e2) {
                     }
-                    SendDataCnt = 0;
+                    sendDataCnt = 0;
+
 
                 }
             }
 
-        }, 1000, 2000);
+
+        }, 1000, 3000);
     }
 
-    /**   发送到服务器数据的方法  **/
-    private byte[] sendDataToService(byte[] bytes){
+    /**
+     * 发送到客户端数据的方法
+     **/
+    private byte[] sendDataToClient(byte[] bytes) {
 
         bytes = sendByteArray;
 
-        for (int i = 0; i <bytes.length; i++) {
-            SendBuffer[i] =bytes[i];
+        for (int i = 0; i < bytes.length; i++) {
+            sendBuffer[i] = bytes[i];
         }
-        SendDataCnt = bytes.length;
+        sendDataCnt = bytes.length;
         try {
-            outputStream.write(SendBuffer, 0, SendDataCnt);
+            outputStream.write(sendBuffer, 0, sendDataCnt);
         } catch (IOException e) {
             e.printStackTrace();
         }
         // 存储发送的数据
-        SendDataCnt = 0;//清零发送的个数
+        sendDataCnt = 0;//清零发送的个数
         return bytes;
 
     }
-
     /**
-     * 接收数据的任务
+     * 发送数据任务线程
      **/
-    class ThreadReadData extends Thread {
-
-        boolean mThreadReadDataFlage = true;
+    class ThreadSendData extends Thread{
+        private boolean mThreadFlage=true;
 
         @Override
         public void run() {
-            while (mThreadReadDataFlage && threadReadDataFlage) {
-                try {
-                    ReadBufferLength = inputStream.read(ReadBuffer);//服务器断开会返回-1,ReadBufferLenght是读取数据的长度
-                    byte[] ReadBuffer0 = new byte[ReadBufferLength];//存储接收到的数据
-                    for (int i = 0; i < ReadBufferLength; i++) {
-                        ReadBuffer0[i] = ReadBuffer[i];
-                    }
-
-                    sendHandleMsg(mHandler, "ReadData", ReadBuffer0);//向Handle发送消息
-
-
-                    if (ReadBufferLength == -1) {
-                        mThreadReadDataFlage = false;
-                        threadReadDataFlage = false;//关掉接收任务,预防产生多的任务
-                        ConnectFlage = true;
-                        threadSendDataFlage = false;//关掉发送任务,预防产生多的任务
-                        SendDataCnt = 0;
-
-                        sendHandleMsg(mHandler, "ConState", "ConNO");//向Handle发送消息
-
-                    }
-
-
-                } catch (Exception e) {
-                    mThreadReadDataFlage = false;
-                    threadReadDataFlage = false;//关掉接收任务,预防产生多的任务
+            while (mThreadFlage&&threadSendDataFlage){
+                if(sendDataCnt>0){//要发送的数据个数大于0
+                    sendDataFlage=false;
                     try {
-                        mthreadReadData.interrupt();
-                    } catch (Exception e2) {
+                        for(Socket sk:arrayListSockets){
+                            outputStream=sk.getOutputStream();
+                            sendDataFlage=true;
+                            break;
+                        }
+
+                    }catch (Exception e){
+                        //发送失败
+                        sendDataCnt=0;
+
                     }
-                    SendDataCnt = 0;
 
                 }
 
             }
-
         }
     }
 
     /**
      * Handler
      **/
-    class MyHandler extends Handler{
+    class MyHandler extends Handler {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
             Bundle bundle = msg.getData();
-            String string=bundle.getString("ConState");
-            try
-            {
-                if(string.equals("ConOK"))
-                {
-                    Toast.makeText(getApplicationContext(), "连接成功", Toast.LENGTH_SHORT).show();
-                }
-                else if (string.equals("ConNO")) {
-                    Toast.makeText(getApplicationContext(), "与服务器断开连接", Toast.LENGTH_SHORT).show();
+            /** 连接和断开**/
+            String string = bundle.getString("ConState");//连接和断开
+            try {
+                if (string.equals("new")) {
+                    // Toast.makeText(getApplicationContext(), "有新的连接", Toast.LENGTH_SHORT).show();
+                } else if (string.equals("ConError")) {
+                    Toast.makeText(getApplicationContext(), "请启动监听", Toast.LENGTH_SHORT).show();
+
                 }
 
             } catch (Exception e) {
                 // TODO: handle exception
             }
 
+            /***有连接断开了*/
+            string=bundle.getString("ConClose");//有连接断开了
+            if(string!=null){
+                try{
+                    listClient.remove(string);
+                     tv_connect.setText("连接");
+                    //  Toast.makeText(getApplicationContext(),string+"连接断开了",Toast.LENGTH_SHORT).show();
+                }catch (Exception e){
+
+                }
+
+            }
+
+            /**显示消息**/
+            string=bundle.getString("Toast");//显示消息
+            if(string!=null){
+                try{
+                    Toast.makeText(getApplicationContext(),string,Toast.LENGTH_SHORT).show();
+
+                }catch (Exception e){
+
+                }
+            }
+
+
+            /**接收到的消息**/
 
             byte[] ReadByte = bundle.getByteArray("ReadData");//接收到的字节数组
 
-            if(ReadByte!=null&&ReadByte.length==20){
+            if (ReadByte != null && ReadByte.length == 20) {
+
 
                 switch (ReadByte[2]) {//根据命令字判断
                     case 0x20:
-
+                        sendFlag=1;
                         break;
                     case 0x29:
                         //输入电压
@@ -639,6 +767,7 @@ public class MainActivity extends AppCompatActivity {
                         //功率
                         int powerValue = ReadByte[9] << 8 + ReadByte[10];
                         tv_power.setText(Integer.toString(powerValue));
+                         sendFlag = 2;
                         break;
                     case 0x2A:
                         //时间
@@ -650,7 +779,7 @@ public class MainActivity extends AppCompatActivity {
                         //容量
                         int capacityValue=ReadByte[11] << 8 + ReadByte[12]<<4+ReadByte[13];
                         tv_capacity.setText(Integer.toString(capacityValue));
-                        //  sendFlag=3;
+                         sendFlag=3;
                         break;
                     case 0x2C:
                         //设置电压
@@ -660,19 +789,18 @@ public class MainActivity extends AppCompatActivity {
                         //设置电流
                         int setIValue=ReadByte[9] << 8 + ReadByte[10];
                         et_setI.setText(Integer.toString(setIValue));
-                        //  sendFlag=4;
+                        sendFlag=4;
                         break;
 
 
                 }
 
+
             }
 
-            // tv_voltage.setText(byteToHexStr(ReadByte));
         }
 
     }
-
 
 
     /**
@@ -1219,5 +1347,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+
+
 
 }

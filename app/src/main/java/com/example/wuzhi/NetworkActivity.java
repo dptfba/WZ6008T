@@ -108,6 +108,7 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
         mConfirmBtn = findViewById(R.id.confirm_btn);//确定按钮
         mConfirmBtn.setEnabled(false);
         mConfirmBtn.setOnClickListener(this);
+
         uDPsend();
 
         //保存密码

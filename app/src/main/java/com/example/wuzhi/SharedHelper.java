@@ -19,7 +19,7 @@ public class SharedHelper {
         SharedPreferences.Editor editor=sp.edit();
         editor.putString("password",password);
         editor.commit();
-        Toast.makeText(mContext,"信息已写入SharedPreference中",Toast.LENGTH_SHORT).show();
+      //  Toast.makeText(mContext,"信息已写入SharedPreference中",Toast.LENGTH_SHORT).show();
 
     }
 
