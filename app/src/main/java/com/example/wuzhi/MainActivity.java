@@ -988,7 +988,6 @@ public class MainActivity extends AppCompatActivity {
                 DecimalFormat df=new DecimalFormat("#.00");
                 if(value==0.00f){
                     return "0.00V";
-
                 }
 
                 return ""+ df.format(value)+"V";
@@ -1004,7 +1003,6 @@ public class MainActivity extends AppCompatActivity {
         //leftAxis.setGranularity(0.2f);
         rightAxis.setAxisMinimum(0.00f);//设置右侧y轴的最小值
         rightAxis.setAxisMaximum(1.20f);//设置右侧y轴的最大值
-
 
 
         //提供折线数据(获取到的数据)
