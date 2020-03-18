@@ -50,6 +50,7 @@ import android.widget.Toast;
 import com.example.wuzhi.Utils.ExcelUtils;
 import com.example.wuzhi.Utils.LocaleUtils;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
@@ -57,6 +58,7 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.navigation.NavigationView;
@@ -84,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     UpdateManager updateManager;//APP自动更新类
 
     String tag = "=======err";
-    private DecimalFormat mDecimalFormat=new DecimalFormat("#.00");//格式化浮点数位两位小数
+    private DecimalFormat mDecimalFormat=new DecimalFormat("#.00");//格式化显示浮点数位两位小数
 
     private long eixtTime = 0;//存在时间
 
@@ -800,7 +802,7 @@ public class MainActivity extends AppCompatActivity {
                     tv_connect.setEnabled(true);//能点击操作
                     // Toast.makeText(getApplicationContext(), "有新的连接", Toast.LENGTH_SHORT).show();
                 } else if (string.equals("ConError")) {
-                    Toast.makeText(getApplicationContext(), "请启动监听", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "连接出错,请重新启动应用", Toast.LENGTH_SHORT).show();
 
                 }
 
@@ -839,7 +841,6 @@ public class MainActivity extends AppCompatActivity {
             byte[] ReadByte = bundle.getByteArray("ReadData");//接收到的字节数组
 
             if (ReadByte != null && ReadByte.length == 20) {
-
 
                 switch (ReadByte[2]) {//根据命令字判断
                     case 0x20:
@@ -977,17 +978,30 @@ public class MainActivity extends AppCompatActivity {
         leftAxis.setLabelCount(5, false);
         //设置左边y轴的字体颜色
         leftAxis.setTextColor(Color.WHITE);
+        leftAxis.setAxisMinimum(0.00f);//设置左侧y轴的最小值
+        leftAxis.setAxisMaximum(1.20f);//设置左侧y轴的最大值
+        //设置左边y轴数据显示格式
+        leftAxis.setValueFormatter(new IAxisValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+
+                DecimalFormat df=new DecimalFormat("#.00");
+                if(value==0.00f){
+                    return "0.00V";
+
+                }
+
+                return ""+ df.format(value)+"V";
+            }
+        });
 
         YAxis rightAxis = lineChart.getAxisRight();//右侧y轴
         rightAxis.setLabelCount(5, false);//y轴网格线
         //设置右边y轴的字体颜色
         rightAxis.setTextColor(Color.WHITE);
 
-        leftAxis.setAxisMinimum(0.00f);//设置左侧y轴的最小值
-        leftAxis.setAxisMaximum(1.20f);//设置左侧y轴的最大值
         //设置y轴坐标之间的最小间隔
         //leftAxis.setGranularity(0.2f);
-
         rightAxis.setAxisMinimum(0.00f);//设置右侧y轴的最小值
         rightAxis.setAxisMaximum(1.20f);//设置右侧y轴的最大值
 
@@ -1011,6 +1025,7 @@ public class MainActivity extends AppCompatActivity {
      */
 
 
+    //ArrayList<Entry> tempvalue  //此处为存放的数值，数值为1个小数点 如21.5等等
     float[] currentValues={0.1f,0.5f,0.7f,0.6f,0.2f,0.2f,0.5f};//电流
     float[] voltageValues={0.8f,0.8f,0.8f,0.8f,0.8f,0.8f,0.8f};//电压
 
