@@ -166,6 +166,8 @@ public class MainActivity extends AppCompatActivity {
             0x00, 0x00, 0x00, 0x00, 0x00,};
     int sendFlag=0;//记录发送数据变量
 
+    private static final String ADDRESSNAME="address";
+
 
 
     private Timer timer = new Timer();//定时器
@@ -235,6 +237,11 @@ public class MainActivity extends AppCompatActivity {
         statrtMonitor();//启动服务器监听方法
 
 
+        //设备地址选择保存
+        SharedPreferences sp=this.getSharedPreferences(ADDRESSNAME,Context.MODE_PRIVATE);
+        String addressStr=sp.getString(ADDRESSNAME,"");
+
+
 
         /**下面是字体大小自适应部分,适合英文状态**/
         TextView tv_voltage_title = findViewById(R.id.tv_voltage_title);
@@ -294,14 +301,24 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.item_address://地址选择
                         //弹出带编辑框的AlertDialog
                         drawerLayout.closeDrawer(GravityCompat.START);//关闭navigationView滑动出来
-
+                        //编辑框
                         final EditText editText = new EditText(MainActivity.this);
+
+                        //如果获取到的内容不为空,则设置文本显示
+                        if(addressStr!=null){
+                            editText.setText(addressStr);
+                        }
                         new AlertDialog.Builder(MainActivity.this).setTitle(getString(R.string.address_dialog_title))
                                 .setView(editText)
                                 .setPositiveButton(getString(R.string.positiveButton), new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        //按下确定键
+
+                                        //按下确定键时,提交保存编辑框内容
+                                       SharedPreferences.Editor editor1= sp.edit();
+                                       editor1.putString(ADDRESSNAME,editText.getText().toString());
+                                       editor1.commit();//提交修改
+
                                         Toast.makeText(MainActivity.this, getString(R.string.address_dialog_title) + ":" + editText
                                                         .getText().toString(),
                                                 Toast.LENGTH_SHORT).show();
@@ -327,6 +344,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+
         /*************界面数据通信部分***********/
 
         sharedPreferences=MainActivity.this.getSharedPreferences("portSaveData",MODE_PRIVATE);
@@ -346,6 +364,8 @@ public class MainActivity extends AppCompatActivity {
                     }else {
                         tv_connect.setText("断开");
                         startTimerToSend();//开启定时器发送数据
+                        Toast.makeText(MainActivity.this, getString(R.string.address_dialog_title) + ":" + addressStr,
+                                Toast.LENGTH_SHORT).show();
                     }
                 }
 
