@@ -13,6 +13,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
 import android.app.ActivityManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -29,6 +30,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -87,7 +89,8 @@ public class MainActivity extends AppCompatActivity {
     private long eixtTime = 0;//存在时间
 
 
-    NavigationView navigationView;
+    //侧滑抽屉控件
+    NavigationView navigationView;//导航菜单
     DrawerLayout drawerLayout;
     Toolbar toolbar;
 
@@ -160,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
 
     byte[] sendByteArray = {(byte) 0xAA, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00,};
-    int sendFlag=0;//发送变量
+    int sendFlag=0;//记录发送数据变量
 
 
     final Timer timer = new Timer();
@@ -181,6 +184,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//竖屏
         setContentView(R.layout.activity_main);
+
+        wifiOpen();//打开wifi的方法
 
         //软件更新的检查调用
        // updateManager=new UpdateManager(MainActivity.this);
@@ -222,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
         mHandler=new MyHandler();
 
 
-        initLineChart();//初始化折线图
+        initLineChart();//初始化折线图方法
 
 
         /**界面数据通信部分**/
@@ -236,12 +241,11 @@ public class MainActivity extends AppCompatActivity {
         tv_connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if(MonitorFlage){//如果连接成功
-                    tv_connect.setText("断开");
+                   // tv_connect.setText("断开");
                     autoSendData();
-
                 }
-
             }
         });
 
@@ -396,6 +400,35 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    /**  判断是否打开wifi 并且打开的方法**/
+    private void wifiOpen(){
+        if(isWifiOpened()==false){
+            AlertDialog.Builder builder=new AlertDialog.Builder(MainActivity.this);
+            builder.setMessage("WIFI未连接,请先打开WIFI");
+            builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS)); //直接进入手机中的wifi网络设置界面
+
+                }
+            });
+            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+
+                }
+            });
+            builder.show();
+        }
+    }
+
+    //判断手机是否打开wifi
+    private boolean isWifiOpened() {
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        return wifiManager.isWifiEnabled();
     }
 
     //点击菜单导航图标,让滑块显示
@@ -602,7 +635,7 @@ public class MainActivity extends AppCompatActivity {
                                 sendByteArray[2] = 0x20;//命令字
                                 sendByteArray[3] = 0x01;
                                 sendDataToClient(sendByteArray);//发送到客户端数据的方法
-//                                sendFlag=1;
+                              // sendFlag=1;
                                 break;
                             case 1:
                                 sendByteArray[3] = 0x00;
@@ -614,12 +647,12 @@ public class MainActivity extends AppCompatActivity {
                             case 2:
                                 sendByteArray[2] = 0x2A;//命令字
                                 sendDataToClient(sendByteArray);
-                                sendFlag=3;
+                               // sendFlag=3;
                                 break;
                             case 3:
                                 sendByteArray[2] = 0x2C;//命令字
                                 sendDataToClient(sendByteArray);
-                                sendFlag=4;
+                              //  sendFlag=4;
                                 break;
                             case 4:
                                 sendFlag=1;
@@ -1259,7 +1292,7 @@ public class MainActivity extends AppCompatActivity {
 
         makeDir(file);
         ExcelUtils.initExcel(excelFilePath,"电压电流数据表格",colNames);//需要写入权限
-        ExcelUtils.writeObjListToExcel(getTraveData(),excelFilePath,this);
+        ExcelUtils.writeObjListToExcel(getTraveData(),excelFilePath,this);//把数据写入表格getTraveData()数据方法
     }
 
     /**
