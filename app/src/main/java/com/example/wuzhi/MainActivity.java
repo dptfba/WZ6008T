@@ -138,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
     OutputStream outputStream;//获取输出流
     InputStream inputStream;//获取输入流
     ThreadMonitorConnect threadMonitorConnect=new ThreadMonitorConnect();//监听连接的线程
+    ThreadSendData threadSendData=new ThreadSendData();//发送数据线程
 
     boolean threadReadDataFlage=false;//接收数据任务运行控制
     boolean threadSendDataFlage=false;//发送数据任务运行控制
@@ -166,7 +167,10 @@ public class MainActivity extends AppCompatActivity {
     int sendFlag=0;//记录发送数据变量
 
 
-    final Timer timer = new Timer();
+
+    private Timer timer = new Timer();//定时器
+    private TimerTask timerTask=null;//定时任务
+
     MyHandler mHandler;//handler
 
 
@@ -228,89 +232,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         initLineChart();//初始化折线图方法
+        statrtMonitor();//启动服务器监听方法
 
 
-        /**界面数据通信部分**/
-        sharedPreferences=MainActivity.this.getSharedPreferences("portSaveData",MODE_PRIVATE);
-        portSaveData=sharedPreferences.getString("portData","18041");
-        sendDataString=sharedPreferences.getString("sendData","");
 
-        statrtMonitor();//启动监听方法
-
-        //点击连接发送数据
-        tv_connect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if(MonitorFlage){//如果连接成功
-                   // tv_connect.setText("断开");
-                    autoSendData();
-                }
-            }
-        });
-
-
-        /**暂停记录,和清除记录部分**/
-        //暂停或开始按钮
-        btn_pause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (!isPause) {//暂停计时
-                    btn_pause.setText(getString(R.string.btnTextStart));
-                } else {//继续计时
-                    btn_pause.setText(getString(R.string.btnTextStop));
-                }
-                isPause = !isPause;
-            }
-
-        });
-
-        //清除按钮
-        btn_clear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                tv_writeTime.setText("00:00:00");
-
-                if (btn_pause.getText() == getString(R.string.btnTextStop)) {
-                    btn_pause.setText(getString(R.string.btnTextStart));
-
-                    isPause = !isPause;
-
-                }
-
-            }
-        });
-
-
-        /**开机按钮键**/
-        btn_switch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!isOn) {//关闭状态下
-                    btn_switch.setImageResource(R.drawable.btn_on);
-
-                } else {//打开状态下
-
-                    btn_switch.setImageResource(R.drawable.btn_off);
-                }
-                isOn = !isOn;
-
-
-            }
-        });
-
-
-        /**点击存储把数据导出到Excel表格**/
-        tv_save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                export();
-            }
-        });
-
-
-        /**下面是字体大小自适应部分**/
+        /**下面是字体大小自适应部分,适合英文状态**/
         TextView tv_voltage_title = findViewById(R.id.tv_voltage_title);
         TextView tv_current_title = findViewById(R.id.tv_current_title);
         autoSizeText(tv_voltage_title);
@@ -400,9 +326,96 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        /*************界面数据通信部分***********/
+
+        sharedPreferences=MainActivity.this.getSharedPreferences("portSaveData",MODE_PRIVATE);
+        portSaveData=sharedPreferences.getString("portData","18041");
+        sendDataString=sharedPreferences.getString("sendData","");
+
+
+        //点击连接发送数据
+        tv_connect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(socket!=null){
+                    if(tv_connect.getText()=="断开"){
+                        stopTimer();//停止定时器
+                        tv_connect.setText("连接");
+
+                    }else {
+                        tv_connect.setText("断开");
+                        startTimerToSend();//开启定时器发送数据
+                    }
+                }
+
+            }
+        });
+
+
+        /**暂停记录,和清除记录部分**/
+        //暂停或开始按钮
+        btn_pause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (!isPause) {//暂停计时
+                    btn_pause.setText(getString(R.string.btnTextStart));
+                } else {//继续计时
+                    btn_pause.setText(getString(R.string.btnTextStop));
+                }
+                isPause = !isPause;
+            }
+
+        });
+
+        //清除按钮
+        btn_clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tv_writeTime.setText("00:00:00");
+
+                if (btn_pause.getText() == getString(R.string.btnTextStop)) {
+                    btn_pause.setText(getString(R.string.btnTextStart));
+
+                    isPause = !isPause;
+
+                }
+
+            }
+        });
+
+
+        /**开机按钮键**/
+        btn_switch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isOn) {//关闭状态下
+                    btn_switch.setImageResource(R.drawable.btn_on);
+
+                } else {//打开状态下
+
+                    btn_switch.setImageResource(R.drawable.btn_off);
+                }
+                isOn = !isOn;
+
+
+            }
+        });
+
+
+        /**点击存储把数据导出到Excel表格**/
+        tv_save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                export();
+            }
+        });
+
+
     }
 
-    /**  判断是否打开wifi 并且打开的方法**/
+    /**判断是否打开wifi 并且打开的方法**/
     private void wifiOpen(){
         if(isWifiOpened()==false){
             AlertDialog.Builder builder=new AlertDialog.Builder(MainActivity.this);
@@ -425,7 +438,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //判断手机是否打开wifi
+    /**判断手机是否打开wifi**/
     private boolean isWifiOpened() {
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         return wifiManager.isWifiEnabled();
@@ -523,7 +536,6 @@ public class MainActivity extends AppCompatActivity {
                     threadReadData.start();//开启接收数据线程
                     if(threadSendDataFlage==false){
                         threadSendDataFlage=true;//发送任务
-                        ThreadSendData threadSendData=new ThreadSendData();
                         threadSendData.start();//开启发送数据线程
                         mthreadSendData=threadSendData;
 
@@ -619,63 +631,87 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+
     /**
-     * 用线程实现每隔一段时间自动执行发送代码
-     **/
-    private void autoSendData() {
-        timer.scheduleAtFixedRate(new TimerTask() {
-
-            @Override
-            public void run() {
-
-                try {
-                    if(MonitorFlage){
-                        switch (sendFlag) {
-                            case 0:
-                                sendByteArray[2] = 0x20;//命令字
-                                sendByteArray[3] = 0x01;
-                                sendDataToClient(sendByteArray);//发送到客户端数据的方法
-                              // sendFlag=1;
-                                break;
-                            case 1:
-                                sendByteArray[3] = 0x00;
-                                sendByteArray[2] = 0x29;//命令字
-                                sendDataToClient(sendByteArray);//发送到客户端数据的方法
-                               // sendFlag=2;
-
-                                break;
-                            case 2:
-                                sendByteArray[2] = 0x2A;//命令字
-                                sendDataToClient(sendByteArray);
-                               // sendFlag=3;
-                                break;
-                            case 3:
-                                sendByteArray[2] = 0x2C;//命令字
-                                sendDataToClient(sendByteArray);
-                              //  sendFlag=4;
-                                break;
-                            case 4:
-                                sendFlag=1;
-                                break;
-
-                        }
-                    }
-
-                } catch (Exception e) {
-                    threadReadDataFlage = false;//关掉接收任务,预防产生多的任务
-                    threadSendDataFlage = false;//关掉发送任务,预防产生多的任务
+     *  用线程实现每隔一段时间自动执行发送代码,开启定时器
+     * **/
+    private void startTimerToSend(){
+        if(timer==null){
+            timer=new Timer();
+        }
+        if(timerTask==null){
+            timerTask=new TimerTask() {
+                @Override
+                public void run() {
                     try {
-                        mthreadSendData.interrupt();
-                    } catch (Exception e2) {
-                    }
-                    sendDataCnt = 0;
+                        if(MonitorFlage){
+                            switch (sendFlag) {
+                                case 0:
+                                    sendByteArray[2] = 0x20;//命令字
+                                    sendByteArray[3] = 0x01;
+                                    sendDataToClient(sendByteArray);//发送到客户端数据的方法
+                                    sendFlag=1;
+                                    break;
+                                case 1:
+                                    sendByteArray[3] = 0x00;
+                                    sendByteArray[2] = 0x29;//命令字
+                                    sendDataToClient(sendByteArray);//发送到客户端数据的方法
+                                    sendFlag=2;
 
+                                    break;
+                                case 2:
+                                    sendByteArray[2] = 0x2A;//命令字
+                                    sendDataToClient(sendByteArray);
+                                    sendFlag=3;
+                                    break;
+                                case 3:
+                                    sendByteArray[2] = 0x2C;//命令字
+                                    sendDataToClient(sendByteArray);
+                                    sendFlag=4;
+                                    break;
+                                case 4:
+                                    sendFlag=1;
+                                    break;
+
+                            }
+                        }
+
+
+
+                    } catch (Exception e) {
+                        //  sendHandleMsg(mHandler, "ConState", "ConNo");//向Handle发送消息
+                        threadReadDataFlage = false;//关掉接收任务,预防产生多的任务
+                        threadSendDataFlage = false;//关掉发送任务,预防产生多的任务
+                        try {
+                            mthreadSendData.interrupt();
+                        } catch (Exception e2) {
+                        }
+                        sendDataCnt = 0;
+
+
+                    }
 
                 }
+            };
+            if(timer!=null&&timerTask!=null){
+                timer.schedule(timerTask,1000,2000);//这里schedule也可用scheduleAtFixedRate
             }
+        }
+    }
 
+    /**停止定时器**/
+    private void stopTimer(){
+        if(timer!=null){
+            timer.cancel();
+            timer=null;
 
-        }, 1000, 3000);
+        }
+        if(timerTask!=null){
+            timerTask.cancel();
+            timerTask=null;
+
+        }
     }
 
     /**
@@ -741,6 +777,7 @@ public class MainActivity extends AppCompatActivity {
             String string = bundle.getString("ConState");//连接和断开
             try {
                 if (string.equals("new")) {
+                    tv_connect.setEnabled(true);//能点击操作
                     // Toast.makeText(getApplicationContext(), "有新的连接", Toast.LENGTH_SHORT).show();
                 } else if (string.equals("ConError")) {
                     Toast.makeText(getApplicationContext(), "请启动监听", Toast.LENGTH_SHORT).show();
@@ -757,6 +794,7 @@ public class MainActivity extends AppCompatActivity {
                 try{
                     listClient.remove(string);
                      tv_connect.setText("连接");
+                     tv_connect.setEnabled(false);//不能点击操作
                     //  Toast.makeText(getApplicationContext(),string+"连接断开了",Toast.LENGTH_SHORT).show();
                 }catch (Exception e){
 
