@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     UpdateManager updateManager;//APP自动更新类
 
     String tag = "=======err";
-    private DecimalFormat mDecimalFormat=new DecimalFormat("#.00");//格式化显示浮点数位两位小数
+    private DecimalFormat mDecimalFormat = new DecimalFormat("#.00");//格式化显示浮点数位两位小数
 
     private long eixtTime = 0;//存在时间
 
@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     Chronometer chronometer_bootTime;//开机时间
-   // Chronometer chronometer_writeTime;//记录时间
+    // Chronometer chronometer_writeTime;//记录时间
     TextView tv_writeTime;//记录时间
     int miss1 = 0;
     int miss2 = 0;
@@ -132,41 +132,41 @@ public class MainActivity extends AppCompatActivity {
 
 
     //数据通信
-    boolean MonitorFlage=false;//连接按钮循环显示连接和断开
-    boolean MonitorConnectFlage=true;//监听任务
-    private ServerSocket serverSocket=null;//创建ServerSocket对象
-    int socketPort=18041;
-    Socket socket=null;//连接通道,创建Socket对象
+    boolean MonitorFlage = false;//连接按钮循环显示连接和断开
+    boolean MonitorConnectFlage = true;//监听任务
+    private ServerSocket serverSocket = null;//创建ServerSocket对象
+    int socketPort = 18041;
+    Socket socket = null;//连接通道,创建Socket对象
     OutputStream outputStream;//获取输出流
     InputStream inputStream;//获取输入流
-    ThreadMonitorConnect threadMonitorConnect=new ThreadMonitorConnect();//监听连接的线程
-    ThreadSendData threadSendData=new ThreadSendData();//发送数据线程
+    ThreadMonitorConnect threadMonitorConnect = new ThreadMonitorConnect();//监听连接的线程
+    ThreadSendData threadSendData = new ThreadSendData();//发送数据线程
 
-    boolean threadReadDataFlage=false;//接收数据任务运行控制
-    boolean threadSendDataFlage=false;//发送数据任务运行控制
-    boolean sendDataFlage=false;//可以发送数据
+    boolean threadReadDataFlage = false;//接收数据任务运行控制
+    boolean threadSendDataFlage = false;//发送数据任务运行控制
+    boolean sendDataFlage = false;//可以发送数据
 
-    byte[] sendBuffer=new byte[2048];//存储发送的数据
-    byte[] ReadBuffer=new byte[2048];//存储接收的数据
-    int ReadBufferLenght=0;//接收到数据的长度
-    int sendDataCnt=0;//控制发送数据的个数
+    byte[] sendBuffer = new byte[2048];//存储发送的数据
+    byte[] ReadBuffer = new byte[2048];//存储接收的数据
+    int ReadBufferLenght = 0;//接收到数据的长度
+    int sendDataCnt = 0;//控制发送数据的个数
 
 
-    ArrayList<Socket> arrayListSockets=new ArrayList<>();//存储连接的Socket
-    private List<String> listClient=new ArrayList<>();//字符串集合
+    ArrayList<Socket> arrayListSockets = new ArrayList<>();//存储连接的Socket
+    private List<String> listClient = new ArrayList<>();//字符串集合
 
     private SharedPreferences sharedPreferences;//存储数据
     private SharedPreferences.Editor editor;//存储数据
 
-    String portSaveData="";
-    String sendDataString="";
+    String portSaveData = "";
+    String sendDataString = "";
 
     Thread mthreadSendData;//记下发送任务,便于停止
     Thread mthreadMonitorConnect;//记下监听任务,便于停止
 
     byte[] sendByteArray = {(byte) 0xAA, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00,};
-    int sendFlag=0;//记录发送数据变量
+    int sendFlag = 0;//记录发送数据变量
 
 
     //设备地址选择保存
@@ -177,18 +177,18 @@ public class MainActivity extends AppCompatActivity {
 
 
     private Timer timer = new Timer();//定时器
-    private TimerTask timerTask=null;//定时任务
+    private TimerTask timerTask = null;//定时任务
 
     MyHandler mHandler;//handler
 
 
+    /**
+     * Excel表格相关
+     **/
+    private String excelFilePath = "";
 
-    /** Excel表格相关**/
-    private String excelFilePath="";
-
-    private String[] colNames=new String[]{"电流","电压","电流","电压","电流","电压",};//每列列头标题
-    String[] pess=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE};
-
+    private String[] colNames = new String[]{"电流", "电压", "电流", "电压", "电流", "电压",};//每列列头标题
+    String[] pess = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
 
 
     @Override
@@ -200,8 +200,8 @@ public class MainActivity extends AppCompatActivity {
         wifiOpen();//打开wifi的方法
 
         //软件更新的检查调用
-       // updateManager=new UpdateManager(MainActivity.this);
-      //  updateManager.checkUpdateInfo();
+        // updateManager=new UpdateManager(MainActivity.this);
+        //  updateManager.checkUpdateInfo();
 
 
         toolbar = findViewById(R.id.toolbar);
@@ -213,10 +213,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         chronometer_bootTime = findViewById(R.id.chronometer_bootTime);
-       // chronometer_writeTime = findViewById(R.id.chronometer_writeTime);
-        tv_writeTime=findViewById(R.id.tv_writeTime);
+        // chronometer_writeTime = findViewById(R.id.chronometer_writeTime);
+        tv_writeTime = findViewById(R.id.tv_writeTime);
         startChronometer();//开机计时
-      //  writeChronometer();//记录时间计时
+        //  writeChronometer();//记录时间计时
         btn_pause = findViewById(R.id.btn_startOrPause);//暂停或开始按钮
         btn_clear = findViewById(R.id.btn_clear);//暂停按钮
 
@@ -236,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
         btn_hintButton = findViewById(R.id.btn_hintButton);//CC CV按钮
         tv_inputVoltage = findViewById(R.id.tv_inputVoltage);//输入电压
 
-        mHandler=new MyHandler();
+        mHandler = new MyHandler();
 
 
         initLineChart();//初始化折线图方法
@@ -244,10 +244,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         //设备地址选择保存
-         sharedPreferences1=getSharedPreferences("addressName",Context.MODE_PRIVATE);
-
-
-
+        sharedPreferences1 = getSharedPreferences("addressName", Context.MODE_PRIVATE);
+        addressStr = sharedPreferences1.getString("address", null);
 
 
         /**下面是字体大小自适应部分,适合英文状态**/
@@ -300,9 +298,9 @@ public class MainActivity extends AppCompatActivity {
                         Intent intent2 = new Intent(MainActivity.this, NetworkActivity.class);
 
                         //把ip文本框的内容赋值给String类型的message
-                        String message=tv_ip.getText().toString();
+                        String message = tv_ip.getText().toString();
                         //给message起一个名字,并传给另外一个activity
-                        intent2.putExtra("ip_message",message);
+                        intent2.putExtra("ip_message", message);
                         startActivity(intent2);
                         break;
                     case R.id.item_address://地址选择
@@ -310,30 +308,29 @@ public class MainActivity extends AppCompatActivity {
                         drawerLayout.closeDrawer(GravityCompat.START);//关闭navigationView滑动出来
                         //编辑框
                         final EditText editText = new EditText(MainActivity.this);
-                        addressStr=sharedPreferences1.getString("address",null);
                         //如果获取到的内容不为空,则设置文本显示
-                        if(addressStr!=null){
+                        if (addressStr != null) {
                             editText.setText(addressStr);
                         }
+
                         new AlertDialog.Builder(MainActivity.this).setTitle(getString(R.string.address_dialog_title))
                                 .setView(editText)
                                 .setPositiveButton(getString(R.string.positiveButton), new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         //先获取编辑框内容
-                                        addressStr=editText.getText().toString();
-
+                                        addressStr = editText.getText().toString();
                                         //按下确定键时,提交保存编辑框内容
-                                       editor1= sharedPreferences1.edit();
-                                       editor1.putString("address",addressStr);
-                                       editor1.commit();//提交修改
+                                        editor1 = sharedPreferences1.edit();
+                                        editor1.putString("address", addressStr);
+                                        editor1.commit();//提交修改
 
-                                        Toast.makeText(MainActivity.this, getString(R.string.address_dialog_title) + ":" + editText
-                                                        .getText().toString(),
+                                        Toast.makeText(MainActivity.this, getString(R.string.address_dialog_title) + ":" + addressStr,
                                                 Toast.LENGTH_SHORT).show();
 
                                     }
                                 }).setNegativeButton(getString(R.string.negativeButton), null).show();
+
 
                         break;
                     case R.id.item_language://切换语言
@@ -352,24 +349,23 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
         /*************界面数据通信部分***********/
 
-        sharedPreferences=MainActivity.this.getSharedPreferences("portSaveData",MODE_PRIVATE);
-        portSaveData=sharedPreferences.getString("portData","18041");
-        sendDataString=sharedPreferences.getString("sendData","");
+        sharedPreferences = MainActivity.this.getSharedPreferences("portSaveData", MODE_PRIVATE);
+        portSaveData = sharedPreferences.getString("portData", "18041");
+        sendDataString = sharedPreferences.getString("sendData", "");
 
 
         //点击连接发送数据
         tv_connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(socket!=null){
-                    if(tv_connect.getText()=="断开"){
+                if (socket != null) {
+                    if (tv_connect.getText() == "断开") {
                         stopTimer();//停止定时器
                         tv_connect.setText("连接");
 
-                    }else {
+                    } else {
                         tv_connect.setText("断开");
                         startTimerToSend();//开启定时器发送数据
                         Toast.makeText(MainActivity.this, getString(R.string.address_dialog_title) + ":" + addressStr,
@@ -443,10 +439,27 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    /**判断是否打开wifi 并且打开的方法**/
-    private void wifiOpen(){
-        if(isWifiOpened()==false){
-            AlertDialog.Builder builder=new AlertDialog.Builder(MainActivity.this);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 判断是否打开wifi 并且打开的方法
+     **/
+    private void wifiOpen() {
+        if (isWifiOpened() == false) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setMessage("WIFI未连接,请先打开WIFI");
             builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
                 @Override
@@ -466,7 +479,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**判断手机是否打开wifi**/
+    /**
+     * 判断手机是否打开wifi
+     **/
     private boolean isWifiOpened() {
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         return wifiManager.isWifiEnabled();
@@ -485,20 +500,22 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    /**启动监听方法**/
+    /**
+     * 启动监听方法
+     **/
 
-    private void statrtMonitor(){
-        if(MonitorFlage==false){
+    private void statrtMonitor() {
+        if (MonitorFlage == false) {
             try {
-                serverSocket=new ServerSocket(socketPort);
-                MonitorConnectFlage=true;
+                serverSocket = new ServerSocket(socketPort);
+                MonitorConnectFlage = true;
                 threadMonitorConnect.start();//监听线程开启
-                mthreadMonitorConnect=threadMonitorConnect;//记下监听任务
-                MonitorFlage=true;
+                mthreadMonitorConnect = threadMonitorConnect;//记下监听任务
+                MonitorFlage = true;
             } catch (IOException e1) {
-               // Toast.makeText(getApplicationContext(),"提示\r\n监听出错,请检查端口号",Toast.LENGTH_SHORT).show();
+                // Toast.makeText(getApplicationContext(),"提示\r\n监听出错,请检查端口号",Toast.LENGTH_SHORT).show();
             }
-        }else {
+        } else {
             try {
                 serverSocket.close();
             } catch (IOException e) {
@@ -509,8 +526,8 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            try{
-                for(Socket sk:arrayListSockets){
+            try {
+                for (Socket sk : arrayListSockets) {
                     try {
                         sk.close();
                     } catch (Exception e1) {
@@ -519,17 +536,17 @@ public class MainActivity extends AppCompatActivity {
 
                 }
 
-            }catch (Exception e){
+            } catch (Exception e) {
 
             }
-            MonitorConnectFlage=false;
+            MonitorConnectFlage = false;
             try {
                 mthreadMonitorConnect.interrupt();//只是改变中断状态,不会中断一个正在运行的线程
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            MonitorFlage=false;
-            threadSendDataFlage=false;//关闭发送的任务
+            MonitorFlage = false;
+            threadSendDataFlage = false;//关闭发送的任务
 
             try {
                 mthreadSendData.interrupt();
@@ -544,51 +561,50 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * 监听连接线程
-     *
      **/
-    private class ThreadMonitorConnect extends Thread{
-        boolean mThreadMonitorConnectFlag=true;
+    private class ThreadMonitorConnect extends Thread {
+        boolean mThreadMonitorConnectFlag = true;
 
         @Override
         public void run() {
-            while (mThreadMonitorConnectFlag&&MonitorConnectFlage){
+            while (mThreadMonitorConnectFlag && MonitorConnectFlage) {
                 try {
-                    socket=serverSocket.accept();//等待客户端连接
+                    socket = serverSocket.accept();//等待客户端连接
                     arrayListSockets.add(socket);//添加socket
-                    String mString=(socket.getInetAddress()+":"+socket.getPort()).replace("/"," ");
+                    String mString = (socket.getInetAddress() + ":" + socket.getPort()).replace("/", " ");
                     listClient.add(mString);
-                    sendHandleMsg(mHandler,"ConState","new");
+                    sendHandleMsg(mHandler, "ConState", "new");
 
-                    threadReadDataFlage=true;//接收任务
-                    ThreadReadData threadReadData=new ThreadReadData(socket,mString);
+                    threadReadDataFlage = true;//接收任务
+                    ThreadReadData threadReadData = new ThreadReadData(socket, mString);
                     threadReadData.start();//开启接收数据线程
-                    if(threadSendDataFlage==false){
-                        threadSendDataFlage=true;//发送任务
+                    if (threadSendDataFlage == false) {
+                        threadSendDataFlage = true;//发送任务
                         threadSendData.start();//开启发送数据线程
-                        mthreadSendData=threadSendData;
+                        mthreadSendData = threadSendData;
 
                     }
 
                 } catch (Exception e) {
-                    try{
-                        for(Socket sk:arrayListSockets){
+                    try {
+                        for (Socket sk : arrayListSockets) {
                             try {
                                 sk.close();
 
-                            }catch (Exception e1){
+                            } catch (Exception e1) {
                                 e1.printStackTrace();
 
                             }
 
                         }
 
-                    }catch (Exception e2){
+                    } catch (Exception e2) {
 
                     }
-                    mThreadMonitorConnectFlag=false;
-                    MonitorConnectFlage=false;
-                    MonitorFlage=false;
-                    sendHandleMsg(mHandler,"ConState","ConError");//向Handler发送消息
+                    mThreadMonitorConnectFlag = false;
+                    MonitorConnectFlage = false;
+                    MonitorFlage = false;
+                    sendHandleMsg(mHandler, "ConState", "ConError");//向Handler发送消息
                 }
             }
         }
@@ -598,58 +614,58 @@ public class MainActivity extends AppCompatActivity {
      * 接收数据任务线程
      **/
 
-    private class ThreadReadData extends Thread{
-        boolean mThreadReadDataFlage=true;
-        String mStringSocketMsg="";//存储连接的信息,方便删除
-        private byte[] ReadBuffer0=new byte[1024];//数据缓存区,存储接收到的数据
+    private class ThreadReadData extends Thread {
+        boolean mThreadReadDataFlage = true;
+        String mStringSocketMsg = "";//存储连接的信息,方便删除
+        private byte[] ReadBuffer0 = new byte[1024];//数据缓存区,存储接收到的数据
         private Socket mySocket;//获取传进来的Socket
 
-        public ThreadReadData(Socket socket,String socketMsg){
-            mySocket=socket;
-            mStringSocketMsg=socketMsg;
+        public ThreadReadData(Socket socket, String socketMsg) {
+            mySocket = socket;
+            mStringSocketMsg = socketMsg;
             try {
-                inputStream=mySocket.getInputStream();//获取输入流
+                inputStream = mySocket.getInputStream();//获取输入流
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
-            sendHandleMsg(mHandler,"Toast",mStringSocketMsg+"连接");//向Handler发送消息
+            sendHandleMsg(mHandler, "Toast", mStringSocketMsg + "连接");//向Handler发送消息
 
         }
 
         @Override
         public void run() {
-            while (mThreadReadDataFlage&&threadReadDataFlage){
+            while (mThreadReadDataFlage && threadReadDataFlage) {
                 try {
-                    ReadBufferLenght=inputStream.read(ReadBuffer);//服务器断开会返回-1
+                    ReadBufferLenght = inputStream.read(ReadBuffer);//服务器断开会返回-1
 
-                    ReadBuffer0=new byte[ReadBufferLenght];//存储接收到的数据
-                    for(int i=0;i<ReadBufferLenght;i++){
-                        ReadBuffer0[i]=ReadBuffer[i];
+                    ReadBuffer0 = new byte[ReadBufferLenght];//存储接收到的数据
+                    for (int i = 0; i < ReadBufferLenght; i++) {
+                        ReadBuffer0[i] = ReadBuffer[i];
                     }
-                    sendHandleMsg(mHandler,"ReadData",ReadBuffer0);//向Handler发送消息
+                    sendHandleMsg(mHandler, "ReadData", ReadBuffer0);//向Handler发送消息
 
-                    if(ReadBufferLenght==-1){
-                        mThreadReadDataFlage=false;
-                        threadReadDataFlage=false;//关掉接收任务
-                        threadSendDataFlage=false;//关掉发送任务
-                        sendHandleMsg(mHandler,"ConClose",mStringSocketMsg);//向Handler发送消息
-                        sendHandleMsg(mHandler,"Toast",mStringSocketMsg+"断开");//向Handler发送消息
+                    if (ReadBufferLenght == -1) {
+                        mThreadReadDataFlage = false;
+                        threadReadDataFlage = false;//关掉接收任务
+                        threadSendDataFlage = false;//关掉发送任务
+                        sendHandleMsg(mHandler, "ConClose", mStringSocketMsg);//向Handler发送消息
+                        sendHandleMsg(mHandler, "Toast", mStringSocketMsg + "断开接收任务发送");//向Handler发送消息
                         try {
                             arrayListSockets.remove(mySocket);
-                        }catch (Exception e){
+                        } catch (Exception e) {
 
                         }
                     }
 
                 } catch (Exception e) {
-                    if(mThreadReadDataFlage){
-                        mThreadReadDataFlage=false;
-                        threadReadDataFlage=false;//关掉接收任务
-                        sendHandleMsg(mHandler,"ConClose",mStringSocketMsg);//向Handler发送消息
-                        sendHandleMsg(mHandler,"Toast",mStringSocketMsg+"断开");//向Handler发送消息
-                        try{
+                    if (mThreadReadDataFlage) {
+                        mThreadReadDataFlage = false;
+                        threadReadDataFlage = false;//关掉接收任务
+                        sendHandleMsg(mHandler, "ConClose", mStringSocketMsg);//向Handler发送消息
+                        sendHandleMsg(mHandler, "Toast", mStringSocketMsg + "断开");//向Handler发送消息
+                        try {
                             arrayListSockets.remove(mySocket);
-                        }catch (Exception e1){
+                        } catch (Exception e1) {
 
                         }
 
@@ -660,55 +676,52 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     /**
-     *  用线程实现每隔一段时间自动执行发送代码,开启定时器
-     * **/
-    private void startTimerToSend(){
-        if(timer==null){
-            timer=new Timer();
+     * 用线程实现每隔一段时间自动执行发送代码,开启定时器
+     **/
+    private void startTimerToSend() {
+        if (timer == null) {
+            timer = new Timer();
         }
-        if(timerTask==null){
-            timerTask=new TimerTask() {
+        if (timerTask == null) {
+            timerTask = new TimerTask() {
                 @Override
                 public void run() {
                     try {
-                        if(MonitorFlage){
+                        if (MonitorFlage) {
                             switch (sendFlag) {
                                 case 0:
                                     sendByteArray[2] = 0x20;//命令字
                                     sendByteArray[3] = 0x01;
                                     sendDataToClient(sendByteArray);//发送到客户端数据的方法
-                                    sendFlag=1;
+                                    sendFlag = 1;
                                     break;
                                 case 1:
                                     sendByteArray[3] = 0x00;
                                     sendByteArray[2] = 0x29;//命令字
                                     sendDataToClient(sendByteArray);//发送到客户端数据的方法
-                                    sendFlag=2;
+                                    sendFlag = 2;
 
                                     break;
                                 case 2:
                                     sendByteArray[2] = 0x2A;//命令字
                                     sendDataToClient(sendByteArray);
-                                    sendFlag=3;
+                                    sendFlag = 3;
                                     break;
                                 case 3:
                                     sendByteArray[2] = 0x2C;//命令字
                                     sendDataToClient(sendByteArray);
-                                    sendFlag=4;
+                                    sendFlag = 4;
                                     break;
                                 case 4:
-                                    sendFlag=1;
+                                    sendFlag = 1;
                                     break;
 
                             }
                         }
 
 
-
                     } catch (Exception e) {
-                        //  sendHandleMsg(mHandler, "ConState", "ConNo");//向Handle发送消息
                         threadReadDataFlage = false;//关掉接收任务,预防产生多的任务
                         threadSendDataFlage = false;//关掉发送任务,预防产生多的任务
                         try {
@@ -722,22 +735,24 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             };
-            if(timer!=null&&timerTask!=null){
-                timer.schedule(timerTask,1000,2000);//这里schedule也可用scheduleAtFixedRate
+            if (timer != null && timerTask != null) {
+                timer.schedule(timerTask, 1000, 2000);//这里schedule也可用scheduleAtFixedRate
             }
         }
     }
 
-    /**停止定时器**/
-    private void stopTimer(){
-        if(timer!=null){
+    /**
+     * 停止定时器
+     **/
+    private void stopTimer() {
+        if (timer != null) {
             timer.cancel();
-            timer=null;
+            timer = null;
 
         }
-        if(timerTask!=null){
+        if (timerTask != null) {
             timerTask.cancel();
-            timerTask=null;
+            timerTask = null;
 
         }
     }
@@ -763,27 +778,28 @@ public class MainActivity extends AppCompatActivity {
         return bytes;
 
     }
+
     /**
      * 发送数据任务线程
      **/
-    class ThreadSendData extends Thread{
-        private boolean mThreadFlage=true;
+    class ThreadSendData extends Thread {
+        private boolean mThreadFlage = true;
 
         @Override
         public void run() {
-            while (mThreadFlage&&threadSendDataFlage){
-                if(sendDataCnt>0){//要发送的数据个数大于0
-                    sendDataFlage=false;
+            while (mThreadFlage && threadSendDataFlage) {
+                if (sendDataCnt > 0) {//要发送的数据个数大于0
+                    sendDataFlage = false;
                     try {
-                        for(Socket sk:arrayListSockets){
-                            outputStream=sk.getOutputStream();
-                            sendDataFlage=true;
+                        for (Socket sk : arrayListSockets) {
+                            outputStream = sk.getOutputStream();
+                            sendDataFlage = true;
                             break;
                         }
 
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         //发送失败
-                        sendDataCnt=0;
+                        sendDataCnt = 0;
 
                     }
 
@@ -809,6 +825,7 @@ public class MainActivity extends AppCompatActivity {
                     // Toast.makeText(getApplicationContext(), "有新的连接", Toast.LENGTH_SHORT).show();
                 } else if (string.equals("ConError")) {
                     Toast.makeText(getApplicationContext(), "连接出错,请重新启动应用", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(MainActivity.this,MainActivity.class));
 
                 }
 
@@ -817,26 +834,26 @@ public class MainActivity extends AppCompatActivity {
             }
 
             /***有连接断开了*/
-            string=bundle.getString("ConClose");//有连接断开了
-            if(string!=null){
-                try{
+            string = bundle.getString("ConClose");//有连接断开了
+            if (string != null) {
+                try {
                     listClient.remove(string);
-                     tv_connect.setText("连接");
-                     tv_connect.setEnabled(false);//不能点击操作
-                    //  Toast.makeText(getApplicationContext(),string+"连接断开了",Toast.LENGTH_SHORT).show();
-                }catch (Exception e){
+                    tv_connect.setText("连接");
+                    tv_connect.setEnabled(false);//不能点击操作
+                    Toast.makeText(getApplicationContext(),string+"handle有连接断开了",Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
 
                 }
 
             }
 
             /**显示消息**/
-            string=bundle.getString("Toast");//显示消息
-            if(string!=null){
-                try{
-                    Toast.makeText(getApplicationContext(),string,Toast.LENGTH_SHORT).show();
+            string = bundle.getString("Toast");//显示消息
+            if (string != null) {
+                try {
+                    Toast.makeText(getApplicationContext(), string, Toast.LENGTH_SHORT).show();
 
-                }catch (Exception e){
+                } catch (Exception e) {
 
                 }
             }
@@ -850,7 +867,7 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (ReadByte[2]) {//根据命令字判断
                     case 0x20:
-                        sendFlag=1;
+                        sendFlag = 1;
                         break;
                     case 0x29:
                         //输入电压
@@ -865,29 +882,29 @@ public class MainActivity extends AppCompatActivity {
                         //功率
                         int powerValue = ReadByte[9] << 8 + ReadByte[10];
                         tv_power.setText(Integer.toString(powerValue));
-                         sendFlag = 2;
+                        sendFlag = 2;
                         break;
                     case 0x2A:
                         //时间
 
                         //能量
-                        int energyValue=ReadByte[8] << 8 + ReadByte[9]<<4+ReadByte[10];
+                        int energyValue = ReadByte[8] << 8 + ReadByte[9] << 4 + ReadByte[10];
                         tv_energy.setText(Integer.toString(energyValue));
 
                         //容量
-                        int capacityValue=ReadByte[11] << 8 + ReadByte[12]<<4+ReadByte[13];
+                        int capacityValue = ReadByte[11] << 8 + ReadByte[12] << 4 + ReadByte[13];
                         tv_capacity.setText(Integer.toString(capacityValue));
-                         sendFlag=3;
+                        sendFlag = 3;
                         break;
                     case 0x2C:
                         //设置电压
-                        int setUValue=ReadByte[7] << 8 + ReadByte[8];
+                        int setUValue = ReadByte[7] << 8 + ReadByte[8];
                         et_setU.setText(Integer.toString(setUValue));
 
                         //设置电流
-                        int setIValue=ReadByte[9] << 8 + ReadByte[10];
+                        int setIValue = ReadByte[9] << 8 + ReadByte[10];
                         et_setI.setText(Integer.toString(setIValue));
-                        sendFlag=4;
+                        sendFlag = 4;
                         break;
 
 
@@ -928,9 +945,8 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * 初始化折线图
-     *
      **/
-    private void initLineChart(){
+    private void initLineChart() {
         lineChart = findViewById(R.id.lineChart);//实例化图表
 
         lineChart.fitScreen();//设置自适应屏幕
@@ -956,7 +972,6 @@ public class MainActivity extends AppCompatActivity {
         legend.setFormToTextSpace(10f);//图例与文字间的距离
 
 
-
         //获取x轴
         XAxis xAxis = lineChart.getXAxis();
         //设置x轴的显示位置
@@ -974,7 +989,7 @@ public class MainActivity extends AppCompatActivity {
         //设置x轴的最大值
         xAxis.setAxisMaximum(6);
         //设置x轴的刻度数量,第二个参数表示是否评价分配
-       // xAxis.setLabelCount(20,false);
+        // xAxis.setLabelCount(20,false);
         //设置x轴坐标之间的最小间隔
         xAxis.setGranularity(1f);
 
@@ -991,12 +1006,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
 
-                DecimalFormat df=new DecimalFormat("#.00");
-                if(value==0.00f){
+                DecimalFormat df = new DecimalFormat("#.00");
+                if (value == 0.00f) {
                     return "0.00V";
                 }
 
-                return ""+ df.format(value)+"V";
+                return "" + df.format(value) + "V";
             }
         });
 
@@ -1030,8 +1045,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     //ArrayList<Entry> tempvalue  //此处为存放的数值，数值为1个小数点 如21.5等等
-    float[] currentValues={0.1f,0.5f,0.7f,0.6f,0.2f,0.2f,0.5f};//电流
-    float[] voltageValues={0.8f,0.8f,0.8f,0.8f,0.8f,0.8f,0.8f};//电压
+    float[] currentValues = {0.1f, 0.5f, 0.7f, 0.6f, 0.2f, 0.2f, 0.5f};//电流
+    float[] voltageValues = {0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f};//电压
 
     // 折线,折线点的数据方法
     private LineData generateDataLine(int cnt) {
@@ -1039,11 +1054,11 @@ public class MainActivity extends AppCompatActivity {
         //折线1
         ArrayList<Entry> values1 = new ArrayList<>();
         //提供折线中的点的数据
-        for (int i = 0; i<7; i++) {
-           values1.add(new Entry(i,currentValues[i]));
+        for (int i = 0; i < 7; i++) {
+            values1.add(new Entry(i, currentValues[i]));
         }
 
-       // values1.clear();
+        // values1.clear();
 
         LineDataSet d1 = new LineDataSet(values1, this.getString(R.string.lineChart_label1));//第一条折线
         d1.setLineWidth(1.5f);//设置线的宽度
@@ -1055,8 +1070,8 @@ public class MainActivity extends AppCompatActivity {
 
         //折线2
         ArrayList<Entry> values2 = new ArrayList<>();
-        for (int i = 0; i<7; i++) {
-            values2.add(new Entry(i,voltageValues[i]));
+        for (int i = 0; i < 7; i++) {
+            values2.add(new Entry(i, voltageValues[i]));
         }
 
         LineDataSet d2 = new LineDataSet(values2, this.getString(R.string.lineChart_label2));
@@ -1254,7 +1269,7 @@ public class MainActivity extends AppCompatActivity {
         return 1;
     }
 
-  //返回键
+    //返回键
     @Override
     public void onBackPressed() {
         //判断侧滑界面是否打开
@@ -1270,11 +1285,11 @@ public class MainActivity extends AppCompatActivity {
             eixtTime = System.currentTimeMillis();
         } else {
             //彻底关闭整个app
-                Intent startMain = new Intent(Intent.ACTION_MAIN);
-                startMain.addCategory(Intent.CATEGORY_HOME);
-                startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(startMain);
-                System.exit(0);
+            Intent startMain = new Intent(Intent.ACTION_MAIN);
+            startMain.addCategory(Intent.CATEGORY_HOME);
+            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(startMain);
+            System.exit(0);
 
         }
     }
@@ -1284,17 +1299,17 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     *导出表格的操作
+     * 导出表格的操作
      * 新的运行时权限机制"只在应用程序的targetSdkVersion>=23时生效，并且只在6.0系统之上有这种机制，
      * 在低于6.0的系统上应用程序和以前一样不受影响。
-     *  当前应用程序的targetSdkVersion小于23（为22），系统会默认其尚未适配新的运行时权限机制，
-     *  安装后将和以前一样不受影响：即用户在安装应用程序的时候默认允许所有被申明的权限
+     * 当前应用程序的targetSdkVersion小于23（为22），系统会默认其尚未适配新的运行时权限机制，
+     * 安装后将和以前一样不受影响：即用户在安装应用程序的时候默认允许所有被申明的权限
      **/
-    private void export(){
-        if(this.getApplicationInfo().targetSdkVersion>=23&& Build.VERSION.SDK_INT>=23){
+    private void export() {
+        if (this.getApplicationInfo().targetSdkVersion >= 23 && Build.VERSION.SDK_INT >= 23) {
             requestPermission();
 
-        }else {
+        } else {
             writeExcel();
         }
     }
@@ -1302,21 +1317,21 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 动态请求读写权限
      **/
-    private void requestPermission(){
-        if(!checkPermission()){//如果没有权限则请求权限再写
-            ActivityCompat.requestPermissions(this,pess,100);
-        }else {//如果有权限则直接写
+    private void requestPermission() {
+        if (!checkPermission()) {//如果没有权限则请求权限再写
+            ActivityCompat.requestPermissions(this, pess, 100);
+        } else {//如果有权限则直接写
             writeExcel();
 
         }
     }
+
     /**
      * 检测权限
-     *
      **/
-    private boolean checkPermission(){
-        for(String permission:pess){
-            if(ContextCompat.checkSelfPermission(this,permission)!= PackageManager.PERMISSION_GRANTED){
+    private boolean checkPermission() {
+        for (String permission : pess) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
                 //只要有一个权限没有被授予,则直接返回false
                 return false;
 
@@ -1329,20 +1344,20 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull
             int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode==100){
-            boolean isAllGranted=true;
-            for(int grant:grantResults){
-                if(grant!=PackageManager.PERMISSION_GRANTED){
-                    isAllGranted=false;
+        if (requestCode == 100) {
+            boolean isAllGranted = true;
+            for (int grant : grantResults) {
+                if (grant != PackageManager.PERMISSION_GRANTED) {
+                    isAllGranted = false;
                     break;
 
                 }
 
             }
-            if(isAllGranted){//请求到权限了,写Excel
+            if (isAllGranted) {//请求到权限了,写Excel
                 writeExcel();
-            }else {//权限被拒绝,不能写
-                Toast.makeText(this,"读写手机存储权限被禁止,请在权限管理中心手动打开权限",
+            } else {//权限被拒绝,不能写
+                Toast.makeText(this, "读写手机存储权限被禁止,请在权限管理中心手动打开权限",
                         Toast.LENGTH_LONG).show();
 
             }
@@ -1353,48 +1368,48 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 将数据写入Excel表格
      **/
-    private void writeExcel(){
-        if(getExternalStoragePath()==null){
+    private void writeExcel() {
+        if (getExternalStoragePath() == null) {
             return;
         }
         //SD卡指定文件夹
-        excelFilePath=getExternalStoragePath()+"/Excel/mine.xls";//Excel是子文件夹,mine.xls是表格文件
+        excelFilePath = getExternalStoragePath() + "/Excel/mine.xls";//Excel是子文件夹,mine.xls是表格文件
         // excelFilePath=getExternalFilesDir("Excel")+"mine.xls";
-        if(checkFile(excelFilePath)){
+        if (checkFile(excelFilePath)) {
             deleteByPath(excelFilePath);//如果文件存在则先删除原有的文件
             //  Toast.makeText(this,"删除了",Toast.LENGTH_LONG).show();
 
         }
-        File file=new File(getExternalStoragePath()+"/Excel");
+        File file = new File(getExternalStoragePath() + "/Excel");
 
         makeDir(file);
-        ExcelUtils.initExcel(excelFilePath,"电压电流数据表格",colNames);//需要写入权限
-        ExcelUtils.writeObjListToExcel(getTraveData(),excelFilePath,this);//把数据写入表格getTraveData()数据方法
+        ExcelUtils.initExcel(excelFilePath, "电压电流数据表格", colNames);//需要写入权限
+        ExcelUtils.writeObjListToExcel(getTraveData(), excelFilePath, this);//把数据写入表格getTraveData()数据方法
     }
 
     /**
-     *
      * 根据路径生成文件夹
      **/
 
-    public static void makeDir(File filePath){
-        if(!filePath.getParentFile().exists()){
+    public static void makeDir(File filePath) {
+        if (!filePath.getParentFile().exists()) {
             makeDir(filePath.getParentFile());
         }
         filePath.mkdir();
     }
+
     /**
      * 获取外部存储路径
      **/
-    public String getExternalStoragePath(){
-        File sdDir=null;
-        boolean sdCardExist= Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
-        if(sdCardExist){
-            sdDir=getExternalFilesDir(null);
+    public String getExternalStoragePath() {
+        File sdDir = null;
+        boolean sdCardExist = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+        if (sdCardExist) {
+            sdDir = getExternalFilesDir(null);
             return sdDir.toString();
 
-        }else {
-            Toast.makeText(this,"找不到外部存储路径,读写手机存储权限被禁止,请在权限管理中心手动打开权限",
+        } else {
+            Toast.makeText(this, "找不到外部存储路径,读写手机存储权限被禁止,请在权限管理中心手动打开权限",
                     Toast.LENGTH_LONG).show();
             return null;
         }
@@ -1403,17 +1418,17 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 测试数据
      **/
-    public ArrayList<ArrayList<String>> getTraveData(){
-       // String s="测试string";//这里是数据内容
-        int value=22;
-        ArrayList<ArrayList<String>> datas=new ArrayList<>();
-        ArrayList<String> data=null;
-        for(int i=0;i<8;i++){//列
-            data=new ArrayList<>();
+    public ArrayList<ArrayList<String>> getTraveData() {
+        // String s="测试string";//这里是数据内容
+        int value = 22;
+        ArrayList<ArrayList<String>> datas = new ArrayList<>();
+        ArrayList<String> data = null;
+        for (int i = 0; i < 8; i++) {//列
+            data = new ArrayList<>();
             data.clear();
-            for(int j=0;j<6;j++){//行
-               // data.add(s+j);
-                data.add(String.valueOf(value)+j);
+            for (int j = 0; j < 6; j++) {//行
+                // data.add(s+j);
+                data.add(String.valueOf(value) + j);
 
             }
             datas.add(data);
@@ -1424,21 +1439,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     *
      * 根据文件路径检查文件是否存在,需要读取权限
      * filePath 文件路径
      * true 存在
      **/
-    private boolean checkFile(String filePath){
-        File file=new File(filePath);
-        if(file.exists()){
-            if(file.isFile()){
+    private boolean checkFile(String filePath) {
+        File file = new File(filePath);
+        if (file.exists()) {
+            if (file.isFile()) {
                 return true;
-            }else {
+            } else {
                 return false;
             }
 
-        }else {
+        } else {
             return false;
         }
     }
@@ -1447,18 +1461,16 @@ public class MainActivity extends AppCompatActivity {
      * 根据文件路径删除文件
      * filePath
      **/
-    private void deleteByPath(String filePath){
-        File file=new File(filePath);
-        if(file.exists()){
-            if(file.isFile()){
+    private void deleteByPath(String filePath) {
+        File file = new File(filePath);
+        if (file.exists()) {
+            if (file.isFile()) {
                 file.delete();
 
             }
         }
 
     }
-
-
 
 
 }
