@@ -168,7 +168,11 @@ public class MainActivity extends AppCompatActivity {
             0x00, 0x00, 0x00, 0x00, 0x00,};
     int sendFlag=0;//记录发送数据变量
 
-    private static final String ADDRESSNAME="address";
+
+    //设备地址选择保存
+    SharedPreferences sharedPreferences1;
+    SharedPreferences.Editor editor1;
+    String addressStr;
 
 
 
@@ -240,8 +244,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         //设备地址选择保存
-        SharedPreferences sp=this.getSharedPreferences(ADDRESSNAME,Context.MODE_PRIVATE);
-        String addressStr=sp.getString(ADDRESSNAME,"");
+         sharedPreferences1=getSharedPreferences("addressName",Context.MODE_PRIVATE);
+
+
 
 
 
@@ -305,7 +310,7 @@ public class MainActivity extends AppCompatActivity {
                         drawerLayout.closeDrawer(GravityCompat.START);//关闭navigationView滑动出来
                         //编辑框
                         final EditText editText = new EditText(MainActivity.this);
-
+                        addressStr=sharedPreferences1.getString("address",null);
                         //如果获取到的内容不为空,则设置文本显示
                         if(addressStr!=null){
                             editText.setText(addressStr);
@@ -315,16 +320,17 @@ public class MainActivity extends AppCompatActivity {
                                 .setPositiveButton(getString(R.string.positiveButton), new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
+                                        //先获取编辑框内容
+                                        addressStr=editText.getText().toString();
 
                                         //按下确定键时,提交保存编辑框内容
-                                       SharedPreferences.Editor editor1= sp.edit();
-                                       editor1.putString(ADDRESSNAME,editText.getText().toString());
+                                       editor1= sharedPreferences1.edit();
+                                       editor1.putString("address",addressStr);
                                        editor1.commit();//提交修改
 
                                         Toast.makeText(MainActivity.this, getString(R.string.address_dialog_title) + ":" + editText
                                                         .getText().toString(),
                                                 Toast.LENGTH_SHORT).show();
-                                        // restartAct();
 
                                     }
                                 }).setNegativeButton(getString(R.string.negativeButton), null).show();
