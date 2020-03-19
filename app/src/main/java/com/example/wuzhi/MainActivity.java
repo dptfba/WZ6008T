@@ -730,7 +730,6 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
 
-
                     } catch (Exception e) {
                         threadReadDataFlage = false;//关掉接收任务,预防产生多的任务
                         threadSendDataFlage = false;//关掉发送任务,预防产生多的任务
@@ -739,8 +738,7 @@ public class MainActivity extends AppCompatActivity {
                         } catch (Exception e2) {
                         }
                         sendDataCnt = 0;
-
-
+                        
                     }
 
                 }
@@ -834,8 +832,8 @@ public class MainActivity extends AppCompatActivity {
                     tv_connect.setEnabled(true);//能点击操作
                     // Toast.makeText(getApplicationContext(), "有新的连接", Toast.LENGTH_SHORT).show();
                 } else if (string.equals("ConError")) {
-                    Toast.makeText(getApplicationContext(), "连接出错,请重新启动应用", Toast.LENGTH_SHORT).show();
 
+                    Toast.makeText(getApplicationContext(), "连接出错,请重新启动应用", Toast.LENGTH_SHORT).show();
 
                 }
 
@@ -869,7 +867,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            
 
             /**接收到的消息**/
 
