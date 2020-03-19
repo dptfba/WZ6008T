@@ -1007,30 +1007,17 @@ public class MainActivity extends AppCompatActivity {
         leftAxis.setLabelCount(5, false);
         //设置左边y轴的字体颜色
         leftAxis.setTextColor(Color.WHITE);
-        leftAxis.setAxisMinimum(0.00f);//设置左侧y轴的最小值
-        leftAxis.setAxisMaximum(1.20f);//设置左侧y轴的最大值
+        leftAxis.setAxisMinimum(0.0f);//设置左侧y轴的最小值
+        leftAxis.setAxisMaximum(1.2f);//设置左侧y轴的最大值
         //设置左边y轴数据显示格式
         leftAxis.setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
 
                 DecimalFormat df = new DecimalFormat("#.00");
-                if (value == 0.00f) {
-                    return "0.00V";
+                if(value<1.0f){
+                    return "0" + df.format(value) + "V";
                 }
-                if (value == 0.20f) {
-                    return "0.20V";
-                }
-                if (value == 0.40f) {
-                    return "0.40V";
-                }
-                if (value == 0.60f) {
-                    return "0.60V";
-                }
-                if (value == 0.80f) {
-                    return "0.80V";
-                }
-
                 return "" + df.format(value) + "V";
             }
         });
@@ -1039,28 +1026,15 @@ public class MainActivity extends AppCompatActivity {
         rightAxis.setLabelCount(5, false);//y轴网格线
         //设置右边y轴的字体颜色
         rightAxis.setTextColor(Color.WHITE);
-        //设置左边y轴数据显示格式
+        //设置右边y轴数据显示格式
         rightAxis.setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
 
                 DecimalFormat df = new DecimalFormat("#.000");
-                if (value == 0.000f) {
-                    return "0.000A";
-                }
-                if (value == 0.200f) {
-                    return "0.200A";
-                }
-                if (value == 0.400f) {
-                    return "0.400A";
-                }
-                if (value == 0.600f) {
-                    return "0.600A";
-                }
-                if (value == 0.800f) {
-                    return "0.800A";
-                }
-
+               if(value<1.0f){
+                   return "0" + df.format(value) + "A";
+               }
                 return "" + df.format(value) + "A";
             }
         });
@@ -1099,14 +1073,14 @@ public class MainActivity extends AppCompatActivity {
 
         //折线1
         ArrayList<Float> currentValues=new ArrayList<>();
-        currentValues.add(0,1.0f);
-        currentValues.add(0,0.9f);
-        currentValues.add(0,0.7f);
-        currentValues.add(0,0.4f);
-        currentValues.add(0,0.6f);
-        currentValues.add(0,0.1f);
-        currentValues.add(0,0.2f);
-        currentValues.add(0,0.1f);
+        currentValues.add(1.0f);
+        currentValues.add(0.9f);
+        currentValues.add(0.7f);
+        currentValues.add(0.4f);
+        currentValues.add(0.6f);
+        currentValues.add(0.1f);
+        currentValues.add(0.2f);
+        currentValues.add(0.1f);
         currentValues.add(0,0.0f);
         currentValues.remove(currentValues.size()-1);
         ArrayList<Entry> values1 = new ArrayList<>();
@@ -1130,6 +1104,7 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < 7; i++) {
             values2.add(new Entry(i, voltageValues[i]));
         }
+
 
         LineDataSet d2 = new LineDataSet(values2, this.getString(R.string.lineChart_label2));
         d2.setLineWidth(1.5f);
