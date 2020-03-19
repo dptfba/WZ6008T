@@ -175,7 +175,6 @@ public class MainActivity extends AppCompatActivity {
     String addressStr;
 
 
-
     private Timer timer = new Timer();//定时器
     private TimerTask timerTask = null;//定时任务
 
@@ -356,11 +355,11 @@ public class MainActivity extends AppCompatActivity {
         sendDataString = sharedPreferences.getString("sendData", "");
 
 
-       //点击连接发送数据
+        //点击连接发送数据
         tv_connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (socket!= null) {
+                if (socket != null) {
                     if (tv_connect.getText() == "断开") {
                         stopTimer();//停止定时器
                         tv_connect.setText("连接");
@@ -512,7 +511,7 @@ public class MainActivity extends AppCompatActivity {
                 mthreadMonitorConnect = threadMonitorConnect;//记下监听任务
                 MonitorFlage = true;
             } catch (IOException e1) {
-               // Toast.makeText(getApplicationContext(),"提示\r\n监听出错,请检查端口号",Toast.LENGTH_SHORT).show();
+                // Toast.makeText(getApplicationContext(),"提示\r\n监听出错,请检查端口号",Toast.LENGTH_SHORT).show();
             }
         } else {
             try {
@@ -582,7 +581,7 @@ public class MainActivity extends AppCompatActivity {
 
                     if (threadSendDataFlage == false) {
                         threadSendDataFlage = true;//发送任务
-                        ThreadSendData threadSendData=new ThreadSendData();
+                        ThreadSendData threadSendData = new ThreadSendData();
                         threadSendData.start();//开启发送数据线程
                         mthreadSendData = threadSendData;
 
@@ -738,7 +737,7 @@ public class MainActivity extends AppCompatActivity {
                         } catch (Exception e2) {
                         }
                         sendDataCnt = 0;
-                        
+
                     }
 
                 }
@@ -848,7 +847,7 @@ public class MainActivity extends AppCompatActivity {
                     listClient.remove(string);
                     tv_connect.setText("连接");
                     tv_connect.setEnabled(false);//不能点击操作
-                  //  Toast.makeText(getApplicationContext(),string+"连接断开了",Toast.LENGTH_SHORT).show();
+                    //  Toast.makeText(getApplicationContext(),string+"连接断开了",Toast.LENGTH_SHORT).show();
                     //startActivity(new Intent(MainActivity.this,MainActivity.class));
                 } catch (Exception e) {
 
@@ -1019,6 +1018,18 @@ public class MainActivity extends AppCompatActivity {
                 if (value == 0.00f) {
                     return "0.00V";
                 }
+                if (value == 0.20f) {
+                    return "0.20V";
+                }
+                if (value == 0.40f) {
+                    return "0.40V";
+                }
+                if (value == 0.60f) {
+                    return "0.60V";
+                }
+                if (value == 0.80f) {
+                    return "0.80V";
+                }
 
                 return "" + df.format(value) + "V";
             }
@@ -1028,6 +1039,31 @@ public class MainActivity extends AppCompatActivity {
         rightAxis.setLabelCount(5, false);//y轴网格线
         //设置右边y轴的字体颜色
         rightAxis.setTextColor(Color.WHITE);
+        //设置左边y轴数据显示格式
+        rightAxis.setValueFormatter(new IAxisValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+
+                DecimalFormat df = new DecimalFormat("#.000");
+                if (value == 0.000f) {
+                    return "0.000A";
+                }
+                if (value == 0.200f) {
+                    return "0.200A";
+                }
+                if (value == 0.400f) {
+                    return "0.400A";
+                }
+                if (value == 0.600f) {
+                    return "0.600A";
+                }
+                if (value == 0.800f) {
+                    return "0.800A";
+                }
+
+                return "" + df.format(value) + "A";
+            }
+        });
 
         //设置y轴坐标之间的最小间隔
         //leftAxis.setGranularity(0.2f);
@@ -1053,18 +1089,30 @@ public class MainActivity extends AppCompatActivity {
      */
 
 
-    //ArrayList<Entry> tempvalue  //此处为存放的数值，数值为1个小数点 如21.5等等
-    float[] currentValues = {0.1f, 0.5f, 0.7f, 0.6f, 0.2f, 0.2f, 0.5f};//电流
+    //ArrayList<Float> floats=new ArrayList<>()  //此处为存放的数值，数值为1个小数点 如21.5等等
+    // float[] currentValues = {0.1f, 0.5f, 0.7f, 0.6f, 0.2f, 0.2f, 0.5f};//电流
+
     float[] voltageValues = {0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f};//电压
 
     // 折线,折线点的数据方法
     private LineData generateDataLine(int cnt) {
 
         //折线1
+        ArrayList<Float> currentValues=new ArrayList<>();
+        currentValues.add(0,1.0f);
+        currentValues.add(0,0.9f);
+        currentValues.add(0,0.7f);
+        currentValues.add(0,0.4f);
+        currentValues.add(0,0.6f);
+        currentValues.add(0,0.1f);
+        currentValues.add(0,0.2f);
+        currentValues.add(0,0.1f);
+        currentValues.add(0,0.0f);
+        currentValues.remove(currentValues.size()-1);
         ArrayList<Entry> values1 = new ArrayList<>();
         //提供折线中的点的数据
-        for (int i = 0; i < 7; i++) {
-            values1.add(new Entry(i, currentValues[i]));
+        for (int i = 0; i < currentValues.size(); i++) {
+            values1.add(new Entry(i, currentValues.get(i)));
         }
 
         // values1.clear();
