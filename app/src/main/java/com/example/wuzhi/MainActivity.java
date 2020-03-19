@@ -427,7 +427,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         /**点击存储把数据导出到Excel表格**/
         tv_save.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -435,7 +434,6 @@ public class MainActivity extends AppCompatActivity {
                 export();
             }
         });
-
 
     }
 
@@ -514,7 +512,7 @@ public class MainActivity extends AppCompatActivity {
                 mthreadMonitorConnect = threadMonitorConnect;//记下监听任务
                 MonitorFlage = true;
             } catch (IOException e1) {
-                // Toast.makeText(getApplicationContext(),"提示\r\n监听出错,请检查端口号",Toast.LENGTH_SHORT).show();
+               // Toast.makeText(getApplicationContext(),"提示\r\n监听出错,请检查端口号",Toast.LENGTH_SHORT).show();
             }
         } else {
             try {
@@ -571,7 +569,9 @@ public class MainActivity extends AppCompatActivity {
             while (mThreadMonitorConnectFlag && MonitorConnectFlage) {
                 try {
                     socket = serverSocket.accept();//等待客户端连接
+
                     arrayListSockets.add(socket);//添加socket
+
                     String mString = (socket.getInetAddress() + ":" + socket.getPort()).replace("/", " ");
                     listClient.add(mString);
                     sendHandleMsg(mHandler, "ConState", "new");
@@ -579,8 +579,10 @@ public class MainActivity extends AppCompatActivity {
                     threadReadDataFlage = true;//接收任务
                     ThreadReadData threadReadData = new ThreadReadData(socket, mString);
                     threadReadData.start();//开启接收数据线程
+
                     if (threadSendDataFlage == false) {
                         threadSendDataFlage = true;//发送任务
+                        ThreadSendData threadSendData=new ThreadSendData();
                         threadSendData.start();//开启发送数据线程
                         mthreadSendData = threadSendData;
 
@@ -602,6 +604,7 @@ public class MainActivity extends AppCompatActivity {
                     } catch (Exception e2) {
 
                     }
+
                     mThreadMonitorConnectFlag = false;
                     MonitorConnectFlage = false;
                     MonitorFlage = false;
@@ -649,6 +652,7 @@ public class MainActivity extends AppCompatActivity {
                         mThreadReadDataFlage = false;
                         threadReadDataFlage = false;//关掉接收任务
                         threadSendDataFlage = false;//关掉发送任务
+                        socket.close();
                         sendHandleMsg(mHandler, "ConClose", mStringSocketMsg);//向Handler发送消息
                         sendHandleMsg(mHandler, "Toast", mStringSocketMsg + "断开");//向Handler发送消息
                         try {
@@ -662,6 +666,11 @@ public class MainActivity extends AppCompatActivity {
                     if (mThreadReadDataFlage) {
                         mThreadReadDataFlage = false;
                         threadReadDataFlage = false;//关掉接收任务
+                        try {
+                            socket.close();
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
                         sendHandleMsg(mHandler, "ConClose", mStringSocketMsg);//向Handler发送消息
                         sendHandleMsg(mHandler, "Toast", mStringSocketMsg + "断开");//向Handler发送消息
                         try {
@@ -826,7 +835,7 @@ public class MainActivity extends AppCompatActivity {
                     // Toast.makeText(getApplicationContext(), "有新的连接", Toast.LENGTH_SHORT).show();
                 } else if (string.equals("ConError")) {
                     Toast.makeText(getApplicationContext(), "连接出错,请重新启动应用", Toast.LENGTH_SHORT).show();
-                  //  startActivity(new Intent(MainActivity.this,MainActivity.class));
+
 
                 }
 
@@ -841,7 +850,7 @@ public class MainActivity extends AppCompatActivity {
                     listClient.remove(string);
                     tv_connect.setText("连接");
                     tv_connect.setEnabled(false);//不能点击操作
-                    Toast.makeText(getApplicationContext(),string+"连接断开了",Toast.LENGTH_SHORT).show();
+                  //  Toast.makeText(getApplicationContext(),string+"连接断开了",Toast.LENGTH_SHORT).show();
                     //startActivity(new Intent(MainActivity.this,MainActivity.class));
                 } catch (Exception e) {
 
