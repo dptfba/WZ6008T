@@ -85,6 +85,7 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity {
     UpdateManager updateManager;//APP自动更新类
 
+
     String tag = "=======err";
     private DecimalFormat mDecimalFormat = new DecimalFormat("#.00");//格式化显示浮点数位两位小数
 
@@ -436,21 +437,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        try {
-//            socket.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        try {
-//            serverSocket.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        tv_ip.setText(getLocalIpAddress());
+      //  statrtMonitor();//启动服务器监听方法
+    }
 
     /**
      * 判断是否打开wifi 并且打开的方法

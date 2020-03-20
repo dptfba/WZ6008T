@@ -60,6 +60,9 @@
     <string name="configure_result_failed_port">Create  the distribution network task failed, the  port could be used by other thread</string>
     <string name="configure_result_success">network to complete</string>
     <string name="configure_result_success_item">BSSID = %1$s, InetAddress = %2$s</string>
+    <string name="aboutTitle">Qingdao WuZhi intelligent technology co. LTD</string>
+    <string name="aboutContentOne"> Qingdao WuZhi intelligent technology co., ltd. is located in the west coast new district of Qingdao city, shandong province, the company set technology research and development, production, manufacturing, sales, after-sales in one, is specialized in the development of electronic test instruments, bluetooth audio amplifier source manufacturers.</string>
+    <string name="aboutContentTwo">The company currently has taobao and alibaba sales platform, over the years by virtue of the company\'s research and development strength, the spirit of excellence, the majority of customers and agents recognized.The company will continue to provide high-quality products and services, for the customer continuously create value, customer satisfaction is our ultimate goal and the basis of survival.</string>
 
 
 </resources>
