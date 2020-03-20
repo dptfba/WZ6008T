@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
      **/
     private String excelFilePath = "";
 
-    private String[] colNames = new String[]{"电流", "电压", "电流", "电压", "电流", "电压",};//每列列头标题
+    private String[] colNames = new String[]{"电流", "电压", "电流", "电压", "电流", "电压",};//Excel表格每列列头标题
     String[] pess = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
 
 
@@ -437,20 +437,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        try {
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            serverSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        try {
+//            socket.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        try {
+//            serverSocket.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     /**
      * 判断是否打开wifi 并且打开的方法
