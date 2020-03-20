@@ -7,17 +7,35 @@
     android:gravity="center_horizontal"
     android:orientation="vertical"
     tools:context=".AboutActivity">
-    <ImageView
-        android:id="@+id/iv_head_logo"
-        app:srcCompat="@drawable/logo_big1"
-        android:layout_width="@dimen/logoWidth"
-        android:layout_height="@dimen/logoHeight"/>
+    <LinearLayout
+        android:layout_marginTop="@dimen/stateBtnWidth"
+        android:layout_marginBottom="@dimen/energyTvHeight"
+        android:layout_width="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_height="wrap_content">
+        <ImageView
+            app:srcCompat="@drawable/logo_big1"
+            android:layout_margin="@dimen/margin6"
+            android:layout_width="@dimen/aboutLogoWidth"
+            android:layout_height="@dimen/aboutLogoHeight"/>
+        <TextView
+            android:id="@+id/tv_aboutTitle"
+            android:text="@string/aboutTitle"
+            android:textSize="@dimen/fontBig"
+            android:textColor="@color/colorBackground"
+            android:letterSpacing="0.05"
+            android:layout_gravity="right"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
+
 
     <TextView
         android:id="@+id/tv_aboutContentOne"
         android:text="@string/aboutContentOne"
         android:textColor="@color/wifiFont"
-        android:textSize="@dimen/fontNum"
+        android:textSize="@dimen/font15"
         android:letterSpacing="0.06"
         android:layout_marginLeft="@dimen/outerMargin"
         android:layout_marginRight="@dimen/outerMargin"
@@ -27,23 +45,13 @@
         android:id="@+id/tv_aboutContentTwo"
         android:text="@string/aboutContentTwo"
         android:textColor="@color/wifiFont"
-        android:textSize="@dimen/fontNum"
+        android:textSize="@dimen/font15"
         android:letterSpacing="0.06"
         android:layout_marginLeft="@dimen/outerMargin"
         android:layout_marginRight="@dimen/outerMargin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
-    <TextView
-        android:id="@+id/tv_aboutTitle"
-        android:text="@string/aboutTitle"
-        android:textSize="@dimen/font22"
-        android:layout_marginTop="@dimen/voltageTitleHeight"
-        android:layout_marginBottom="@dimen/outerMargin"
-        android:textColor="@color/colorBackground"
-        android:letterSpacing="0.06"
-        android:layout_gravity="right"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+
 
 
 </LinearLayout>

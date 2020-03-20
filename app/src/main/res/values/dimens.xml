@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="fontHead">14sp</dimen>
+    <dimen name="font15">15sp</dimen>
     <dimen name="fontNum">16sp</dimen>
     <dimen name="fontBig">18sp</dimen>
     <dimen name="font22">22sp</dimen>
@@ -30,5 +31,7 @@
     <dimen name="headLayoutHeight">189dp</dimen>
     <dimen name="logoWidth">158dp</dimen>
     <dimen name="logoHeight">70dp</dimen>
+    <dimen name="aboutLogoWidth">100dp</dimen>
+    <dimen name="aboutLogoHeight">45dp</dimen>
     <dimen name="tv_ip_margin4">4dp</dimen>
 </resources>
