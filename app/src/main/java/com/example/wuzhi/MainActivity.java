@@ -906,11 +906,7 @@ public class MainActivity extends AppCompatActivity {
                         et_setI.setText(Integer.toString(setIValue));
                         sendFlag = 4;
                         break;
-
-
                 }
-
-
             }
 
         }
@@ -1251,7 +1247,27 @@ public class MainActivity extends AppCompatActivity {
 
         return crc;
     }
+    /**
+     * CRC检验值
+     *
+     * @param modbusdata
+     * @param length
+     * @return CRC检验值
+     */
+    protected byte CheckSum(byte[] modbusdata, int length) {
+        int i = 0, j = 0;
+        byte sum = 0x00;//有的用0,有的用0xff
+        try {
+            for (i = 0; i < length; i++) {
+                //注意这里要&0xff,因为byte是-128~127,&0xff 就是0x0000 0000 0000 0000  0000 0000 1111 1111
+                sum+=modbusdata[i];
+            }
+        } catch (Exception e) {
 
+        }
+
+        return sum;
+    }
     /**
      * CRC校验正确标志
      *
