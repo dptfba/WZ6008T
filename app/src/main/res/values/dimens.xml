@@ -5,8 +5,8 @@
     <dimen name="fontNum">16sp</dimen>
     <dimen name="fontBig">18sp</dimen>
     <dimen name="font22">22sp</dimen>
-    <dimen name="tvConnectMarginLeft">98dp</dimen>
-    <dimen name="tvConnectMarginRight">30dp</dimen>
+    <dimen name="tvConnectMarginLeft">60dp</dimen>
+    <dimen name="tvConnectMarginRight">24dp</dimen>
     <dimen name="outerMargin">14dp</dimen>
     <dimen name="lineChartHeight">230dp</dimen>
     <dimen name="linearLayoutPadding">8dp</dimen>

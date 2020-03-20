@@ -24,8 +24,9 @@
             android:minHeight="?attr/actionBarSize"
             android:theme="?attr/actionBarTheme" >
 
-            <TextView
-                android:id="@+id/tv_connect"
+            <Button
+                android:id="@+id/btn_connect"
+                android:background="@color/colorBackground"
                 android:layout_marginLeft="@dimen/tvConnectMarginLeft"
                 android:layout_marginRight="@dimen/tvConnectMarginRight"
                 android:text="@string/tv_connect"

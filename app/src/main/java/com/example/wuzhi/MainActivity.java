@@ -97,7 +97,8 @@ public class MainActivity extends AppCompatActivity {
     DrawerLayout drawerLayout;
     Toolbar toolbar;
 
-    TextView tv_connect, tv_save;//toolbar上的连接和存储
+    Button btn_connect;//toolbar上的连接
+    TextView tv_save;//toolbar上的存储
 
 
     TextView tv_ip;//IP地址显示文本框
@@ -181,6 +182,8 @@ public class MainActivity extends AppCompatActivity {
 
     MyHandler mHandler;//handler
 
+   String handlerSocket;
+
 
     /**
      * Excel表格相关
@@ -208,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav);
 
-        tv_connect = findViewById(R.id.tv_connect);//连接
+        btn_connect = findViewById(R.id.btn_connect);//连接
         tv_save = findViewById(R.id.tv_save);//存储
 
 
@@ -357,23 +360,31 @@ public class MainActivity extends AppCompatActivity {
 
 
         //点击连接发送数据
-        tv_connect.setOnClickListener(new View.OnClickListener() {
+        btn_connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (socket != null) {
-                    if (tv_connect.getText() == "断开") {
+                Log.d("===onCreate中外面====","handlerSocket="+socket);
+
+
+                if (handlerSocket!=null) {
+                    if ( btn_connect.getText() == "断开") {
                         stopTimer();//停止定时器
-                        tv_connect.setText("连接");
+                        btn_connect.setText("连接");
+                        Log.d("===handle显示断开====","handlerSocket="+socket);
 
                     } else {
-                        tv_connect.setText("断开");
+                        btn_connect.setText("断开");
                         startTimerToSend();//开启定时器发送数据
                         Toast.makeText(MainActivity.this, getString(R.string.address_dialog_title) + ":" + addressStr,
                                 Toast.LENGTH_SHORT).show();
+                        Log.d("===handle显示连接====","socket="+socket);
                     }
+                    Log.d("=====onCreate,if里面=====","socket="+socket);
                 }
 
+
             }
+
         });
 
 
@@ -435,14 +446,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        tv_ip.setText(getLocalIpAddress());
-      //  statrtMonitor();//启动服务器监听方法
-    }
 
     /**
      * 判断是否打开wifi 并且打开的方法
@@ -485,7 +491,6 @@ public class MainActivity extends AppCompatActivity {
             case android.R.id.home:
                 drawerLayout.openDrawer(GravityCompat.START);
                 break;
-
         }
         return true;
     }
@@ -562,7 +567,6 @@ public class MainActivity extends AppCompatActivity {
                     socket = serverSocket.accept();//等待客户端连接
 
                     arrayListSockets.add(socket);//添加socket
-
                     String mString = (socket.getInetAddress() + ":" + socket.getPort()).replace("/", " ");
                     listClient.add(mString);
                     sendHandleMsg(mHandler, "ConState", "new");
@@ -595,7 +599,6 @@ public class MainActivity extends AppCompatActivity {
                     } catch (Exception e2) {
 
                     }
-
                     mThreadMonitorConnectFlag = false;
                     MonitorConnectFlage = false;
                     MonitorFlage = false;
@@ -820,8 +823,42 @@ public class MainActivity extends AppCompatActivity {
             String string = bundle.getString("ConState");//连接和断开
             try {
                 if (string.equals("new")) {
-                    tv_connect.setEnabled(true);//能点击操作
-                    // Toast.makeText(getApplicationContext(), "有新的连接", Toast.LENGTH_SHORT).show();
+                   // tv_connect.setEnabled(true);//能点击操作
+                    Log.d("===handler中====","我是"+socket);
+                    handlerSocket=String.valueOf(socket);
+                    Log.d("===handler中====","handleSocket=="+handlerSocket);
+
+//                        btn_connect.setOnClickListener(new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View v) {
+//
+//                                Log.d("===handle点击事件里面====","我是"+socket);
+//                                if(socket!=null){
+//                                    Log.d("===handle点击事件if外====","socket="+socket);
+//                                    if (btn_connect.getText() == "断开") {
+//                                        stopTimer();//停止定时器
+//                                        btn_connect.setText("连接");
+//                                        Log.d("===handle显示断开====","socket="+socket);
+//
+//                                    } else {
+//                                        btn_connect.setText("断开");
+//                                        startTimerToSend();//开启定时器发送数据
+//                                        Toast.makeText(MainActivity.this, getString(R.string.address_dialog_title) + ":" + addressStr,
+//                                                Toast.LENGTH_SHORT).show();
+//                                        Log.d("===handle显示连接====","socket="+socket);
+//                                    }
+//                                }
+//
+//                            }
+//
+//
+//                        });
+
+
+
+
+
+
                 } else if (string.equals("ConError")) {
 
                     Toast.makeText(getApplicationContext(), "连接出错,请重新启动应用", Toast.LENGTH_SHORT).show();
@@ -837,8 +874,8 @@ public class MainActivity extends AppCompatActivity {
             if (string != null) {
                 try {
                     listClient.remove(string);
-                    tv_connect.setText("连接");
-                    tv_connect.setEnabled(false);//不能点击操作
+                    btn_connect.setText("连接");
+                   // tv_connect.setEnabled(false);//不能点击操作
                     //  Toast.makeText(getApplicationContext(),string+"连接断开了",Toast.LENGTH_SHORT).show();
                     //startActivity(new Intent(MainActivity.this,MainActivity.class));
                 } catch (Exception e) {
@@ -1493,6 +1530,15 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }
+
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        tv_ip.setText(getLocalIpAddress());
+
 
     }
 
