@@ -182,7 +182,6 @@ public class MainActivity extends AppCompatActivity {
 
     MyHandler mHandler;//handler
 
-   String handlerSocket;
 
 
     /**
@@ -363,29 +362,26 @@ public class MainActivity extends AppCompatActivity {
         btn_connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("===onCreate中外面====","handlerSocket="+socket);
-
-
-                if (handlerSocket!=null) {
-                    if ( btn_connect.getText() == "断开") {
+                if (socket!=null) {
+                    if ( btn_connect.getText().toString().equals("断开")) {
                         stopTimer();//停止定时器
                         btn_connect.setText("连接");
-                        Log.d("===handle显示断开====","handlerSocket="+socket);
 
                     } else {
                         btn_connect.setText("断开");
                         startTimerToSend();//开启定时器发送数据
                         Toast.makeText(MainActivity.this, getString(R.string.address_dialog_title) + ":" + addressStr,
                                 Toast.LENGTH_SHORT).show();
-                        Log.d("===handle显示连接====","socket="+socket);
                     }
-                    Log.d("=====onCreate,if里面=====","socket="+socket);
+
                 }
 
 
             }
 
         });
+    /**用Runnable实现数据收发,和handler相互配合实现**/
+
 
 
         /**暂停记录,和清除记录部分**/
@@ -823,42 +819,8 @@ public class MainActivity extends AppCompatActivity {
             String string = bundle.getString("ConState");//连接和断开
             try {
                 if (string.equals("new")) {
-                   // tv_connect.setEnabled(true);//能点击操作
+               //  btn_connect.setEnabled(true);//能点击操作
                     Log.d("===handler中====","我是"+socket);
-                    handlerSocket=String.valueOf(socket);
-                    Log.d("===handler中====","handleSocket=="+handlerSocket);
-
-//                        btn_connect.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View v) {
-//
-//                                Log.d("===handle点击事件里面====","我是"+socket);
-//                                if(socket!=null){
-//                                    Log.d("===handle点击事件if外====","socket="+socket);
-//                                    if (btn_connect.getText() == "断开") {
-//                                        stopTimer();//停止定时器
-//                                        btn_connect.setText("连接");
-//                                        Log.d("===handle显示断开====","socket="+socket);
-//
-//                                    } else {
-//                                        btn_connect.setText("断开");
-//                                        startTimerToSend();//开启定时器发送数据
-//                                        Toast.makeText(MainActivity.this, getString(R.string.address_dialog_title) + ":" + addressStr,
-//                                                Toast.LENGTH_SHORT).show();
-//                                        Log.d("===handle显示连接====","socket="+socket);
-//                                    }
-//                                }
-//
-//                            }
-//
-//
-//                        });
-
-
-
-
-
-
                 } else if (string.equals("ConError")) {
 
                     Toast.makeText(getApplicationContext(), "连接出错,请重新启动应用", Toast.LENGTH_SHORT).show();
@@ -875,7 +837,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     listClient.remove(string);
                     btn_connect.setText("连接");
-                   // tv_connect.setEnabled(false);//不能点击操作
+               // btn_connect.setEnabled(false);//不能点击操作
                     //  Toast.makeText(getApplicationContext(),string+"连接断开了",Toast.LENGTH_SHORT).show();
                     //startActivity(new Intent(MainActivity.this,MainActivity.class));
                 } catch (Exception e) {
