@@ -29,10 +29,8 @@
     <string name="ocpTitle">OCP:</string>
     <string name="inputVoltageTitle">Vin(V):</string>
     <string name="bootTimeTitle">upTime:</string>
-    <string-array name="language">
-        <item>simplifiedChinese</item>
-        <item>English</item>
-    </string-array>
+    <string name="chinese">simplifiedChinese</string>
+    <string name="english">English</string>
     <string name="language_label">language</string>
     <string name="about_label">about</string>
     <string name="address_dialog_title">Slave address</string>

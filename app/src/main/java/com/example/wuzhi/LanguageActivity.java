@@ -11,14 +11,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.wuzhi.Utils.LocaleUtils;
 
 import java.util.Locale;
 
 public class LanguageActivity extends AppCompatActivity {
-    ListView languageListView;
+    ImageView iv_back;
+    TextView tv_chinese;
+    TextView tv_english;
 
 
 
@@ -27,44 +31,44 @@ public class LanguageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_language);
 
-        languageListView=findViewById(R.id.lv_language);
-
-
-        //判断父Activity是否为空,不为空设置导航图表显示
-        if (NavUtils.getParentActivityName(LanguageActivity.this) != null) {
-            //显示向左的箭头图标
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        }
-
-        //点击listView列表项,选择语言
-        languageListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        iv_back=findViewById(R.id.iv_back);
+        tv_chinese=findViewById(R.id.tv_chinese);
+        tv_english=findViewById(R.id.tv_english);
+        //点击返回箭头
+        iv_back.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                switch (position){
-                    case 0:
-                        //切换为简体中文
-                        if(LocaleUtils.needUpdateLocale(LanguageActivity.this,LocaleUtils.LOCALE_CHINESE)){
-                            LocaleUtils.updateLocale(LanguageActivity.this,LocaleUtils.LOCALE_CHINESE);
-                            restartAct();
-                        }
-
-                        break;
-                    case 1:
-                        //切换为英语
-                        if(LocaleUtils.needUpdateLocale(LanguageActivity.this,LocaleUtils.LOCALE_ENGLISH)){
-                            LocaleUtils.updateLocale(LanguageActivity.this,LocaleUtils.LOCALE_ENGLISH);
-                            restartAct();
-                        }
-                        break;
-                        default:
-                            break;
-                }
-
+            public void onClick(View v) {
+                finish();
 
 
             }
+
         });
+        //点击简体中文
+        tv_chinese.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //切换为简体中文
+                if(LocaleUtils.needUpdateLocale(LanguageActivity.this,LocaleUtils.LOCALE_CHINESE)){
+                    LocaleUtils.updateLocale(LanguageActivity.this,LocaleUtils.LOCALE_CHINESE);
+                    restartAct();
+                }
+
+            }
+        });
+        //点击英文
+        tv_english.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //切换为英语
+                if(LocaleUtils.needUpdateLocale(LanguageActivity.this,LocaleUtils.LOCALE_ENGLISH)){
+                    LocaleUtils.updateLocale(LanguageActivity.this,LocaleUtils.LOCALE_ENGLISH);
+                    restartAct();
+                }
+
+            }
+        });
+
 
     }
     /**
@@ -78,7 +82,6 @@ public class LanguageActivity extends AppCompatActivity {
         overridePendingTransition(0, 0);
 
     }
-
 
 
 }

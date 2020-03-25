@@ -5,8 +5,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
+    android:background="@color/colorWhite"
     android:orientation="vertical"
     tools:context=".AboutActivity">
+    <LinearLayout
+        android:layout_marginTop="@dimen/outerMargin"
+        android:layout_marginBottom="@dimen/outerMargin"
+        android:background="@drawable/back_ground"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/back_ground">
+        <ImageView
+            android:id="@+id/iv_back"
+            android:src="@drawable/leftjiantou"
+            android:layout_marginLeft="@dimen/energyTvHeight"
+            android:layout_marginRight="@dimen/energyTvHeight"
+            android:layout_width="@dimen/voltageTitleHeight"
+            android:layout_height="@dimen/voltageTitleHeight"/>
+        <TextView
+            android:text="@string/menu_about_title"
+            android:textColor="#000000"
+            android:textSize="@dimen/font20"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
     <LinearLayout
         android:layout_marginTop="@dimen/stateBtnWidth"
         android:layout_marginBottom="@dimen/energyTvHeight"

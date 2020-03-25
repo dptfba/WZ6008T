@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,6 +43,8 @@ import java.util.List;
 import java.util.Map;
 
 public class NetworkActivity extends AppCompatActivity implements View.OnClickListener {
+
+    ImageView iv_back;
 
     private static final String TAG = NetworkActivity.class.getSimpleName();
 
@@ -98,6 +101,8 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_network);
 
+        iv_back=findViewById(R.id.iv_back);
+
         mApSsidTV = findViewById(R.id.ap_ssid_text);//wifi名称文本框
         mApBssidTV = findViewById(R.id.ap_bssid_text);//Mac地址文本框
         mApPasswordET = findViewById(R.id.ap_password_edit);//密码编辑框
@@ -115,17 +120,17 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
         mContext=getApplicationContext();
         sh=new SharedHelper(mContext);
 
+        //点击返回按钮
+        iv_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
 
 
+            }
 
+        });
 
-
-        //判断父Activity是否为空,不为空设置导航图表显示
-        if (NavUtils.getParentActivityName(NetworkActivity.this) != null) {
-            //显示向左的箭头图标
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        }
 
         //如果SDK大于等于28
         if (isSDKAtLeastP()) {

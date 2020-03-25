@@ -7,6 +7,15 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+    <style name="InputStyle" parent="Theme.AppCompat.Light.NoActionBar">
+        <!--底部线颜色-->
+        <item name="android:colorControlNormal">@color/wifiBtnBackground</item>
+        <!--底部线 EditText激活时颜色-->
+        <item name="android:colorControlActivated">@color/colorAccent</item>
+        <item name="android:textColorHint">@color/colorBackground</item>
+        <item name="colorControlHighlight">#63a3d7</item>
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
 
 
 </resources>

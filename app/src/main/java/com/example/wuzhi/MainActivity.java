@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
     private TimerTask timerTask = null;//定时任务
 
     MyHandler mHandler;//handler
-
+    Runnable runnable;
 
 
     /**
@@ -296,7 +296,12 @@ public class MainActivity extends AppCompatActivity {
                 //点击菜单各项时:
                 switch (menuItem.getItemId()) {
                     case R.id.item_net://智能配网菜单项
-
+                        //判断侧滑界面是否打开
+                        boolean open1 = drawerLayout.isDrawerOpen(GravityCompat.START);
+                        //如果打开,就关闭
+                        if (open1 == true) {
+                            drawerLayout.closeDrawer(GravityCompat.START);
+                        }
                         Intent intent2 = new Intent(MainActivity.this, NetworkActivity.class);
 
                         //把ip文本框的内容赋值给String类型的message
@@ -340,9 +345,16 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(intent1);
                         break;
                     case R.id.item_about://点击关于页面的菜单项
+                        //判断侧滑界面是否打开
+                        boolean open2 = drawerLayout.isDrawerOpen(GravityCompat.START);
+                        //如果打开,就关闭
+                        if (open2 == true) {
+                            drawerLayout.closeDrawer(GravityCompat.START);
+                        }
                         Intent intent = new Intent(MainActivity.this, AboutActivity.class);
                         startActivity(intent);
                         break;
+
 
                 }
 
@@ -362,8 +374,9 @@ public class MainActivity extends AppCompatActivity {
         btn_connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (socket!=null) {
-                    if ( btn_connect.getText().toString().equals("断开")) {
+                Log.d("====点击连接if语句外面===", "socket=" + socket);
+                if (socket != null) {
+                    if (btn_connect.getText().toString().equals("断开")) {
                         stopTimer();//停止定时器
                         btn_connect.setText("连接");
 
@@ -380,8 +393,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
-    /**用Runnable实现数据收发,和handler相互配合实现**/
-
 
 
         /**暂停记录,和清除记录部分**/
@@ -819,8 +830,8 @@ public class MainActivity extends AppCompatActivity {
             String string = bundle.getString("ConState");//连接和断开
             try {
                 if (string.equals("new")) {
-               //  btn_connect.setEnabled(true);//能点击操作
-                    Log.d("===handler中====","我是"+socket);
+                    btn_connect.setEnabled(true);//能点击操作
+                    Log.d("===handler中====", "我是" + socket);
                 } else if (string.equals("ConError")) {
 
                     Toast.makeText(getApplicationContext(), "连接出错,请重新启动应用", Toast.LENGTH_SHORT).show();
@@ -837,7 +848,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     listClient.remove(string);
                     btn_connect.setText("连接");
-               // btn_connect.setEnabled(false);//不能点击操作
+                    btn_connect.setEnabled(false);//不能点击操作
                     //  Toast.makeText(getApplicationContext(),string+"连接断开了",Toast.LENGTH_SHORT).show();
                     //startActivity(new Intent(MainActivity.this,MainActivity.class));
                 } catch (Exception e) {
@@ -1002,7 +1013,7 @@ public class MainActivity extends AppCompatActivity {
             public String getFormattedValue(float value, AxisBase axis) {
 
                 DecimalFormat df = new DecimalFormat("#.00");
-                if(value<1.0f){
+                if (value < 1.0f) {
                     return "0" + df.format(value) + "V";
                 }
                 return "" + df.format(value) + "V";
@@ -1019,9 +1030,9 @@ public class MainActivity extends AppCompatActivity {
             public String getFormattedValue(float value, AxisBase axis) {
 
                 DecimalFormat df = new DecimalFormat("#.000");
-               if(value<1.0f){
-                   return "0" + df.format(value) + "A";
-               }
+                if (value < 1.0f) {
+                    return "0" + df.format(value) + "A";
+                }
                 return "" + df.format(value) + "A";
             }
         });
@@ -1059,7 +1070,7 @@ public class MainActivity extends AppCompatActivity {
     private LineData generateDataLine(int cnt) {
 
         //折线1
-        ArrayList<Float> currentValues=new ArrayList<>();
+        ArrayList<Float> currentValues = new ArrayList<>();
         currentValues.add(1.0f);
         currentValues.add(0.9f);
         currentValues.add(0.7f);
@@ -1068,8 +1079,8 @@ public class MainActivity extends AppCompatActivity {
         currentValues.add(0.1f);
         currentValues.add(0.2f);
         currentValues.add(0.1f);
-        currentValues.add(0,0.0f);
-        currentValues.remove(currentValues.size()-1);
+        currentValues.add(0, 0.0f);
+        currentValues.remove(currentValues.size() - 1);
         ArrayList<Entry> values1 = new ArrayList<>();
         //提供折线中的点的数据
         for (int i = 0; i < currentValues.size(); i++) {
@@ -1246,6 +1257,7 @@ public class MainActivity extends AppCompatActivity {
 
         return crc;
     }
+
     /**
      * CRC检验值
      *
@@ -1259,7 +1271,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             for (i = 0; i < length; i++) {
                 //注意这里要&0xff,因为byte是-128~127,&0xff 就是0x0000 0000 0000 0000  0000 0000 1111 1111
-                sum+=modbusdata[i];
+                sum += modbusdata[i];
             }
         } catch (Exception e) {
 
@@ -1267,6 +1279,7 @@ public class MainActivity extends AppCompatActivity {
 
         return sum;
     }
+
     /**
      * CRC校验正确标志
      *
@@ -1520,5 +1533,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //停止计时器,handler
+    @Override
+    protected void onDestroy() {
+        mHandler.removeCallbacks(runnable);
+        super.onDestroy();
+    }
 
 }

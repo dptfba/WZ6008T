@@ -7,7 +7,30 @@
     android:orientation="vertical"
     android:paddingLeft="@dimen/linearLayoutPadding"
     android:paddingRight="@dimen/linearLayoutPadding"
+    android:background="@color/colorWhite"
     tools:context=".NetworkActivity">
+    <LinearLayout
+        android:layout_marginTop="@dimen/outerMargin"
+        android:layout_marginBottom="@dimen/outerMargin"
+        android:background="@drawable/back_ground"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/back_ground">
+        <ImageView
+            android:id="@+id/iv_back"
+            android:src="@drawable/leftjiantou"
+            android:layout_marginLeft="@dimen/energyTvHeight"
+            android:layout_marginRight="@dimen/energyTvHeight"
+            android:layout_width="@dimen/voltageTitleHeight"
+            android:layout_height="@dimen/voltageTitleHeight"/>
+        <TextView
+            android:text="@string/menu_net_title"
+            android:textColor="#000000"
+            android:textSize="@dimen/font20"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
     <TextView
         android:id="@+id/ap_ssid_label"
         android:text="@string/ssid_title"
@@ -57,8 +80,10 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/ap_password_layout"
         android:hint="@string/password_title"
+        android:theme="@style/InputStyle"
         app:passwordToggleEnabled="true"
         android:layout_width="match_parent"
+        android:textColor="@color/wifiFont"
         android:layout_height="wrap_content">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/ap_password_edit"
@@ -72,12 +97,15 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/device_count_layout"
         android:hint="@string/device_count_title"
+        android:theme="@style/InputStyle"
+        android:textColor="@color/colorBackground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/device_count_edit"
             android:inputType="number"
             android:layout_marginBottom="@dimen/margin6"
+            android:textColor="@color/colorBackground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </com.google.android.material.textfield.TextInputLayout>
@@ -92,12 +120,16 @@
             android:id="@+id/package_broadcast"
             android:checked="true"
             android:text="@string/package_broadcast"
+            android:textColor="@color/colorBackground"
+            android:buttonTint="@color/colorBackground"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
         <RadioButton
             android:id="@+id/package_multicast"
+            android:textColor="@color/colorBackground"
             android:text="@string/package_multicast"
+            android:buttonTint="@color/colorBackground"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
@@ -114,6 +146,7 @@
         android:id="@+id/confirm_btn"
         android:text="@string/confirm"
         android:gravity="center"
+        android:textColor="@color/colorBackground"
         android:textSize="@dimen/font22"
         android:layout_gravity="center_horizontal|bottom"
         android:textAppearance="?android:attr/textAppearanceButton"

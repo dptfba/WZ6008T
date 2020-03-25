@@ -4,13 +4,57 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorWhite"
     android:orientation="vertical"
     tools:context=".LanguageActivity">
-    <ListView
-        android:id="@+id/lv_language"
-        android:entries="@array/language"
+    <LinearLayout
+        android:layout_marginTop="@dimen/outerMargin"
+        android:background="@drawable/back_ground"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="@dimen/back_ground">
+        <ImageView
+            android:id="@+id/iv_back"
+            android:src="@drawable/leftjiantou"
+            android:layout_marginLeft="@dimen/energyTvHeight"
+            android:layout_marginRight="@dimen/energyTvHeight"
+            android:layout_width="@dimen/voltageTitleHeight"
+            android:layout_height="@dimen/voltageTitleHeight"/>
+        <TextView
+            android:text="@string/menu_language_title"
+            android:textColor="#000000"
+            android:textSize="@dimen/font20"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+    <TextView
+        android:id="@+id/tv_chinese"
+        android:text="@string/chinese"
+        android:gravity="center_vertical"
+       android:layout_marginLeft="@dimen/outerMargin"
+        android:textSize="@dimen/fontNum"
+        android:layout_width="match_parent"
+        android:textColor="@color/colorBackground"
+        android:layout_height="@dimen/stateBtnWidth"/>
+    <TextView
+        android:background="@color/wifiBtnBackground"
+        android:layout_width="match_parent"
+        android:layout_height="1px"/>
+    <TextView
+        android:id="@+id/tv_english"
+        android:text="@string/english"
+        android:gravity="center_vertical"
+        android:layout_marginLeft="@dimen/outerMargin"
+        android:textSize="@dimen/fontNum"
+        android:layout_width="match_parent"
+        android:textColor="@color/colorBackground"
+        android:layout_height="@dimen/stateBtnWidth"/>
+    <TextView
+        android:background="@color/wifiBtnBackground"
+        android:layout_width="match_parent"
+        android:layout_height="1px"/>
+
 
 
 </LinearLayout>

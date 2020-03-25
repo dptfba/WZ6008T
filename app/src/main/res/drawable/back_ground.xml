@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--布局背景-->
+    <item>
+        <!--显示矩形区域-->
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="270"
+                android:startColor="#ffffff"
+                android:centerColor="#000000"
+                android:endColor="#ffffff"/>
+        </shape>
+    </item>
+    <!--布局前景-->
+    <item
+        android:bottom="10px">
+        <!--显示矩形区域-->
+        <shape android:shape="rectangle">
+            <solid android:color="#ffffff"/>
+        </shape>
+
+
+    </item>
+
+</layer-list>
