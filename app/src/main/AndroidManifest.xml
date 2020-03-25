@@ -20,7 +20,7 @@
 
     <application
         android:allowBackup="true"
-        android:configChanges="locale"
+        android:configChanges="locale|layoutDirection|keyboard"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -28,25 +28,25 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".NetworkActivity"
-            android:configChanges="locale"
+            android:configChanges="locale|layoutDirection|keyboard"
             android:theme="@style/Theme.Design.NoActionBar"
             android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".LanguageActivity"
-            android:configChanges="locale"
+            android:configChanges="locale|layoutDirection|keyboard"
             android:theme="@style/Theme.Design.NoActionBar"
             android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".AboutActivity"
-            android:configChanges="locale"
+            android:configChanges="locale|layoutDirection|keyboard"
             android:theme="@style/Theme.Design.NoActionBar"
             android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".MainActivity"
-            android:configChanges="locale"
+            android:configChanges="locale|layoutDirection|keyboard"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -54,6 +54,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service
+            android:process=":restart"
+            android:name=".startApp.killSelfService" />
     </application>
 
 </manifest>

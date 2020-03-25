@@ -3,6 +3,7 @@
     <string name="app_title">QDWZ</string>
     <string name="app_subtitle">MT-20</string>
     <string name="tv_connect">连接</string>
+    <string name="tv_break">断开</string>
     <string name="tv_save">存储</string>
     <string name="headTextView">无治智能科技</string>
     <string name="tvIp">本机IP:</string>

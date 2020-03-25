@@ -4,6 +4,7 @@
     <string name="app_title">QDWZ</string>
     <string name="app_subtitle">MT-20</string>
     <string name="tv_connect">connect</string>
+    <string name="tv_break">break</string>
     <string name="tv_save">save</string>
     <string name="headTextView">WuZhi Intelligence Technology</string>
     <string name="tvIp">local IP:</string>

@@ -197,6 +197,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//竖屏
+        Locale _UserLocale= LocaleUtils.getUserLocale(this);
+        LocaleUtils.updateLocale(this, _UserLocale);
+
         setContentView(R.layout.activity_main);
 
         wifiOpen();//打开wifi的方法
@@ -341,6 +344,12 @@ public class MainActivity extends AppCompatActivity {
 
                         break;
                     case R.id.item_language://切换语言
+                        //判断侧滑界面是否打开
+                        boolean open = drawerLayout.isDrawerOpen(GravityCompat.START);
+                        //如果打开,就关闭
+                        if (open == true) {
+                            drawerLayout.closeDrawer(GravityCompat.START);
+                        }
                         Intent intent1 = new Intent(MainActivity.this, LanguageActivity.class);
                         startActivity(intent1);
                         break;
@@ -376,12 +385,12 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d("====点击连接if语句外面===", "socket=" + socket);
                 if (socket != null) {
-                    if (btn_connect.getText().toString().equals("断开")) {
+                    if (btn_connect.getText().toString().equals(getString(R.string.tv_break))) {
                         stopTimer();//停止定时器
-                        btn_connect.setText("连接");
+                        btn_connect.setText(getString(R.string.tv_connect));
 
                     } else {
-                        btn_connect.setText("断开");
+                        btn_connect.setText(getString(R.string.tv_break));
                         startTimerToSend();//开启定时器发送数据
                         Toast.makeText(MainActivity.this, getString(R.string.address_dialog_title) + ":" + addressStr,
                                 Toast.LENGTH_SHORT).show();
@@ -456,6 +465,23 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //语言配置
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Locale _UserLocale=LocaleUtils.getUserLocale(MainActivity.this);
+        //系统语言改变了应用保持之前设置的语言
+        if (_UserLocale != null) {
+            Locale.setDefault(_UserLocale);
+            Configuration _Configuration = new Configuration(newConfig);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                _Configuration.setLocale(_UserLocale);
+            } else {
+                _Configuration.locale =_UserLocale;
+            }
+            getResources().updateConfiguration(_Configuration, getResources().getDisplayMetrics());
+        }
+    }
 
     /**
      * 判断是否打开wifi 并且打开的方法
@@ -633,7 +659,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
-            sendHandleMsg(mHandler, "Toast", mStringSocketMsg + "连接");//向Handler发送消息
+            sendHandleMsg(mHandler, "Toast", mStringSocketMsg + getString(R.string.tv_connect));//向Handler发送消息
 
         }
 
@@ -655,7 +681,7 @@ public class MainActivity extends AppCompatActivity {
                         threadSendDataFlage = false;//关掉发送任务
                         socket.close();
                         sendHandleMsg(mHandler, "ConClose", mStringSocketMsg);//向Handler发送消息
-                        sendHandleMsg(mHandler, "Toast", mStringSocketMsg + "断开");//向Handler发送消息
+                        sendHandleMsg(mHandler, "Toast", mStringSocketMsg + getString(R.string.tv_break));//向Handler发送消息
                         try {
                             arrayListSockets.remove(mySocket);
                         } catch (Exception e) {
@@ -673,7 +699,7 @@ public class MainActivity extends AppCompatActivity {
                             ex.printStackTrace();
                         }
                         sendHandleMsg(mHandler, "ConClose", mStringSocketMsg);//向Handler发送消息
-                        sendHandleMsg(mHandler, "Toast", mStringSocketMsg + "断开");//向Handler发送消息
+                        sendHandleMsg(mHandler, "Toast", mStringSocketMsg + getString(R.string.tv_break));//向Handler发送消息
                         try {
                             arrayListSockets.remove(mySocket);
                         } catch (Exception e1) {
@@ -847,7 +873,7 @@ public class MainActivity extends AppCompatActivity {
             if (string != null) {
                 try {
                     listClient.remove(string);
-                    btn_connect.setText("连接");
+                    btn_connect.setText(getString(R.string.tv_connect));
                     btn_connect.setEnabled(false);//不能点击操作
                     //  Toast.makeText(getApplicationContext(),string+"连接断开了",Toast.LENGTH_SHORT).show();
                     //startActivity(new Intent(MainActivity.this,MainActivity.class));

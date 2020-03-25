@@ -1,24 +1,15 @@
 package com.example.wuzhi;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NavUtils;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.wuzhi.Utils.LocaleUtils;
-
-import java.util.Locale;
+import com.example.wuzhi.startApp.RestartAppTool;
 
 public class LanguageActivity extends AppCompatActivity {
     ImageView iv_back;
@@ -26,15 +17,14 @@ public class LanguageActivity extends AppCompatActivity {
     TextView tv_english;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_language);
 
-        iv_back=findViewById(R.id.iv_back);
-        tv_chinese=findViewById(R.id.tv_chinese);
-        tv_english=findViewById(R.id.tv_english);
+        iv_back = findViewById(R.id.iv_back);
+        tv_chinese = findViewById(R.id.tv_chinese);
+        tv_english = findViewById(R.id.tv_english);
         //点击返回箭头
         iv_back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,8 +40,10 @@ public class LanguageActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //切换为简体中文
-                if(LocaleUtils.needUpdateLocale(LanguageActivity.this,LocaleUtils.LOCALE_CHINESE)){
-                    LocaleUtils.updateLocale(LanguageActivity.this,LocaleUtils.LOCALE_CHINESE);
+                if (LocaleUtils.needUpdateLocale(LanguageActivity.this, LocaleUtils.LOCALE_CHINESE)) {
+                    // LocaleUtils.saveUserLocale(LanguageActivity.this,LocaleUtils.LOCALE_CHINESE);
+                    LocaleUtils.updateLocale(LanguageActivity.this, LocaleUtils.LOCALE_CHINESE);
+                    LocaleUtils.saveUserLocale(LanguageActivity.this, LocaleUtils.LOCALE_CHINESE);
                     restartAct();
                 }
 
@@ -62,8 +54,10 @@ public class LanguageActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //切换为英语
-                if(LocaleUtils.needUpdateLocale(LanguageActivity.this,LocaleUtils.LOCALE_ENGLISH)){
-                    LocaleUtils.updateLocale(LanguageActivity.this,LocaleUtils.LOCALE_ENGLISH);
+                if (LocaleUtils.needUpdateLocale(LanguageActivity.this, LocaleUtils.LOCALE_ENGLISH)) {
+                    // LocaleUtils.saveUserLocale(LanguageActivity.this,LocaleUtils.LOCALE_ENGLISH);
+                    LocaleUtils.updateLocale(LanguageActivity.this, LocaleUtils.LOCALE_ENGLISH);
+                    LocaleUtils.saveUserLocale(LanguageActivity.this, LocaleUtils.LOCALE_ENGLISH);
                     restartAct();
                 }
 
@@ -72,23 +66,19 @@ public class LanguageActivity extends AppCompatActivity {
 
 
     }
+
     /**
      * 重启当前Activity
      */
     private void restartAct() {
         finish();
-        Intent _Intent = new Intent(this, MainActivity.class);
-        startActivity(_Intent);
-        //清除Activity退出和进入的动画
-        overridePendingTransition(0, 0);
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                Intent LaunchIntent = getPackageManager().getLaunchIntentForPackage(getApplication().getPackageName());
-//                LaunchIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                startActivity(LaunchIntent);
-//            }
-//        }, 100);// 1秒钟后重启应用
+//        Intent _Intent = new Intent(this, MainActivity.class);
+//        startActivity(_Intent);
+//       // 清除Activity退出和进入的动画
+//        overridePendingTransition(0, 0);
+        //重启APP
+        RestartAppTool.restartAPP(getApplicationContext(), 100);
+
 
     }
 
