@@ -9,6 +9,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -80,6 +81,14 @@ public class LanguageActivity extends AppCompatActivity {
         startActivity(_Intent);
         //清除Activity退出和进入的动画
         overridePendingTransition(0, 0);
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                Intent LaunchIntent = getPackageManager().getLaunchIntentForPackage(getApplication().getPackageName());
+//                LaunchIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                startActivity(LaunchIntent);
+//            }
+//        }, 100);// 1秒钟后重启应用
 
     }
 
