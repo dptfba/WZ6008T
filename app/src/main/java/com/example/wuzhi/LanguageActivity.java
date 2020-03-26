@@ -49,11 +49,10 @@ public class LanguageActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //切换为简体中文
-              Locale local=  LocaleUtils.getCurrentLocale(LanguageActivity.this);
-                LocaleUtils.saveUserLocale(LanguageActivity.this,local);
-
                 if (LocaleUtils.needUpdateLocale(LanguageActivity.this, LocaleUtils.LOCALE_CHINESE)) {
                     LocaleUtils.updateLocale(LanguageActivity.this, LocaleUtils.LOCALE_CHINESE);
+                    Locale local=  LocaleUtils.getCurrentLocale(LanguageActivity.this);
+                    LocaleUtils.saveUserLocale(LanguageActivity.this,local);
                     finish();
                     RestartAppTool.restartAPP(getApplicationContext(), 100);
                 }
@@ -64,11 +63,11 @@ public class LanguageActivity extends AppCompatActivity {
         tv_english.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Locale local=  LocaleUtils.getCurrentLocale(LanguageActivity.this);
-                LocaleUtils.saveUserLocale(LanguageActivity.this,local);
                 //切换为英语
                 if (LocaleUtils.needUpdateLocale(LanguageActivity.this, LocaleUtils.LOCALE_ENGLISH)) {
                     LocaleUtils.updateLocale(LanguageActivity.this, LocaleUtils.LOCALE_ENGLISH);
+                    Locale local=  LocaleUtils.getCurrentLocale(LanguageActivity.this);
+                    LocaleUtils.saveUserLocale(LanguageActivity.this,local);
                     finish();
                    RestartAppTool.restartAPP(getApplicationContext(), 100);
                 }
@@ -80,11 +79,11 @@ public class LanguageActivity extends AppCompatActivity {
         tv_TW.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Locale local=  LocaleUtils.getCurrentLocale(LanguageActivity.this);
-                LocaleUtils.saveUserLocale(LanguageActivity.this,local);
                 //切换为繁体
                 if (LocaleUtils.needUpdateLocale(LanguageActivity.this, LocaleUtils.TRADITIONAL_CHINESE)) {
                     LocaleUtils.updateLocale(LanguageActivity.this, LocaleUtils.TRADITIONAL_CHINESE);
+                    Locale local=  LocaleUtils.getCurrentLocale(LanguageActivity.this);
+                    LocaleUtils.saveUserLocale(LanguageActivity.this,local);
                     finish();
                     RestartAppTool.restartAPP(getApplicationContext(), 100);
                 }
@@ -96,11 +95,11 @@ public class LanguageActivity extends AppCompatActivity {
         btn_ja.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Locale local=  LocaleUtils.getCurrentLocale(LanguageActivity.this);
-                LocaleUtils.saveUserLocale(LanguageActivity.this,local);
                 //切换为日文
                 if (LocaleUtils.needUpdateLocale(LanguageActivity.this, LocaleUtils.JAPANESE)) {
                     LocaleUtils.updateLocale(LanguageActivity.this,LocaleUtils.JAPANESE);
+                    Locale local=  LocaleUtils.getCurrentLocale(LanguageActivity.this);
+                    LocaleUtils.saveUserLocale(LanguageActivity.this,local);
                     finish();
                     RestartAppTool.restartAPP(getApplicationContext(), 100);
                 }
