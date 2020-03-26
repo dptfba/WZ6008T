@@ -55,6 +55,9 @@
     <string name="configure_result_failed_port">建立配网任务失败, 端口可能被其他程序占用</string>
     <string name="configure_result_success">配网完成</string>
     <string name="configure_result_success_item">BSSID = %1$s, 地址 = %2$s</string>
+    <string name="wifi_message">WIFI未连接,请先打开WIFI</string>
+    <string name="wifi_affirm">确认</string>
+    <string name="excelToast">导出成功,存储在文件根目录下</string>
     <string name="aboutTitle">青岛无治智能科技有限公司</string>
     <string name="aboutContentOne">&#160;&#160;&#160;&#160;青岛无治智能科技有限公司坐落于山东省青岛市西海岸新区，公司集技术研发、生产制造、销售、售后于一体，是专业开发电子测试仪器仪表、蓝牙音频功放的源头厂家。</string>
     <string name="aboutContentTwo">&#160;&#160;&#160;&#160;公司目前具有淘宝和阿里巴巴售卖平台，多年来凭借公司的研发实力，精益求精的精神，获得了广大客户和代理商的认可。公司将持续提供高质量产品和优质服务，为客户源源不断地创造价值，让客户满意是我们的最终目的和生存基础。</string>

@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -44,8 +45,12 @@ public class LanguageActivity extends AppCompatActivity {
                     // LocaleUtils.saveUserLocale(LanguageActivity.this,LocaleUtils.LOCALE_CHINESE);
                     LocaleUtils.updateLocale(LanguageActivity.this, LocaleUtils.LOCALE_CHINESE);
                     LocaleUtils.saveUserLocale(LanguageActivity.this, LocaleUtils.LOCALE_CHINESE);
-                    restartAct();
+
+                    finish();
+                   // RestartAppTool.restartAPP(getApplicationContext(), 100);
                 }
+
+                RestartAppTool.restartAPP(getApplicationContext(), 100);
 
             }
         });
@@ -55,11 +60,14 @@ public class LanguageActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //切换为英语
                 if (LocaleUtils.needUpdateLocale(LanguageActivity.this, LocaleUtils.LOCALE_ENGLISH)) {
-                    // LocaleUtils.saveUserLocale(LanguageActivity.this,LocaleUtils.LOCALE_ENGLISH);
+                    // LocaleUtils.saveUserLocale(LanguageActivity.this, LocaleUtils.LOCALE_ENGLISH);
                     LocaleUtils.updateLocale(LanguageActivity.this, LocaleUtils.LOCALE_ENGLISH);
                     LocaleUtils.saveUserLocale(LanguageActivity.this, LocaleUtils.LOCALE_ENGLISH);
-                    restartAct();
+
+                    finish();
+                  //  RestartAppTool.restartAPP(getApplicationContext(), 100);
                 }
+                RestartAppTool.restartAPP(getApplicationContext(), 100);
 
             }
         });
@@ -72,12 +80,12 @@ public class LanguageActivity extends AppCompatActivity {
      */
     private void restartAct() {
         finish();
-//        Intent _Intent = new Intent(this, MainActivity.class);
-//        startActivity(_Intent);
-//       // 清除Activity退出和进入的动画
-//        overridePendingTransition(0, 0);
+        Intent _Intent = new Intent(this, MainActivity.class);
+        startActivity(_Intent);
+        // 清除Activity退出和进入的动画
+        overridePendingTransition(0, 0);
         //重启APP
-        RestartAppTool.restartAPP(getApplicationContext(), 100);
+        // RestartAppTool.restartAPP(getApplicationContext(), 100);
 
 
     }

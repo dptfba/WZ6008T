@@ -3,6 +3,8 @@ package com.example.wuzhi.Utils;
 import android.content.Context;
 import android.widget.Toast;
 
+import com.example.wuzhi.R;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -105,7 +107,7 @@ public class ExcelUtils {
 
                 }
                 writebook.write();
-                Toast.makeText(c,"导出成功,存储在文件根目录下",Toast.LENGTH_SHORT).show();
+                Toast.makeText(c,(R.string.excelToast),Toast.LENGTH_SHORT).show();
 
 
             }catch (Exception e){

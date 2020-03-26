@@ -49,6 +49,7 @@ import android.widget.Toast;
 
 import com.example.wuzhi.Utils.ExcelUtils;
 import com.example.wuzhi.Utils.LocaleUtils;
+import com.example.wuzhi.startApp.RestartAppTool;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
@@ -196,11 +197,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//竖屏
-        Locale _UserLocale= LocaleUtils.getUserLocale(this);
-        LocaleUtils.updateLocale(this, _UserLocale);
 
+        //语言
+        Locale _UserLocale = LocaleUtils.getUserLocale(MainActivity.this);
+        LocaleUtils.updateLocale(MainActivity.this, _UserLocale);
+
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//竖屏
         setContentView(R.layout.activity_main);
+
 
         wifiOpen();//打开wifi的方法
 
@@ -318,9 +322,13 @@ public class MainActivity extends AppCompatActivity {
                         drawerLayout.closeDrawer(GravityCompat.START);//关闭navigationView滑动出来
                         //编辑框
                         final EditText editText = new EditText(MainActivity.this);
+
                         //如果获取到的内容不为空,则设置文本显示
                         if (addressStr != null) {
                             editText.setText(addressStr);
+                        } else {
+                            addressStr = "01";
+                            editText.setText("01");
                         }
 
                         new AlertDialog.Builder(MainActivity.this).setTitle(getString(R.string.address_dialog_title))
@@ -383,6 +391,7 @@ public class MainActivity extends AppCompatActivity {
         btn_connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Log.d("====点击连接if语句外面===", "socket=" + socket);
                 if (socket != null) {
                     if (btn_connect.getText().toString().equals(getString(R.string.tv_break))) {
@@ -469,7 +478,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        Locale _UserLocale=LocaleUtils.getUserLocale(MainActivity.this);
+        Locale _UserLocale = LocaleUtils.getUserLocale(MainActivity.this);
         //系统语言改变了应用保持之前设置的语言
         if (_UserLocale != null) {
             Locale.setDefault(_UserLocale);
@@ -477,11 +486,12 @@ public class MainActivity extends AppCompatActivity {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 _Configuration.setLocale(_UserLocale);
             } else {
-                _Configuration.locale =_UserLocale;
+                _Configuration.locale = _UserLocale;
             }
             getResources().updateConfiguration(_Configuration, getResources().getDisplayMetrics());
         }
     }
+
 
     /**
      * 判断是否打开wifi 并且打开的方法
@@ -489,15 +499,15 @@ public class MainActivity extends AppCompatActivity {
     private void wifiOpen() {
         if (isWifiOpened() == false) {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setMessage("WIFI未连接,请先打开WIFI");
-            builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+            builder.setMessage(getString(R.string.wifi_message));
+            builder.setPositiveButton(getString(R.string.wifi_affirm), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS)); //直接进入手机中的wifi网络设置界面
 
                 }
             });
-            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(getString(R.string.negativeButton), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
