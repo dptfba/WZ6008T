@@ -459,7 +459,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 isOn = !isOn;
 
-
             }
         });
 
@@ -470,7 +469,6 @@ public class MainActivity extends AppCompatActivity {
                 export();
             }
         });
-
 
     }
 
