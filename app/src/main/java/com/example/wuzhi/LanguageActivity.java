@@ -47,10 +47,10 @@ public class LanguageActivity extends AppCompatActivity {
                     LocaleUtils.saveUserLocale(LanguageActivity.this, LocaleUtils.LOCALE_CHINESE);
 
                     finish();
-                   // RestartAppTool.restartAPP(getApplicationContext(), 100);
+                    RestartAppTool.restartAPP(getApplicationContext(), 100);
                 }
 
-                RestartAppTool.restartAPP(getApplicationContext(), 100);
+               // RestartAppTool.restartAPP(getApplicationContext(), 100);
 
             }
         });
@@ -65,9 +65,9 @@ public class LanguageActivity extends AppCompatActivity {
                     LocaleUtils.saveUserLocale(LanguageActivity.this, LocaleUtils.LOCALE_ENGLISH);
 
                     finish();
-                  //  RestartAppTool.restartAPP(getApplicationContext(), 100);
+                   RestartAppTool.restartAPP(getApplicationContext(), 100);
                 }
-                RestartAppTool.restartAPP(getApplicationContext(), 100);
+              //  RestartAppTool.restartAPP(getApplicationContext(), 100);
 
             }
         });
