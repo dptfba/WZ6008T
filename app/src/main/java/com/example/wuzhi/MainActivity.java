@@ -191,10 +191,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         //语言
-        Locale _UserLocale = LocaleUtils.getUserLocale(this);
-        LocaleUtils.updateLocale(MainActivity.this, _UserLocale);
+       Locale _UserLocale = LocaleUtils.getUserLocale(this);
+       LocaleUtils.updateLocale(this, _UserLocale);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//竖屏
         setContentView(R.layout.activity_main);
@@ -467,7 +466,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        Locale _UserLocale = LocaleUtils.getUserLocale(MainActivity.this);
+        Locale _UserLocale = LocaleUtils.getUserLocale(this);
         //系统语言改变了应用保持之前设置的语言
         if (_UserLocale != null) {
             Locale.setDefault(_UserLocale);
