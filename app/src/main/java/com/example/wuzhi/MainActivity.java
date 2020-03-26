@@ -86,12 +86,7 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity {
     UpdateManager updateManager;//APP自动更新类
 
-
-    String tag = "=======err";
-    private DecimalFormat mDecimalFormat = new DecimalFormat("#.00");//格式化显示浮点数位两位小数
-
     private long eixtTime = 0;//存在时间
-
 
     //侧滑抽屉控件
     NavigationView navigationView;//导航菜单
@@ -182,7 +177,6 @@ public class MainActivity extends AppCompatActivity {
     private TimerTask timerTask = null;//定时任务
 
     MyHandler mHandler;//handler
-    Runnable runnable;
 
 
     /**
@@ -199,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         //语言
-        Locale _UserLocale = LocaleUtils.getUserLocale(MainActivity.this);
+        Locale _UserLocale = LocaleUtils.getUserLocale(this);
         LocaleUtils.updateLocale(MainActivity.this, _UserLocale);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//竖屏
@@ -349,7 +343,6 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 }).setNegativeButton(getString(R.string.negativeButton), null).show();
 
-
                         break;
                     case R.id.item_language://切换语言
                         //判断侧滑界面是否打开
@@ -405,7 +398,6 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                 }
-
 
             }
 
@@ -491,7 +483,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * 判断是否打开wifi 并且打开的方法
+     * 判断是否打开wifi ,若没则进入网络设置界面的方法
      **/
     private void wifiOpen() {
         if (isWifiOpened() == false) {
@@ -1566,11 +1558,5 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //停止计时器,handler
-    @Override
-    protected void onDestroy() {
-        mHandler.removeCallbacks(runnable);
-        super.onDestroy();
-    }
 
 }

@@ -24,6 +24,19 @@ public class LocaleUtils {
      */
     public static final Locale LOCALE_RUSSIAN = new Locale("ru");
     /**
+     * 繁体字
+     **/
+    static public final Locale TRADITIONAL_CHINESE = new Locale("zh", "TW");
+    /**
+     * 日语
+     **/
+    static public final Locale JAPANESE = new Locale("ja", "");
+
+    /**
+     * 法语
+     **/
+    static public final Locale FRENCH = new Locale("fr", "");
+    /**
      * 保存SharedPreferences的文件名
      */
     private static final String LOCALE_FILE = "LOCALE_FILE";

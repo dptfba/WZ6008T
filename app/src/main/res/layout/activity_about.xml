@@ -22,7 +22,7 @@
             android:layout_width="@dimen/voltageTitleHeight"
             android:layout_height="@dimen/voltageTitleHeight"/>
         <TextView
-            android:text="@string/menu_about_title"
+            android:text="@string/about_label"
             android:textColor="#000000"
             android:textSize="@dimen/font20"
             android:gravity="center"

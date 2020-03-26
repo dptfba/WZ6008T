@@ -443,7 +443,7 @@
                 android:layout_height="wrap_content">
                 <TextView
                     android:text="@string/bootTimeTitle"
-                    android:layout_width="wrap_content"
+                    android:layout_width="62dp"
                     android:textSize="@dimen/fontHead"
                     android:textColor="@color/colorWhite"
                     android:layout_height="wrap_content"/>

@@ -30,15 +30,15 @@
     <string name="ocpTitle">OCP:</string>
     <string name="inputVoltageTitle">Vin(V):</string>
     <string name="bootTimeTitle">upTime:</string>
-    <string name="chinese">simplifiedChinese</string>
+    <string name="chinese">简体中文</string>
     <string name="english">English</string>
+    <string name="chinese_TW">繁体中文</string>
+    <string name="ja">日语</string>
     <string name="language_label">language</string>
     <string name="about_label">about</string>
     <string name="address_dialog_title">Slave address</string>
     <string name="positiveButton">CONFIRM</string>
     <string name="negativeButton">CANCEL</string>
-
-
     <string name="ssid_title">SSID: </string>
     <string name="bssid_title">BSSID: </string>
     <string name="password_title">WiFi Password: </string>

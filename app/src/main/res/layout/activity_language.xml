@@ -28,12 +28,15 @@
             android:layout_height="wrap_content"/>
 
     </LinearLayout>
-    <TextView
+    <Button
         android:id="@+id/tv_chinese"
         android:text="@string/chinese"
         android:gravity="center_vertical"
-       android:layout_marginLeft="@dimen/outerMargin"
+        android:paddingLeft="@dimen/outerMargin"
+        android:stateListAnimator="@null"
         android:textSize="@dimen/fontNum"
+        android:textAllCaps="false"
+        android:background="@color/colorWhite"
         android:layout_width="match_parent"
         android:textColor="@color/colorBackground"
         android:layout_height="@dimen/languageTextHeight"/>
@@ -41,12 +44,15 @@
         android:background="@color/wifiBtnBackground"
         android:layout_width="match_parent"
         android:layout_height="1px"/>
-    <TextView
+    <Button
         android:id="@+id/tv_english"
         android:text="@string/english"
         android:gravity="center_vertical"
-        android:layout_marginLeft="@dimen/outerMargin"
+        android:paddingLeft="@dimen/outerMargin"
+        android:stateListAnimator="@null"
         android:textSize="@dimen/fontNum"
+        android:textAllCaps="false"
+        android:background="@color/colorWhite"
         android:layout_width="match_parent"
         android:textColor="@color/colorBackground"
         android:layout_height="@dimen/languageTextHeight"/>
@@ -55,6 +61,38 @@
         android:layout_width="match_parent"
         android:layout_height="1px"/>
 
+    <Button
+        android:id="@+id/tv_TW"
+        android:text="@string/chinese_TW"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/outerMargin"
+        android:stateListAnimator="@null"
+        android:textSize="@dimen/fontNum"
+        android:textAllCaps="false"
+        android:background="@color/colorWhite"
+        android:layout_width="match_parent"
+        android:textColor="@color/colorBackground"
+        android:layout_height="@dimen/languageTextHeight"/>
+    <TextView
+        android:background="@color/wifiBtnBackground"
+        android:layout_width="match_parent"
+        android:layout_height="1px"/>
 
+    <Button
+        android:id="@+id/btn_ja"
+        android:text="@string/ja"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/outerMargin"
+        android:stateListAnimator="@null"
+        android:textSize="@dimen/fontNum"
+        android:textAllCaps="false"
+        android:background="@color/colorWhite"
+        android:layout_width="match_parent"
+        android:textColor="@color/colorBackground"
+        android:layout_height="@dimen/languageTextHeight"/>
+    <TextView
+        android:background="@color/wifiBtnBackground"
+        android:layout_width="match_parent"
+        android:layout_height="1px"/>
 
 </LinearLayout>
