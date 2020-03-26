@@ -198,7 +198,6 @@ public class MainActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//竖屏
         setContentView(R.layout.activity_main);
 
-
         wifiOpen();//打开wifi的方法
 
         //软件更新的检查调用
