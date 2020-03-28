@@ -136,30 +136,6 @@ public class LocaleUtils<pivate> {
         return pNewUserLocale != null && !getCurrentLocale(pContext).equals(pNewUserLocale);
     }
 
-    /**
-     * 更新 application 的 updateConfiguration,否则 context.getResource.getString
-     * 中 当 context 为applicationContext 时不会生效
-     *
-     * @param context
-     */
-    public static void updateApplicationConfiguration(Context context, Locale locale) {
-        if (context == null) {
-            return;
-        }
-        Resources resources = context.getApplicationContext().getResources();
-        DisplayMetrics dm = resources.getDisplayMetrics();
-        Configuration config = resources.getConfiguration();
-        config.locale = locale;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            LocaleList localeList = new LocaleList(locale);
-            LocaleList.setDefault(localeList);
-            config.setLocales(localeList);
-            context.getApplicationContext().createConfigurationContext(config);
-            Locale.setDefault(locale);
-        }
-        resources.updateConfiguration(config, dm);
-    }
-
 
 
 }

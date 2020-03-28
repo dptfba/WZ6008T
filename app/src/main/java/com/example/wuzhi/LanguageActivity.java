@@ -1,8 +1,10 @@
 package com.example.wuzhi;
 
 
+import android.content.Context;
 import android.content.Intent;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import android.view.View;
@@ -14,8 +16,6 @@ import android.widget.ImageView;
 import com.example.wuzhi.Utils.LocaleUtils;
 
 import com.example.wuzhi.startApp.RestartAppTool;
-
-import java.util.Locale;
 
 public class LanguageActivity extends BaseActivity {
     ImageView iv_back;
@@ -71,6 +71,7 @@ public class LanguageActivity extends BaseActivity {
 
                 }
 
+
             }
         });
 
@@ -118,6 +119,5 @@ public class LanguageActivity extends BaseActivity {
         overridePendingTransition(0, 0);
 
     }
-
 
 }

@@ -1,6 +1,7 @@
 package com.example.wuzhi;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
@@ -21,7 +22,10 @@ public class BaseActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Locale _UserLocale= LocaleUtils.getUserLocale(this);
+        Log.d("===Base_onCreate===",String.valueOf( _UserLocale));
         LocaleUtils.updateLocale(this, _UserLocale);
+        Log.d("===Base_onCreate更新后===",String.valueOf( _UserLocale));
+
     }
 
     @Override
@@ -29,7 +33,6 @@ public class BaseActivity extends AppCompatActivity {
         Context context =languageWork(newBase);
         Log.d("===BaseActivity===",String.valueOf(context));
        super.attachBaseContext(context);
-
 
     }
 
@@ -56,7 +59,6 @@ public class BaseActivity extends AppCompatActivity {
         Configuration configuration = resources.getConfiguration();
         configuration.setLocale(locale);
         configuration.setLocales(new LocaleList(locale));
-
         return context.createConfigurationContext(configuration);
     }
 
