@@ -19,6 +19,7 @@
         tools:ignore="ProtectedPermissions" />
 
     <application
+        android:name=".App.MyApplication"
         android:allowBackup="true"
         android:configChanges="locale|layoutDirection|keyboard"
         android:icon="@mipmap/ic_launcher"

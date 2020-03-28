@@ -118,6 +118,7 @@ public class LocaleUtils<pivate> {
                 _Configuration.setLocale(pNewUserLocale);
             } else {
                 _Configuration.locale =pNewUserLocale;
+
             }
             DisplayMetrics _DisplayMetrics = pContext.getResources().getDisplayMetrics();
             pContext.getResources().updateConfiguration(_Configuration, _DisplayMetrics);
@@ -135,6 +136,7 @@ public class LocaleUtils<pivate> {
     public static boolean needUpdateLocale(Context pContext, Locale pNewUserLocale) {
         return pNewUserLocale != null && !getCurrentLocale(pContext).equals(pNewUserLocale);
     }
+
 
 
 

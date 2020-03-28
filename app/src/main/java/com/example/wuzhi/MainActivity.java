@@ -26,6 +26,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
@@ -264,6 +265,10 @@ public class MainActivity extends BaseActivity{
 
         //头部文件中IP地址显示文本框设置文字
         tv_ip.setText(getLocalIpAddress());
+
+
+        //编辑框输入数字个数
+
 
 
         //点击菜单事件
