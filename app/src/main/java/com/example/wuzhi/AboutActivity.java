@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 /**关于界面activity**/
-public class AboutActivity extends AppCompatActivity {
+public class AboutActivity extends BaseActivity {
     ImageView iv_back;
 
     @Override

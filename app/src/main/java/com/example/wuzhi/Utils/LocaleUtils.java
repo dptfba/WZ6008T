@@ -1,16 +1,23 @@
 package com.example.wuzhi.Utils;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Build;
+import android.os.LocaleList;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import com.google.gson.Gson;
 
 import java.util.Locale;
 
-public class LocaleUtils {
+public class LocaleUtils<pivate> {
     /**
      * 中文
      */
@@ -55,6 +62,8 @@ public class LocaleUtils {
         String _LocaleJson = _SpLocale.getString(LOCALE_KEY, "");
         return jsonToLocale(_LocaleJson);
     }
+
+
     /**
      * 获取当前的Locale
      * @param pContext Context
@@ -101,13 +110,11 @@ public class LocaleUtils {
     }
     /**
      * 更新Locale
-     * @param pContext Context
-     * @param pNewUserLocale New User Locale
      */
     public static void updateLocale(Context pContext, Locale pNewUserLocale) {
         if (needUpdateLocale(pContext, pNewUserLocale)) {
             Configuration _Configuration = pContext.getResources().getConfiguration();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {//Android 4.2
                 _Configuration.setLocale(pNewUserLocale);
             } else {
                 _Configuration.locale =pNewUserLocale;
@@ -117,6 +124,8 @@ public class LocaleUtils {
             saveUserLocale(pContext, pNewUserLocale);
         }
     }
+
+
     /**
      * 判断需不需要更新
      * @param pContext Context
@@ -126,5 +135,32 @@ public class LocaleUtils {
     public static boolean needUpdateLocale(Context pContext, Locale pNewUserLocale) {
         return pNewUserLocale != null && !getCurrentLocale(pContext).equals(pNewUserLocale);
     }
+
+    /**
+     * 更新 application 的 updateConfiguration,否则 context.getResource.getString
+     * 中 当 context 为applicationContext 时不会生效
+     *
+     * @param context
+     */
+    public static void updateApplicationConfiguration(Context context, Locale locale) {
+        if (context == null) {
+            return;
+        }
+        Resources resources = context.getApplicationContext().getResources();
+        DisplayMetrics dm = resources.getDisplayMetrics();
+        Configuration config = resources.getConfiguration();
+        config.locale = locale;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            LocaleList localeList = new LocaleList(locale);
+            LocaleList.setDefault(localeList);
+            config.setLocales(localeList);
+            context.getApplicationContext().createConfigurationContext(config);
+            Locale.setDefault(locale);
+        }
+        resources.updateConfiguration(config, dm);
+    }
+
+
+
 }
 

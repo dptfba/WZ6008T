@@ -2,6 +2,7 @@ package com.example.wuzhi;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -28,9 +29,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.LocaleList;
 import android.os.Message;
 import android.os.SystemClock;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -83,7 +86,7 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity{
     UpdateManager updateManager;//APP自动更新类
 
     private long eixtTime = 0;//存在时间
@@ -191,12 +194,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //语言
-       Locale _UserLocale = LocaleUtils.getUserLocale(this);
-       LocaleUtils.updateLocale(this, _UserLocale);
-
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//竖屏
         setContentView(R.layout.activity_main);
+
 
         wifiOpen();//打开wifi的方法
 
@@ -316,11 +316,11 @@ public class MainActivity extends AppCompatActivity {
                         final EditText editText = new EditText(MainActivity.this);
 
                         //如果获取到的内容不为空,则设置文本显示
-                        if (addressStr != null) {
-                            editText.setText(addressStr);
-                        } else {
+                        if(TextUtils.isEmpty(addressStr)){
                             addressStr = "01";
                             editText.setText("01");
+                        }else {
+                            editText.setText(addressStr);
                         }
 
                         new AlertDialog.Builder(MainActivity.this).setTitle(getString(R.string.address_dialog_title))
@@ -391,6 +391,9 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         btn_connect.setText(getString(R.string.tv_break));
                         startTimerToSend();//开启定时器发送数据
+                        if(TextUtils.isEmpty(addressStr)){
+                            addressStr="01";
+                        }
                         Toast.makeText(MainActivity.this, getString(R.string.address_dialog_title) + ":" + addressStr,
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -460,25 +463,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
-    //语言配置
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        Locale _UserLocale = LocaleUtils.getUserLocale(this);
-        //系统语言改变了应用保持之前设置的语言
-        if (_UserLocale != null) {
-            Locale.setDefault(_UserLocale);
-            Configuration _Configuration = new Configuration(newConfig);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                _Configuration.setLocale(_UserLocale);
-            } else {
-                _Configuration.locale = _UserLocale;
-            }
-            getResources().updateConfiguration(_Configuration, getResources().getDisplayMetrics());
-        }
-    }
-
 
     /**
      * 判断是否打开wifi ,若没则进入网络设置界面的方法
