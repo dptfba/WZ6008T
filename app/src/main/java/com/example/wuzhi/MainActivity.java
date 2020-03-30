@@ -274,9 +274,10 @@ public class MainActivity extends BaseActivity {
 
 
         //四个编辑框输入限制和获取
-        //U_SET
+        //U_SET 输入限制
         InputFilter[] filtersU = {new EditInputFilterU()};
         et_setU.setFilters(filtersU);
+        //点击U_SET,弹出最大值提示
         et_setU.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -295,15 +296,17 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        //I_SET
+        //I_SET 输入限制
         InputFilter[] filtersI = {new EditInputFilterI()};
         et_setI.setFilters(filtersI);
+        //点击I_SET,弹出最大值提示
         et_setI.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(MainActivity.this, "您可输入的最大值为:" +EditInputFilterI.MAX_VALUE, Toast.LENGTH_SHORT).show();
             }
         });
+        //点击键盘完成或回车键时获取到输入的值
         et_setI.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -318,12 +321,14 @@ public class MainActivity extends BaseActivity {
         //ocp
         InputFilter[] filtersOCP = {new EditInputFilterOCP()};
         et_ocp.setFilters(filtersOCP);
+        //点击ocp,弹出最大值提示
         et_ocp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(MainActivity.this, "您可输入的最大值为:" +EditInputFilterOCP.MAX_VALUE, Toast.LENGTH_SHORT).show();
             }
         });
+        //点击键盘完成或回车键时获取到输入的值
         et_ocp.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -338,12 +343,14 @@ public class MainActivity extends BaseActivity {
         //ovp
         InputFilter[] filtersOVP = {new EditInputFilterOVP()};
         et_ovp.setFilters(filtersOVP);
+        //点击ovp,弹出最大值提示
         et_ovp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(MainActivity.this, "您可输入的最大值为:" +EditInputFilterOVP.MAX_VALUE, Toast.LENGTH_SHORT).show();
             }
         });
+        //点击键盘完成或回车键时获取到输入的值
         et_ovp.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
