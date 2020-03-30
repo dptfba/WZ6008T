@@ -272,18 +272,21 @@ public class MainActivity extends BaseActivity{
 
 
         //四个编辑框输入限制
+        //U_SET
        InputFilter[] filtersU={new EditInputFilterU()};
        et_setU.setFilters(filtersU);
 
+       //I_SET
         InputFilter[] filtersI={new EditInputFilterI()};
         et_setI.setFilters(filtersI);
 
+        //ocp
         InputFilter[] filtersOCP={new EditInputFilterOCP()};
         et_ocp.setFilters(filtersOCP);
 
+        //ocp
         InputFilter[] filtersOVP={new EditInputFilterOVP()};
         et_ovp.setFilters( filtersOVP);
-
 
 
         //点击菜单事件
