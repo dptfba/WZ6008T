@@ -1,206 +1,217 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
     <!--图表-->
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/lineChart"
         android:layout_width="match_parent"
+        android:layout_height="@dimen/lineChartHeight"
         android:layout_marginLeft="@dimen/outerMargin"
-        android:layout_marginRight="@dimen/outerMargin"
-        android:layout_height="@dimen/lineChartHeight" />
+        android:layout_marginRight="@dimen/outerMargin" />
     <!--第二行,输出电压,输出电流,输出功率-->
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/outerLayoutHeight"
         android:layout_marginLeft="@dimen/outerMargin"
         android:layout_marginRight="@dimen/outerMargin"
         android:paddingTop="@dimen/linearLayoutPadding"
-        android:paddingBottom="@dimen/linearLayoutPadding"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/outerLayoutHeight">
+        android:paddingBottom="@dimen/linearLayoutPadding">
         <!--输出电压-->
         <LinearLayout
-            android:layout_weight="1"
-            android:orientation="vertical"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginRight="@dimen/outerMargin"
-            android:layout_height="wrap_content">
+            android:layout_weight="1"
+            android:orientation="vertical">
+
             <TextView
                 android:id="@+id/tv_voltage_title"
-                android:text="@string/tv_voltage_title"
-                android:background="@drawable/tv_background_shape"
-                android:textSize="@dimen/fontNum"
                 android:layout_width="match_parent"
-                android:gravity="center"
-                android:textColor="@color/colorBackground"
+                android:layout_height="@dimen/voltageTitleHeight"
                 android:autoSizeMaxTextSize="18sp"
                 android:autoSizeMinTextSize="10sp"
                 android:autoSizePresetSizes="@array/autoSize_text_size"
-                android:autoSizeTextType="uniform"
                 android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:background="@drawable/tv_background_shape"
+                android:gravity="center"
+                android:text="@string/tv_voltage_title"
                 android:textAllCaps="false"
-                android:layout_height="@dimen/voltageTitleHeight"/>
+                android:textColor="@color/colorBackground"
+                android:textSize="@dimen/fontNum" />
+
             <TextView
                 android:id="@+id/tv_voltage"
-                android:text="0.005"
-                android:textSize="@dimen/fontNum"
-                android:background="@color/btnAddTextBackground"
                 android:layout_width="match_parent"
+                android:layout_height="@dimen/voltageHeight"
+                android:background="@color/btnAddTextBackground"
                 android:gravity="center"
+                android:text="0.005"
                 android:textColor="@color/colorBackground"
-                android:layout_height="@dimen/voltageHeight"/>
+                android:textSize="@dimen/fontNum" />
 
         </LinearLayout>
 
         <!--输出电流-->
         <LinearLayout
-            android:layout_weight="1"
-            android:orientation="vertical"
             android:layout_width="0dp"
-            android:layout_marginRight="@dimen/outerMargin"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/outerMargin"
-            android:layout_height="wrap_content">
+            android:layout_marginRight="@dimen/outerMargin"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
             <TextView
                 android:id="@+id/tv_current_title"
-                android:text="@string/tv_current_title"
-                android:background="@drawable/tv_background_shape_a"
-                android:textSize="@dimen/fontNum"
                 android:layout_width="match_parent"
-                android:gravity="center"
-                android:textColor="@color/colorBackground"
+                android:layout_height="@dimen/voltageTitleHeight"
                 android:autoSizeMaxTextSize="18sp"
                 android:autoSizeMinTextSize="10sp"
                 android:autoSizePresetSizes="@array/autoSize_text_size"
-                android:autoSizeTextType="uniform"
                 android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:background="@drawable/tv_background_shape_a"
+                android:gravity="center"
+                android:text="@string/tv_current_title"
                 android:textAllCaps="false"
-                android:layout_height="@dimen/voltageTitleHeight"/>
+                android:textColor="@color/colorBackground"
+                android:textSize="@dimen/fontNum" />
+
             <TextView
                 android:id="@+id/tv_current"
-                android:text="0.005"
-                android:textSize="@dimen/fontNum"
-                android:background="@color/btnAddTextBackground"
                 android:layout_width="match_parent"
+                android:layout_height="@dimen/voltageHeight"
+                android:background="@color/btnAddTextBackground"
                 android:gravity="center"
+                android:text="0.005"
                 android:textColor="@color/colorBackground"
-                android:layout_height="@dimen/voltageHeight"/>
+                android:textSize="@dimen/fontNum" />
 
         </LinearLayout>
 
         <!--输出功率-->
         <LinearLayout
-            android:layout_weight="1"
-            android:orientation="vertical"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/outerMargin"
-            android:layout_height="wrap_content">
+            android:layout_weight="1"
+            android:orientation="vertical">
+
             <TextView
                 android:id="@+id/tv_power_title"
-                android:text="@string/tv_power_title"
-                android:background="@drawable/tv_background_shape_w"
-                android:textSize="@dimen/fontNum"
                 android:layout_width="match_parent"
+                android:layout_height="@dimen/voltageTitleHeight"
+                android:background="@drawable/tv_background_shape_w"
                 android:gravity="center"
+                android:text="@string/tv_power_title"
                 android:textColor="@color/colorBackground"
-                android:layout_height="@dimen/voltageTitleHeight"/>
+                android:textSize="@dimen/fontNum" />
+
             <TextView
                 android:id="@+id/tv_power"
-                android:text="0.005"
-                android:textSize="@dimen/fontNum"
-                android:background="@color/btnAddTextBackground"
                 android:layout_width="match_parent"
+                android:layout_height="@dimen/voltageHeight"
+                android:background="@color/btnAddTextBackground"
                 android:gravity="center"
+                android:text="0.005"
                 android:textColor="@color/colorBackground"
-                android:layout_height="@dimen/voltageHeight"/>
+                android:textSize="@dimen/fontNum" />
 
         </LinearLayout>
 
     </LinearLayout>
     <!--第三行,能量,容量,记录时间,暂停,清除-->
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/thirdLayoutHeight"
         android:layout_marginLeft="@dimen/outerMargin"
         android:layout_marginRight="@dimen/outerMargin"
-        android:paddingBottom="@dimen/linearLayoutPadding"
         android:paddingTop="@dimen/linearLayoutPadding"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/thirdLayoutHeight">
+        android:paddingBottom="@dimen/linearLayoutPadding">
         <!--能量-->
         <LinearLayout
-            android:background="@drawable/btn_background_shape"
             android:layout_width="@dimen/energyLayoutWidth"
-            android:orientation="vertical"
+            android:layout_height="match_parent"
             android:layout_marginRight="@dimen/marginRight"
-            android:layout_height="match_parent">
+            android:background="@drawable/btn_background_shape"
+            android:orientation="vertical">
+
             <TextView
                 android:id="@+id/tv_energy_title"
-                android:text="@string/tv_energy_title"
-                android:gravity="center"
-                android:textSize="@dimen/fontHead"
-                android:textColor="@color/colorBackground"
                 android:layout_width="match_parent"
+                android:layout_height="@dimen/energyTitleHeight"
                 android:autoSizeMaxTextSize="18sp"
                 android:autoSizeMinTextSize="10sp"
                 android:autoSizePresetSizes="@array/autoSize_text_size"
-                android:autoSizeTextType="uniform"
                 android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:gravity="center"
+                android:text="@string/tv_energy_title"
                 android:textAllCaps="false"
-                android:layout_height="@dimen/energyTitleHeight"/>
+                android:textColor="@color/colorBackground"
+                android:textSize="@dimen/fontHead" />
+
             <TextView
                 android:id="@+id/tv_energy"
-                android:text="0.005"
-                android:gravity="center"
-                android:textSize="@dimen/fontHead"
-                android:textColor="@color/colorBackground"
                 android:layout_width="match_parent"
+                android:layout_height="@dimen/energyTvHeight"
                 android:layout_marginTop="@dimen/marginOne"
-                android:layout_height="@dimen/energyTvHeight"/>
+                android:gravity="center"
+                android:text="0.005"
+                android:textColor="@color/colorBackground"
+                android:textSize="@dimen/fontHead" />
 
         </LinearLayout>
 
         <!--容量-->
         <LinearLayout
-            android:background="@drawable/btn_background_shape"
             android:layout_width="@dimen/energyLayoutWidth"
-            android:orientation="vertical"
-            android:layout_marginRight="@dimen/marginRight"
+            android:layout_height="match_parent"
             android:layout_marginLeft="@dimen/marginRight"
-            android:layout_height="match_parent">
+            android:layout_marginRight="@dimen/marginRight"
+            android:background="@drawable/btn_background_shape"
+            android:orientation="vertical">
+
             <TextView
                 android:id="@+id/tv_capacity_title"
-                android:text="@string/tv_capacity_title"
-                android:gravity="center"
-                android:textSize="@dimen/fontHead"
-                android:textColor="@color/colorBackground"
                 android:layout_width="match_parent"
+                android:layout_height="@dimen/energyTitleHeight"
+                android:gravity="center"
+                android:text="@string/tv_capacity_title"
                 android:textAllCaps="false"
-                android:layout_height="@dimen/energyTitleHeight"/>
+                android:textColor="@color/colorBackground"
+                android:textSize="@dimen/fontHead" />
+
             <TextView
                 android:id="@+id/tv_capacity"
-                android:text="0.005"
-                android:gravity="center"
-                android:textSize="@dimen/fontHead"
-                android:textColor="@color/colorBackground"
                 android:layout_width="match_parent"
+                android:layout_height="@dimen/energyTvHeight"
                 android:layout_marginTop="@dimen/marginOne"
-                android:layout_height="@dimen/energyTvHeight"/>
+                android:gravity="center"
+                android:text="0.005"
+                android:textColor="@color/colorBackground"
+                android:textSize="@dimen/fontHead" />
 
         </LinearLayout>
 
         <!--记录时间-->
         <LinearLayout
-            android:background="@drawable/btn_background_shape"
             android:layout_width="@dimen/energyLayoutWidth"
-            android:orientation="vertical"
-            android:layout_marginRight="@dimen/linearLayoutPadding"
+            android:layout_height="match_parent"
             android:layout_marginLeft="@dimen/marginRight"
-            android:layout_height="match_parent">
+            android:layout_marginRight="@dimen/linearLayoutPadding"
+            android:background="@drawable/btn_background_shape"
+            android:orientation="vertical">
+
             <TextView
-                android:text="@string/tv_writeTime_title"
-                android:gravity="center"
-                android:textSize="@dimen/fontHead"
-                android:textColor="@color/colorBackground"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/energyTitleHeight"/>
+                android:layout_height="@dimen/energyTitleHeight"
+                android:gravity="center"
+                android:text="@string/tv_writeTime_title"
+                android:textColor="@color/colorBackground"
+                android:textSize="@dimen/fontHead" />
             <!--
             <Chronometer
                 android:id="@+id/chronometer_writeTime"
@@ -214,169 +225,185 @@
                 -->
             <TextView
                 android:id="@+id/tv_writeTime"
-                android:text="00:00:00"
-                android:gravity="center"
-                android:textSize="@dimen/fontHead"
-                android:textColor="@color/colorBackground"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/energyTitleHeight"/>
+                android:layout_height="@dimen/energyTitleHeight"
+                android:gravity="center"
+                android:text="00:00:00"
+                android:textColor="@color/colorBackground"
+                android:textSize="@dimen/fontHead" />
 
         </LinearLayout>
         <!--暂停,清除按钮-->
         <LinearLayout
-            android:layout_weight="1"
             android:layout_width="0dp"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_weight="1">
 
             <Button
                 android:id="@+id/btn_startOrPause"
-                android:text="@string/btnTextStop"
-                android:layout_marginRight="@dimen/marginRight"
-                android:textColor="@color/colorRed"
-                android:textSize="@dimen/fontBig"
                 android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginRight="@dimen/marginRight"
                 android:layout_weight="1"
-                android:textAllCaps="false"
                 android:background="@drawable/btn_background_shape"
-                android:layout_height="match_parent"/>
+                android:text="@string/btnTextStop"
+                android:textAllCaps="false"
+                android:textColor="@color/colorRed"
+                android:textSize="@dimen/fontBig" />
+
             <Button
                 android:id="@+id/btn_clear"
-                android:text="@string/btnTextClear"
-                android:layout_marginLeft="@dimen/marginRight"
-                android:textColor="@color/colorRed"
-                android:textSize="@dimen/fontBig"
                 android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/marginRight"
                 android:layout_weight="1"
                 android:background="@drawable/btn_background_shape"
-                android:layout_height="match_parent"/>
+                android:text="@string/btnTextClear"
+                android:textColor="@color/colorRed"
+                android:textSize="@dimen/fontBig" />
 
         </LinearLayout>
     </LinearLayout>
     <!--第四行,设置 U,I,OVP,OCP-->
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/fourthLayoutHeight"
         android:layout_marginLeft="@dimen/outerMargin"
         android:layout_marginRight="@dimen/outerMargin"
         android:paddingLeft="@dimen/voltageTitleHeight"
-        android:paddingRight="@dimen/voltageTitleHeight"
         android:paddingTop="@dimen/marginRight"
-        android:paddingBottom="@dimen/marginRight"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/fourthLayoutHeight">
+        android:paddingRight="@dimen/voltageTitleHeight"
+        android:paddingBottom="@dimen/marginRight">
 
         <!--左边U_SET和I_SET-->
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:layout_height="match_parent">
+            android:orientation="vertical">
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_weight="1"
+                android:layout_height="0dp"
                 android:layout_marginBottom="@dimen/fourthMarginBottom"
-                android:layout_height="0dp">
+                android:layout_weight="1">
+
                 <TextView
-                    android:text="@string/setUTitle"
-                    android:textSize="@dimen/fontBig"
-                    android:textColor="@color/colorGreen"
                     android:layout_width="0dp"
+                    android:layout_height="@dimen/setUTitleHeight"
                     android:layout_weight="1"
-                    android:layout_height="@dimen/setUTitleHeight"/>
+                    android:text="@string/setUTitle"
+                    android:textColor="@color/colorGreen"
+                    android:textSize="@dimen/fontBig" />
+
                 <EditText
                     android:id="@+id/et_setU"
-                    android:textSize="@dimen/fontBig"
-                    android:hint="00:00"
-                    android:textColor="@color/colorGreen"
+                    android:layout_width="@dimen/setUEtWidth"
+                    android:layout_height="@dimen/setUTitleHeight"
                     android:background="@drawable/btn_background_shape"
                     android:gravity="center"
+                    android:hint="00:00"
+                    android:imeOptions="actionDone"
                     android:inputType="numberDecimal"
                     android:maxLines="1"
-                    android:layout_width="@dimen/setUEtWidth"
-                    android:layout_height="@dimen/setUTitleHeight"/>
+                    android:textColor="@color/colorGreen"
+                    android:textSize="@dimen/fontBig" />
 
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_weight="1"
-                android:layout_height="0dp">
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
                 <TextView
-                    android:text="@string/setITitle"
-                    android:textSize="@dimen/fontBig"
-                    android:textColor="@color/colorBlueFont"
                     android:layout_width="0dp"
+                    android:layout_height="@dimen/setUTitleHeight"
                     android:layout_weight="1"
-                    android:layout_height="@dimen/setUTitleHeight"/>
+                    android:text="@string/setITitle"
+                    android:textColor="@color/colorBlueFont"
+                    android:textSize="@dimen/fontBig" />
+
                 <EditText
                     android:id="@+id/et_setI"
-                    android:textSize="@dimen/fontBig"
-                    android:hint="00:00"
-                    android:textColor="@color/colorBlueFont"
+                    android:layout_width="@dimen/setUEtWidth"
+                    android:layout_height="@dimen/setUTitleHeight"
                     android:background="@drawable/btn_background_shape"
                     android:gravity="center"
+                    android:hint="00:00"
+                    android:imeOptions="actionDone"
                     android:inputType="numberDecimal"
                     android:maxLines="1"
-                    android:layout_width="@dimen/setUEtWidth"
-                    android:layout_height="@dimen/setUTitleHeight"/>
+                    android:textColor="@color/colorBlueFont"
+                    android:textSize="@dimen/fontBig" />
 
             </LinearLayout>
 
         </LinearLayout>
         <!--右边OVP和OCP-->
         <LinearLayout
-            android:layout_marginLeft="@dimen/energyTvHeight"
             android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/energyTvHeight"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_height="match_parent">
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_weight="1"
+                android:layout_height="0dp"
                 android:layout_marginBottom="@dimen/fourthMarginBottom"
-                android:layout_height="0dp">
+                android:layout_weight="1">
+
                 <TextView
-                    android:text="@string/ovpTitle"
-                    android:textSize="@dimen/fontBig"
-                    android:textColor="@color/colorGreen"
-                    android:gravity="center"
                     android:layout_width="0dp"
+                    android:layout_height="@dimen/setUTitleHeight"
                     android:layout_weight="1"
-                    android:layout_height="@dimen/setUTitleHeight"/>
+                    android:gravity="center"
+                    android:text="@string/ovpTitle"
+                    android:textColor="@color/colorGreen"
+                    android:textSize="@dimen/fontBig" />
+
                 <EditText
                     android:id="@+id/et_ovp"
-                    android:textSize="@dimen/fontBig"
-                    android:textColor="@color/colorGreen"
+                    android:layout_width="@dimen/setUEtWidth"
+                    android:layout_height="@dimen/setUTitleHeight"
                     android:background="@drawable/btn_background_shape"
                     android:gravity="center"
-                    android:inputType="numberDecimal"
                     android:hint="00:00"
+                    android:imeOptions="actionDone"
+                    android:inputType="numberDecimal"
                     android:maxLines="1"
-                    android:layout_width="@dimen/setUEtWidth"
-                    android:layout_height="@dimen/setUTitleHeight"/>
+                    android:textColor="@color/colorGreen"
+                    android:textSize="@dimen/fontBig" />
 
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_weight="1"
-                android:layout_height="0dp">
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
                 <TextView
-                    android:text="@string/ocpTitle"
-                    android:textSize="@dimen/fontBig"
-                    android:textColor="@color/colorBlueFont"
                     android:layout_width="0dp"
+                    android:layout_height="@dimen/setUTitleHeight"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:layout_height="@dimen/setUTitleHeight"/>
+                    android:text="@string/ocpTitle"
+                    android:textColor="@color/colorBlueFont"
+                    android:textSize="@dimen/fontBig" />
+
                 <EditText
                     android:id="@+id/et_ocp"
-                    android:textSize="@dimen/fontBig"
-                    android:textColor="@color/colorBlueFont"
+                    android:layout_width="@dimen/setUEtWidth"
+                    android:layout_height="@dimen/setUTitleHeight"
                     android:background="@drawable/btn_background_shape"
                     android:gravity="center"
-                    android:inputType="numberDecimal"
                     android:hint="00:00"
+                    android:imeOptions="actionDone"
+                    android:inputType="numberDecimal"
                     android:maxLines="1"
-                    android:layout_width="@dimen/setUEtWidth"
-                    android:layout_height="@dimen/setUTitleHeight"/>
+                    android:textColor="@color/colorBlueFont"
+                    android:textSize="@dimen/fontBig" />
 
             </LinearLayout>
 
@@ -386,76 +413,81 @@
     </LinearLayout>
     <!--最下面一行,按钮和开机时间,状态按钮部分-->
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_marginLeft="@dimen/outerMargin"
         android:layout_marginRight="@dimen/outerMargin"
-        android:layout_weight="1"
-        android:layout_width="match_parent"
-        android:layout_height="0dp">
+        android:layout_weight="1">
 
         <LinearLayout
             android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:paddingLeft="@dimen/bottomPadding"
-            android:orientation="vertical"
             android:gravity="center_vertical"
-            android:layout_height="match_parent">
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/bottomPadding">
             <!--上面状态按钮和提示按钮-->
             <LinearLayout
-                android:layout_marginTop="@dimen/fourthMarginBottom"
-                android:layout_marginBottom="@dimen/outerMargin"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/fourthMarginBottom"
+                android:layout_marginBottom="@dimen/outerMargin">
+
                 <Button
                     android:id="@+id/btn_stateButton"
-                    android:layout_marginRight="@dimen/stateBtnMargin"
-                    android:background="@drawable/btn_state_default"
                     android:layout_width="@dimen/stateBtnWidth"
-                    android:layout_height="@dimen/stateBtnHeight"/>
+                    android:layout_height="@dimen/stateBtnHeight"
+                    android:layout_marginRight="@dimen/stateBtnMargin"
+                    android:background="@drawable/btn_state_default" />
+
                 <Button
                     android:id="@+id/btn_hintButton"
-                    android:background="@drawable/btn_state_bj"
                     android:layout_width="@dimen/stateBtnWidth"
-                    android:layout_height="@dimen/stateBtnHeight"/>
+                    android:layout_height="@dimen/stateBtnHeight"
+                    android:background="@drawable/btn_state_bj" />
 
             </LinearLayout>
             <!--输入电压-->
             <LinearLayout
-                android:layout_marginBottom="@dimen/margin6"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin6">
+
                 <TextView
-                    android:text="@string/inputVoltageTitle"
                     android:layout_width="wrap_content"
-                    android:textSize="@dimen/fontHead"
+                    android:layout_height="wrap_content"
+                    android:text="@string/inputVoltageTitle"
                     android:textColor="@color/colorWhite"
-                    android:layout_height="wrap_content"/>
+                    android:textSize="@dimen/fontHead" />
+
                 <TextView
                     android:id="@+id/tv_inputVoltage"
-                    android:text="0.005"
                     android:layout_width="wrap_content"
-                    android:textSize="@dimen/fontHead"
+                    android:layout_height="wrap_content"
+                    android:text="0.005"
                     android:textColor="@color/colorWhite"
-                    android:layout_height="wrap_content"/>
+                    android:textSize="@dimen/fontHead" />
             </LinearLayout>
             <!--开机时间-->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
+
                 <TextView
-                    android:text="@string/bootTimeTitle"
                     android:layout_width="62dp"
-                    android:textSize="@dimen/fontHead"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bootTimeTitle"
                     android:textColor="@color/colorWhite"
-                    android:layout_height="wrap_content"/>
+                    android:textSize="@dimen/fontHead" />
+
                 <Chronometer
                     android:id="@+id/chronometer_bootTime"
-                    android:format="00:00:00"
                     android:layout_width="wrap_content"
-                    android:textSize="@dimen/fontHead"
+                    android:layout_height="wrap_content"
+                    android:format="00:00:00"
                     android:textColor="@color/colorWhite"
-                    android:layout_height="wrap_content"/>
+                    android:textSize="@dimen/fontHead" />
             </LinearLayout>
-
 
 
         </LinearLayout>
@@ -463,15 +495,16 @@
         <!--开关按钮-->
         <LinearLayout
             android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center"
-            android:layout_height="match_parent">
+            android:gravity="center">
+
             <ImageButton
                 android:id="@+id/btn_switch"
-                android:background="@color/colorBackground"
-                android:src="@drawable/btn_off"
                 android:layout_width="82dp"
-                android:layout_height="82dp"/>
+                android:layout_height="82dp"
+                android:background="@color/colorBackground"
+                android:src="@drawable/btn_off" />
 
         </LinearLayout>
 
