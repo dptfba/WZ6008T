@@ -39,6 +39,10 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.wuzhi.EditInputFilter.EditInputFilterI;
+import com.example.wuzhi.EditInputFilter.EditInputFilterOCP;
+import com.example.wuzhi.EditInputFilter.EditInputFilterOVP;
+import com.example.wuzhi.EditInputFilter.EditInputFilterU;
 import com.example.wuzhi.Utils.ExcelUtils;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -267,7 +271,18 @@ public class MainActivity extends BaseActivity{
         tv_ip.setText(getLocalIpAddress());
 
 
-        //编辑框输入数字个数
+        //四个编辑框输入限制
+       InputFilter[] filtersU={new EditInputFilterU()};
+       et_setU.setFilters(filtersU);
+
+        InputFilter[] filtersI={new EditInputFilterI()};
+        et_setI.setFilters(filtersI);
+
+        InputFilter[] filtersOCP={new EditInputFilterOCP()};
+        et_ocp.setFilters(filtersOCP);
+
+        InputFilter[] filtersOVP={new EditInputFilterOVP()};
+        et_ovp.setFilters( filtersOVP);
 
 
 
@@ -447,6 +462,8 @@ public class MainActivity extends BaseActivity{
         });
 
     }
+
+
 
     /**
      * 判断是否打开wifi ,若没则进入网络设置界面的方法
