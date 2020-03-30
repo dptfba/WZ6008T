@@ -30,8 +30,10 @@ import android.text.InputFilter;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.EditText;
@@ -271,22 +273,63 @@ public class MainActivity extends BaseActivity{
         tv_ip.setText(getLocalIpAddress());
 
 
-        //四个编辑框输入限制
+        //四个编辑框输入限制和获取
         //U_SET
        InputFilter[] filtersU={new EditInputFilterU()};
        et_setU.setFilters(filtersU);
+       //点击键盘完成或回车键时获取到输入的值
+        et_setU.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId== EditorInfo.IME_ACTION_DONE){
+                    Toast.makeText(MainActivity.this,"您输入的数值是:"+et_setU.getText().toString(),
+                            Toast.LENGTH_SHORT).show();
+                }
+                return false;
+            }
+        });
 
        //I_SET
         InputFilter[] filtersI={new EditInputFilterI()};
         et_setI.setFilters(filtersI);
+        et_setI.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId== EditorInfo.IME_ACTION_DONE){
+                    Toast.makeText(MainActivity.this,"您输入的数值是:"+et_setI.getText().toString(),
+                            Toast.LENGTH_SHORT).show();
+                }
+                return false;
+            }
+        });
 
         //ocp
         InputFilter[] filtersOCP={new EditInputFilterOCP()};
         et_ocp.setFilters(filtersOCP);
+        et_ocp.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId== EditorInfo.IME_ACTION_DONE){
+                    Toast.makeText(MainActivity.this,"您输入的数值是:"+et_ocp.getText().toString(),
+                            Toast.LENGTH_SHORT).show();
+                }
+                return false;
+            }
+        });
 
         //ocp
         InputFilter[] filtersOVP={new EditInputFilterOVP()};
         et_ovp.setFilters( filtersOVP);
+        et_ovp.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId== EditorInfo.IME_ACTION_DONE){
+                    Toast.makeText(MainActivity.this,"您输入的数值是:"+et_ovp.getText().toString(),
+                            Toast.LENGTH_SHORT).show();
+                }
+                return false;
+            }
+        });
 
 
         //点击菜单事件
