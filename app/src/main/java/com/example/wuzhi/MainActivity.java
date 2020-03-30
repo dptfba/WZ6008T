@@ -72,7 +72,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends BaseActivity{
+public class MainActivity extends BaseActivity {
     UpdateManager updateManager;//APP自动更新类
 
     private long eixtTime = 0;//存在时间
@@ -275,28 +275,40 @@ public class MainActivity extends BaseActivity{
 
         //四个编辑框输入限制和获取
         //U_SET
-       InputFilter[] filtersU={new EditInputFilterU()};
-       et_setU.setFilters(filtersU);
-       //点击键盘完成或回车键时获取到输入的值
+        InputFilter[] filtersU = {new EditInputFilterU()};
+        et_setU.setFilters(filtersU);
+        et_setU.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "您可输入的最大值为:" + EditInputFilterU.MAX_VALUE, Toast.LENGTH_SHORT).show();
+            }
+        });
+        //点击键盘完成或回车键时获取到输入的值
         et_setU.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId== EditorInfo.IME_ACTION_DONE){
-                    Toast.makeText(MainActivity.this,"您输入的数值是:"+et_setU.getText().toString(),
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    Toast.makeText(MainActivity.this, "您输入的数值是:" + et_setU.getText().toString(),
                             Toast.LENGTH_SHORT).show();
                 }
                 return false;
             }
         });
 
-       //I_SET
-        InputFilter[] filtersI={new EditInputFilterI()};
+        //I_SET
+        InputFilter[] filtersI = {new EditInputFilterI()};
         et_setI.setFilters(filtersI);
+        et_setI.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "您可输入的最大值为:" +EditInputFilterI.MAX_VALUE, Toast.LENGTH_SHORT).show();
+            }
+        });
         et_setI.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId== EditorInfo.IME_ACTION_DONE){
-                    Toast.makeText(MainActivity.this,"您输入的数值是:"+et_setI.getText().toString(),
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    Toast.makeText(MainActivity.this, "您输入的数值是:" + et_setI.getText().toString(),
                             Toast.LENGTH_SHORT).show();
                 }
                 return false;
@@ -304,27 +316,39 @@ public class MainActivity extends BaseActivity{
         });
 
         //ocp
-        InputFilter[] filtersOCP={new EditInputFilterOCP()};
+        InputFilter[] filtersOCP = {new EditInputFilterOCP()};
         et_ocp.setFilters(filtersOCP);
+        et_ocp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "您可输入的最大值为:" +EditInputFilterOCP.MAX_VALUE, Toast.LENGTH_SHORT).show();
+            }
+        });
         et_ocp.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId== EditorInfo.IME_ACTION_DONE){
-                    Toast.makeText(MainActivity.this,"您输入的数值是:"+et_ocp.getText().toString(),
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    Toast.makeText(MainActivity.this, "您输入的数值是:" + et_ocp.getText().toString(),
                             Toast.LENGTH_SHORT).show();
                 }
                 return false;
             }
         });
 
-        //ocp
-        InputFilter[] filtersOVP={new EditInputFilterOVP()};
-        et_ovp.setFilters( filtersOVP);
+        //ovp
+        InputFilter[] filtersOVP = {new EditInputFilterOVP()};
+        et_ovp.setFilters(filtersOVP);
+        et_ovp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "您可输入的最大值为:" +EditInputFilterOVP.MAX_VALUE, Toast.LENGTH_SHORT).show();
+            }
+        });
         et_ovp.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId== EditorInfo.IME_ACTION_DONE){
-                    Toast.makeText(MainActivity.this,"您输入的数值是:"+et_ovp.getText().toString(),
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    Toast.makeText(MainActivity.this, "您输入的数值是:" + et_ovp.getText().toString(),
                             Toast.LENGTH_SHORT).show();
                 }
                 return false;
@@ -361,10 +385,10 @@ public class MainActivity extends BaseActivity{
                         final EditText editText = new EditText(MainActivity.this);
 
                         //如果获取到的内容不为空,则设置文本显示
-                        if(TextUtils.isEmpty(addressStr)){
+                        if (TextUtils.isEmpty(addressStr)) {
                             addressStr = "01";
                             editText.setText("01");
-                        }else {
+                        } else {
                             editText.setText(addressStr);
                         }
 
@@ -436,8 +460,8 @@ public class MainActivity extends BaseActivity{
                     } else {
                         btn_connect.setText(getString(R.string.tv_break));
                         startTimerToSend();//开启定时器发送数据
-                        if(TextUtils.isEmpty(addressStr)){
-                            addressStr="01";
+                        if (TextUtils.isEmpty(addressStr)) {
+                            addressStr = "01";
                         }
                         Toast.makeText(MainActivity.this, getString(R.string.address_dialog_title) + ":" + addressStr,
                                 Toast.LENGTH_SHORT).show();
@@ -508,7 +532,6 @@ public class MainActivity extends BaseActivity{
         });
 
     }
-
 
 
     /**
