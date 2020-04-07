@@ -1,13 +1,20 @@
 package com.example.wuzhi;
 
+import java.lang.reflect.Array;
+
 public class Modbus {
     /**地址对应表元素单元**/
-    public class  OPTable{
+    public static class  OPTable{
         private int cmd;
         private byte[] ob;
         //无参的构造方法
         public OPTable(){
 
+        }
+
+        public OPTable(int cmd, byte[] ob) {
+            this.cmd = cmd;
+            this.ob = ob;
         }
 
         public int getCmd() {
@@ -367,7 +374,7 @@ public class Modbus {
 
     /***全局参数*/
 
-    public class ParamT{
+    public class ParamT{//PARAM_T
         private long paramVer;//参数区版本控制(可用于程序升级时,决定是否对参数区进行升级)
         private long factorNo;//出厂编号
         private byte model;//型号 0 无 1 WZ6008
@@ -643,6 +650,681 @@ public class Modbus {
     public  MBSci gMBSci=new MBSci(new MBCmd[MB_MAX_REPEAT_COUNT],0,MB_MAX_REPEAT_COUNT,0,0);
 
 
+    private static SerialPort comm=null;
+    private static int mbRefreshTime=0;
 
+    public static TypedefDisp display;
+    public static ParamT g_Param;
+
+    public static TypedefState g_State;
+
+    public static  int cmd_delay=0;
+
+    //变量所对应的地址,在此位置
+    public static OPTable[] mbDataTable={//MBDataTable
+            new OPTable(MB_WRITE_MODE,new byte[20]),//0
+            new OPTable(MB_WRITE_ADDRESS,new byte[20]),
+            new OPTable(MB_WRITE_POWER,new byte[20]),
+            new OPTable(MB_READ_STATE,new byte[20]),
+            new OPTable(MB_READ_INFO,new byte[20]),
+            new OPTable(MB_READ_SYSTEM,new byte[20]),
+            new OPTable(MB_WRITE_SYSTEM,new byte[20]),//6
+            new OPTable(MB_READ_M,new byte[20]),
+            new OPTable(MB_WRITE_M,new byte[20]),
+            new OPTable(MB_READ_DISPLAY1,new byte[20]),
+            new OPTable(MB_READ_DISPLAY2,new byte[20]),//10
+            new OPTable(MB_READ_DISPLAY3,new byte[20]),
+            new OPTable(MB_READ_M0,new byte[20]),//12
+            new OPTable(MB_WRITE_M0,new byte[20]),
+            new OPTable(MB_READ_M1,new byte[20]),
+            new OPTable(MB_WRITE_M1,new byte[20]),
+            new OPTable(MB_READ_M2,new byte[20]),//16
+            new OPTable(MB_WRITE_M2,new byte[20]),
+            new OPTable(MB_READ_M3,new byte[20]),
+            new OPTable(MB_WRITE_M3,new byte[20]),
+            new OPTable(MB_READ_M4,new byte[20]),
+            new OPTable(MB_WRITE_M4,new byte[20]),
+            new OPTable(MB_WRITE_PROTECT,new byte[20]),
+            new OPTable(MB_WRITE_ZERO,new byte[20]),
+            new OPTable(MB_WRITE_RESET,new byte[20])
+
+    };
+
+    public static byte gNode= (byte) 170;
+    public static  int gBaud=9600;
+
+    static byte BCC_CheckSum(byte[] buf,int len){
+        byte checksum=0;
+        int sum=0;
+        for(int i=0;i<len;i++){
+            sum=sum+buf[i];
+
+        }
+        checksum=(byte)(sum%256);
+        return checksum;
+    }
+
+    //获取地址所对应的数据
+    private static Object getAddressValue(byte cmd){
+       for(int i=0;i<mbDataTable.length;i++){
+           if(mbDataTable[i].cmd==cmd){
+               return mbDataTable[i].cmd;
+
+           }
+
+       }
+       return null;
+    }
+
+
+    //设置地址所对应的数据
+    private static Object setAddressValue(byte cmd,byte[] data){
+        for(int i=0;i<mbDataTable.length;i++){
+            if(mbDataTable[i].cmd==cmd){
+                System.arraycopy(data,0,mbDataTable[i].ob,0,20);
+                return true;
+            }
+
+        }
+        return null;
+
+    }
+
+    //累加和校验
+    private static byte sumCheck(byte[] bs,int length){
+        int num=0;
+        //所有字节累加
+        for(int i=0;i<length;i++){
+            num=(num+bs[i])%0xFFFF;
+
+        }
+        byte ret=(byte)(num&0xff);//只要最后一个字节
+        return ret;
+    }
+
+    /**
+     * 主控方式,发送指令模板
+     * node为节点,data为数据,addr为地址,con为变量各数,stat为功能码
+     * **/
+    private static byte[] sendTrainCyclostyle(byte node,byte[] data,byte cmd){
+        byte crcVal=0;
+        //byte[] headData = SendTrainHead(node, cmd); //写首部分数据
+        //byte[] headDataLen = SendTrainBytes(headData, ref con, stat); //计算数据的长度，有字节则写入。
+        //byte[] res = new byte[headDataLen.Length + con + 2];
+        byte[] res = new byte[20];
+
+        //headDataLen.CopyTo(res, 0);
+
+        //if ((stat == MB_WRITE_MULTIPLE_REGS) || (stat == MB_WRITE_MULTIPLE_COILS))
+        //Array.Copy(data, 0, res, headDataLen.Length, con);  //把数据复制到数据中
+        res[0] = node;
+        res[1] = g_Param.address;
+        res[2] = cmd;
+        System.arraycopy(data, 0, res, 3, 16);
+
+        crcVal = BCC_CheckSum(res, 19);
+        res[19] = crcVal;
+        return res;
+
+    }
+
+    /**
+     * 封装发送数据帧
+     * node为从机地址,cmd为指令信息
+     * */
+
+    private static byte[] sendPduPack(byte node,MBCmd cmd) {
+        byte[] res = null;
+        byte[] data = new byte[16];
+        switch (cmd.command) {
+            case MB_READ_STATE:
+            case MB_READ_SYSTEM:
+            case MB_READ_INFO:
+            case MB_READ_M:
+            case MB_READ_DISPLAY1:
+            case MB_READ_DISPLAY2:
+            case MB_READ_DISPLAY3:
+            case MB_READ_M0:
+            case MB_READ_M1:
+            case MB_READ_M2:
+            case MB_READ_M3:
+            case MB_READ_M4:
+                sendTrainCyclostyle(node, data, cmd.command);
+                break;
+
+            case MB_WRITE_MODE:
+                data[0] = g_State.remote;
+                res = sendTrainCyclostyle(node, data, cmd.command);
+                break;
+            //case MB_WRITE_ADDRESS:
+            //    data[0] = 0x01;
+            //    res =  sendTrainCyclostyle(node, data, cmd.command);
+            //break;
+            case MB_WRITE_POWER:
+                data[0] = g_State.onOff;
+                res = sendTrainCyclostyle(node, data, cmd.command);
+                break;
+            //case MB_WRITE_SYSTEM:
+            //    data[0] = g_State.Onoff;
+            //    res = sendTrainCyclostyle(node, data, cmd.command);
+            //break;
+
+            case MB_WRITE_DISPLAY:
+                data[0] = (byte) (display.ovp >> 8);
+                data[1] = (byte) (display.ovp & 0xFF);
+                data[2] = (byte) (display.ocp >> 8);
+                data[3] = (byte) (display.ocp & 0xFF);
+                data[4] = (byte) (display.vSet >> 8);
+                data[5] = (byte) (display.vSet & 0xFF);
+                data[6] = (byte) (display.iSet >> 8);
+                data[7] = (byte) (display.iSet & 0xFF);
+                data[8] = (byte) (display.t >> 24);
+                data[9] = (byte) ((display.t >> 16) & 0xFF);
+                data[10] = (byte) ((display.t >> 8) & 0xFF);//高8位
+                data[11] = (byte) (display.t & 0xFF);//低位
+                //data[12] = (byte)(display.OVP >> 8);
+                //data[13] = (byte)(display.OVP % 8);
+                res = sendTrainCyclostyle(node, data, cmd.command);
+                break;
+            case MB_WRITE_M:
+                data[0] = g_State.m;
+                res = sendTrainCyclostyle(node, data, cmd.command);
+                break;
+
+            case MB_WRITE_M0:
+                data[0] = (byte) (g_Param.m[0].ovp >> 8);
+                data[1] = (byte) (g_Param.m[0].ovp & 0xFF);
+                data[2] = (byte) (g_Param.m[0].ocp >> 8);
+                data[3] = (byte) (g_Param.m[0].ocp & 0xFF);
+                data[4] = (byte) (g_Param.m[0].vSet >> 8);
+                data[5] = (byte) (g_Param.m[0].vSet & 0xFF);
+                data[6] = (byte) (g_Param.m[0].iSet >> 8);
+                data[7] = (byte) (g_Param.m[0].iSet & 0xFF);
+                res = sendTrainCyclostyle(node, data, cmd.command);
+                break;
+            case MB_WRITE_M1:
+                data[0] = (byte) (g_Param.m[1].ovp >> 8);
+                data[1] = (byte) (g_Param.m[1].ovp & 0xFF);
+                data[2] = (byte) (g_Param.m[1].ocp >> 8);
+                data[3] = (byte) (g_Param.m[1].ocp & 0xFF);
+                data[4] = (byte) (g_Param.m[1].vSet >> 8);
+                data[5] = (byte) (g_Param.m[1].vSet & 0xFF);
+                data[6] = (byte) (g_Param.m[1].iSet >> 8);
+                data[7] = (byte) (g_Param.m[1].iSet & 0xFF);
+                res = sendTrainCyclostyle(node, data, cmd.command);
+                break;
+            case MB_WRITE_M2:
+                data[0] = (byte) (g_Param.m[2].ovp >> 8);
+                data[1] = (byte) (g_Param.m[2].ovp & 0xFF);
+                data[2] = (byte) (g_Param.m[2].ocp >> 8);
+                data[3] = (byte) (g_Param.m[2].ocp & 0xFF);
+                data[4] = (byte) (g_Param.m[2].vSet >> 8);
+                data[5] = (byte) (g_Param.m[2].vSet & 0xFF);
+                data[6] = (byte) (g_Param.m[2].iSet >> 8);
+                data[7] = (byte) (g_Param.m[2].iSet & 0xFF);
+                res = sendTrainCyclostyle(node, data, cmd.command);
+                break;
+            case MB_WRITE_M3:
+                data[0] = (byte) (g_Param.m[3].ovp >> 8);
+                data[1] = (byte) (g_Param.m[3].ovp & 0xFF);
+                data[2] = (byte) (g_Param.m[3].ocp >> 8);
+                data[3] = (byte) (g_Param.m[3].ocp & 0xFF);
+                data[4] = (byte) (g_Param.m[3].vSet >> 8);
+                data[5] = (byte) (g_Param.m[3].vSet & 0xFF);
+                data[6] = (byte) (g_Param.m[3].iSet >> 8);
+                data[7] = (byte) (g_Param.m[3].iSet & 0xFF);
+                res = sendTrainCyclostyle(node, data, cmd.command);
+                break;
+            case MB_WRITE_M4:
+                data[0] = (byte) (g_Param.m[4].ovp >> 8);
+                data[1] = (byte) (g_Param.m[4].ovp & 0xFF);
+                data[2] = (byte) (g_Param.m[4].ocp >> 8);
+                data[3] = (byte) (g_Param.m[4].ocp & 0xFF);
+                data[4] = (byte) (g_Param.m[4].vSet >> 8);
+                data[5] = (byte) (g_Param.m[0].vSet & 0xFF);
+                data[6] = (byte) (g_Param.m[0].iSet >> 8);
+                data[7] = (byte) (g_Param.m[0].iSet & 0xFF);
+                res = sendTrainCyclostyle(node, data, cmd.command);
+                break;
+            case MB_WRITE_ZERO:
+                data[0] = 0x01;
+                res = sendTrainCyclostyle(node, data, cmd.command);
+                break;
+            case MB_WRITE_RESET:
+                data[0] = 0x01;
+                res = sendTrainCyclostyle(node, data, cmd.command);
+                break;
+
+        }
+        return res;
+
+
+    }
+
+    /**
+     * 回传的数据处理
+     * buff为回传的整帧数据,addr为当前所操作的首地址
+     **/
+
+    private static boolean receiveDataProcess(byte[] buff,byte cmd){
+        if(buff==null){
+            return false;
+
+        }
+        if(buff.length<5){//回传的数据 地址+功能码+长度+2效验=5字节
+            return false;
+
+        }
+
+        boolean res=true;
+        switch (buff[2]){
+            case MB_READ_STATE:
+                if(cmd_delay==0){
+                   g_State.onOff=buff[3] ;
+                   g_State.cv_cc=buff[4];
+                   g_State.fault_state=buff[5];
+                }
+                break;
+            //case MB_READ_INFO:  break;
+            //case MB_READ_SYSTEM:  break;           data[0] =(byte) (display.ovp>>8);
+
+            case MB_READ_M:
+                g_State.m = buff[3];
+                ;
+                break;
+            case MB_READ_DISPLAY1:
+                display.vIn = buff[3];
+                display.vIn = (int) ((display.vIn << 8) + buff[4]);
+
+                display.vOut = buff[5];
+                display.vOut = (int) ((display.vOut << 8) + buff[6]);
+
+                display.iOut = buff[7];
+                display.iOut = (int) ((display.iOut << 8) + buff[8]);
+
+                display.w = (int) ((buff[9] << 24) + (buff[10] << 16) + (buff[11] << 24) + buff[12]);
+                break;
+            //case MB_READ_DISPLAY2:
+            //    display.vIn = buff[0];
+            //    display.vIn = (int)((display.vIn << 8) + buff[1]);
+
+            //    display.vOut = buff[3];
+            //    display.vOut = (int)((display.vOut << 8) + buff[4]);
+
+            //    display.iOut = buff[5];
+            //    display.iOut = (int)((display.iOut << 8) + buff[6]);
+
+            //    display.w = (int)((buff[7] << 24) + (buff[8] << 16) + (buff[9] << 24) + buff[10]);
+            //    break;
+            //case MB_READ_DISPLAY3: readReg(buff, addr); break;
+            case MB_READ_DISPLAY3:
+                display.ovp = buff[3];
+                display.ovp = (int) ((display.ovp << 8) + buff[4]);
+
+                display.ocp = buff[5];
+                display.ocp = (int) ((display.ocp << 8) + buff[6]);
+
+                display.vSet = buff[7];
+                display.vSet = (int) ((display.vSet << 8) + buff[8]);
+
+                display.iSet = buff[9];
+                display.iSet = (int) ((display.iSet << 8) + buff[10]);
+
+                display.t = (int) ((buff[11] << 24) + (buff[12] << 16) + (buff[13] << 24) + buff[14]);
+
+                g_Param.vLow = buff[15];
+                g_Param.vLow = (int) ((g_Param.vLow << 8) + buff[16]);
+
+                break;
+            case MB_READ_M0:
+                g_Param.m[0].ovp = buff[3];
+                g_Param.m[0].ovp = (int) ((display.ovp << 8) + buff[4]);
+
+                g_Param.m[0].ocp = buff[5];
+                g_Param.m[0].ocp = (int) ((display.ocp << 8) + buff[6]);
+
+                g_Param.m[0].vSet = buff[7];
+                g_Param.m[0].vSet = (int) ((display.vSet << 8) + buff[8]);
+
+                g_Param.m[0].iSet = buff[9];
+                g_Param.m[0].iSet = (int) ((display.iSet << 8) + buff[10]);
+                break;
+            case MB_READ_M1:
+                g_Param.m[1].ovp = buff[3];
+                g_Param.m[1].ovp = (int) ((display.ovp << 8) + buff[4]);
+
+                g_Param.m[1].ocp = buff[5];
+                g_Param.m[1].ocp = (int) ((display.ocp << 8) + buff[6]);
+
+                g_Param.m[1].vSet = buff[7];
+                g_Param.m[1].vSet = (int) ((display.vSet << 8) + buff[8]);
+
+                g_Param.m[1].iSet = buff[9];
+                g_Param.m[1].iSet = (int) ((display.iSet << 8) + buff[10]);
+                break;
+            case MB_READ_M2:
+                g_Param.m[2].ovp = buff[3];
+                g_Param.m[2].ovp = (int) ((display.ovp << 8) + buff[4]);
+
+                g_Param.m[2].ocp = buff[5];
+                g_Param.m[2].ocp = (int) ((display.ocp << 8) + buff[6]);
+
+                g_Param.m[2].vSet = buff[7];
+                g_Param.m[2].vSet = (int) ((display.vSet << 8) + buff[8]);
+
+                g_Param.m[2].iSet = buff[9];
+                g_Param.m[2].iSet = (int) ((display.iSet << 8) + buff[10]);
+                break;
+            case MB_READ_M3:
+                g_Param.m[3].ovp = buff[3];
+                g_Param.m[3].ovp = (int) ((display.ovp << 8) + buff[4]);
+
+                g_Param.m[3].ocp = buff[5];
+                g_Param.m[3].ocp = (int) ((display.ocp << 8) + buff[6]);
+
+                g_Param.m[3].vSet = buff[7];
+                g_Param.m[3].vSet = (int) ((display.vSet << 8) + buff[8]);
+
+                g_Param.m[3].iSet = buff[9];
+                g_Param.m[3].iSet = (int) ((display.iSet << 8) + buff[10]);
+                break;
+            case MB_READ_M4:
+                g_Param.m[4].ovp = buff[3];
+                g_Param.m[4].ovp = (int) ((display.ovp << 8) + buff[4]);
+
+                g_Param.m[4].ocp = buff[5];
+                g_Param.m[4].ocp = (int) ((display.ocp << 8) + buff[6]);
+
+                g_Param.m[4].vSet = buff[7];
+                g_Param.m[4].vSet = (int) ((display.vSet << 8) + buff[8]);
+
+                g_Param.m[4].iSet = buff[9];
+                g_Param.m[4].iSet = (int) ((display.iSet << 8) + buff[10]);
+                break;
+
+            case 0x12:
+                if (buff[3] != 0x80) {
+                    res = false;
+                }
+                break;
+            default:
+                res = false;
+                break;
+
+
+        }
+        return res;
+
+    }
+
+    /**
+     * 添加重复操作指令
+     * sci为待发送的指令管道   addr为所添加指令的首地址  len 为所添加指令的寄存器或线圈格式
+     * stat为所添加指令的功能码
+     * */
+
+    private static void sciAddRepeatCmd(MBSci sci,byte cmd){
+
+        if(sci.rtCount>=MB_SCI_MAX_COUNT-1){//超出指令管道最大长度  直接退出
+            return;
+
+        }
+//        if(len==0){//地址的数据长度为空  直接退出
+//            return;
+//        }
+        for(int i=0;i<sci.rtCount;i++){
+            if(sci.cmd[sci.rtCount].command==cmd){
+                return;
+
+            }
+
+        }
+       // sci.cmd[sci.rtCount].addr=addr;
+       // sci.cmd[sci.rtCount].len=len;
+        sci.cmd[sci.rtCount].command=cmd;
+        sci.cmd[sci.rtCount].res=0;
+        sci.rtCount++;
+
+    }
+
+    /**
+     * 添加一次性操作指令
+     * sci为待发送的指令管道    addr为所添加指令的首地址
+     * len 为所添加指令的寄存器或线圈个数  stat所添加指令的功能码
+     * */
+    private static void sciAddCmd(MBSci sci,byte cmd){
+//        if(len==0){//地址的数据长度为空  直接退出
+//            return;
+//        }
+
+        for(int i=sci.rtCount;i<MB_SCI_MAX_COUNT;i++){
+            if(sci.cmd[i].command==0){//将指令载入到空的管道指令上
+                //sci.cmd[i].addr=addr;
+                //sci.cmd[i].len=len;
+                sci.cmd[i].command=cmd;
+                sci.cmd[i].res=0;
+                break;
+            }
+
+        }
+    }
+
+    /**
+     * 清空重复读取指令集
+     * sci为待发送的指令管道
+     * */
+    private static void sciClearRepeatCmd(MBSci sci){
+        sci.rtCount=0;
+
+    }
+
+    /**
+     * 清空一次性读取指令集
+     * sci为待发送的指令管道
+     * */
+    private static void sciClearCmd(MBSci sci){
+        for(int i=sci.rtCount;i<MB_SCI_MAX_COUNT;i++){
+            sci.cmd[i].command=0;
+            //sci.cmd[i].addr = -1;
+            //sci.cmd[i].len = 0;
+            sci.cmd[i].res = 0;
+
+        }
+
+    }
+
+    /**
+     * 跳到下一个操作指令
+     * sci为待发送的指令管道
+     * */
+
+    private static void sciJumbNext(MBSci sci){
+        if(sci.index>=sci.rtCount){//非实时读取地址会被清除
+            sci.cmd[sci.index].command=0;
+            //sci.cmd[sci.index].len = 0;
+            //sci.cmd[sci.index].stat = 0;
+
+        }
+        do{
+            sci.index++;
+            if(sci.index>=MB_SCI_MAX_COUNT){//超出指令最大范围
+                sci.index=0;
+                if(sci.rtCount==0){//如果固定实时读取为空 直接跳出
+                    break;
+                }
+
+            }
+        }while (sci.cmd[sci.index].command==0);
+        sci.cmd[sci.index].res=0;//本次返回状态清零
+
+    }
+
+    /**
+     * 发送指令调度锁定
+     * */
+    public static void sciSchedulingLock(){
+        sciLock=true;
+    }
+
+    /**
+     * 发送指令调度解锁
+     * */
+    public static void sciSchedulingUnlock(){
+        sciLock=false;
+    }
+
+    /**
+     * 待发送的指令管道调度
+     * sci为待发送的指令管道
+     * rBuf为收到正确的回传数据
+     * wBuf为准备发送的指令数据
+     * */
+    private static void sciScheduling(MBSci sci,byte[] rBuf,byte[] wBuf){
+        if(sciLock){//如果别加锁,直接退出
+            return;
+        }
+        if((sci.cmd[sci.index].res!=0)||(sci.count>=sci.maxRepeatCount)){
+            sci.count=0;//发送次数清零
+            if(sci.cmd[sci.index].res!=0){//如果收到了正常返回
+               // receiveDataProcess(rBuf,sci.cmd[sci.index].command);//保存数据
+               //rBuf=null;//清空当前接收缓冲区的内容,以防下次重复读取
+
+            }else {
+                //参数操作失败
+            }
+            rBuf=null;//清空当前接收缓冲区的内容,以防下次重复读取
+            sciJumbNext(sci);
+
+        }
+        wBuf=sendPduPack(gNode,sci.cmd[sci.index]);//发送指令操作
+        sci.count++;//发送次数加1
+
+    }
+
+    /**
+     * 快速刷新  处理接收到的数据  建议:10ms一下
+     * 返回所正确回传数据的功能码,null为回传不正确
+     * */
+
+    private  byte mbQuickRefresh(){
+        byte res=0;
+        if(rBuff!=null){
+            sciSchedulingLock();
+            if(receiveDataProcess(rBuff,gMBSci.cmd[gMBSci.index].command)==true){
+                gMBSci.cmd[gMBSci.index].res=1;//标记  所接收到的数据正确
+                res= gMBSci.cmd[gMBSci.index].command;
+
+            }
+            rBuff=null;
+            sciSchedulingUnlock();
+
+        }
+        return res;
+    }
+
+    /**
+     * 调度间隔时间刷新   建议:50ms以上
+     * 返回封装好的协议帧
+     * */
+    private  void mbSchedRefresh(){
+        sciScheduling(gMBSci,rBuff,wBuff);
+//        if(wBuff!=null){
+//
+//        }
+        comm.write(wBuff,0,20);
+    }
+
+    /**
+     * 清空存放一次性的指令空间
+     * */
+    public  void mbClearCmd(){
+        sciClearCmd(gMBSci);
+    }
+
+    /**
+     * 添加固定刷新(重复)操作指令
+     * addr 为地址,stat为功能码
+     * */
+    public  void mbAddRepeatCmd(byte cmd){
+        //for (int i = 0; i < GetAddressValueLength(addr); i++ )
+        if(getAddressValue(cmd)==null){//如果所添加的指令没有在MODBUS对应表中定义,直接退出
+            return;
+        }
+        sciAddRepeatCmd(gMBSci,cmd);
+    }
+
+    /**
+     * 添加一次性操作指令
+     */
+    public  void mbAddCmd(byte cmd){
+        //for (int i = 0; i < GetAddressValueLength(addr); i++)
+        //    if (GetAddressValue(addr, stat) == null)        //如果所添加的指令没有在MODBUS对应表中定义 直接退出
+        //        return;
+        sciAddCmd(gMBSci, cmd);
+    }
+
+    /**
+     * 串口参数配置
+     * commx 为所用到的串口
+     * */
+    public  void mbConfig(SerialPort commx, byte node, int baud){
+        gBaud=baud;
+        gNode=node;
+        comm=commx;
+        sciClearRepeatCmd(gMBSci);
+        sciClearCmd(gMBSci);
+
+    }
+
+    /**
+     * 读取串口中接收到的数据
+     * comm为所用到的串口
+     * */
+    public  void mbDataReceive(){
+        if(comm==null){//如果串口没有被初始化直接退出
+            return;
+
+        }
+        sciSchedulingLock();
+        try {
+            Thread.sleep(20);//等待缓存器满
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        buffLen=comm.BytesToRead;//获取缓存区字节长度
+        if (buffLen > MB_MAX_LENGTH)            //如果长度超出范围 直接退出
+        {
+            sciSchedulingUnlock();
+            return;
+        }
+        comm.Read(buff, 0, buffLen);            //读取数据
+        if ((buff[0] == gNode) && (buffLen == 20)) {
+            if (sumCheck(buff, buffLen - 1) == buff[19]) {
+                rBuff = new byte[buffLen];
+                Array.Copy(buff, rBuff, buffLen);
+              // System.arraycopy(buff, rBuff, buffLen);
+            }
+        }
+        sciSchedulingUnlock();
+    }
+
+    /**
+     * MODBUS的实时刷新任务，在定时器在实时调用此函数
+     * 指令发送间隔时间等于实时器乘以10。 例：定时器5ms调用一次  指令发送间隔为50ms。
+     * 返回当前功能读取指令回传的功能码
+     */
+
+    public  int mbRefresh(){
+        if (sciLock)   //如果被加锁 直接退出
+            return 0;
+
+        mbRefreshTime++;
+        if (mbRefreshTime > 20)
+        {
+            mbRefreshTime = 0;
+            mbSchedRefresh();
+        }
+        return mbQuickRefresh();
+    }
 
 }
