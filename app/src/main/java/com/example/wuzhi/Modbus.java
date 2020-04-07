@@ -1,6 +1,7 @@
 package com.example.wuzhi;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 public class Modbus {
     /**地址对应表元素单元**/
@@ -822,8 +823,8 @@ public class Modbus {
                 data[9] = (byte) ((display.t >> 16) & 0xFF);
                 data[10] = (byte) ((display.t >> 8) & 0xFF);//高8位
                 data[11] = (byte) (display.t & 0xFF);//低位
-                //data[12] = (byte)(display.OVP >> 8);
-                //data[13] = (byte)(display.OVP % 8);
+                //data[12] = (byte)(display.ovp >> 8);
+                //data[13] = (byte)(display.ovp % 8);
                 res = sendTrainCyclostyle(node, data, cmd.command);
                 break;
             case MB_WRITE_M:
@@ -1301,8 +1302,9 @@ public class Modbus {
         if ((buff[0] == gNode) && (buffLen == 20)) {
             if (sumCheck(buff, buffLen - 1) == buff[19]) {
                 rBuff = new byte[buffLen];
-                Array.Copy(buff, rBuff, buffLen);
-              // System.arraycopy(buff, rBuff, buffLen);
+              // Array.Copy(buff, rBuff, buffLen);//把buff复制给rBuff,buff是源数据
+               System.arraycopy(buff,0, rBuff,0, buffLen);
+
             }
         }
         sciSchedulingUnlock();
