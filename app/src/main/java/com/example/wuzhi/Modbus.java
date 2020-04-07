@@ -708,7 +708,12 @@ public class Modbus {
         return checksum;
     }
 
-    //获取地址所对应的数据
+
+    /**
+     * 获取地址所对应的数据
+     * addr为地址,type为类型.
+     * return 获取到的数据
+     * */
     private static Object getAddressValue(byte cmd){
        for(int i=0;i<mbDataTable.length;i++){
            if(mbDataTable[i].cmd==cmd){
