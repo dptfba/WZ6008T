@@ -1,9 +1,8 @@
 package com.example.wuzhi;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
 
 public class Modbus {
+
     /**地址对应表元素单元**/
     public static class  OPTable{
         private int cmd;
@@ -35,11 +34,12 @@ public class Modbus {
         }
     }
 
-    /**当前的指令**/
+      /**当前的指令**/
     public class MBCmd{
         private byte command;//功能码
         private int res;//返回码的状态,0:无返回,1:正确返回
 
+        //无参的构造方法
         public MBCmd(){
 
         }
@@ -61,7 +61,7 @@ public class Modbus {
         }
     }
 
-    /**当前操作的指令管道**/
+      /**当前操作的指令管道**/
     public  class MBSci{
         private MBCmd[] cmd;//指令结构体
         private int index;//当前索引
@@ -123,7 +123,7 @@ public class Modbus {
         }
     }
 
-    /**枚举**/
+      /**枚举**/
 
     public enum Fault{
         NORMAL,//正常. java中枚举不能赋值,是常量,不可改变
@@ -141,6 +141,7 @@ public class Modbus {
         private int ovp;
         private  int ocp;
 
+        //无参的构造方法
         public TypedefPara(){
 
         }
@@ -201,6 +202,7 @@ public class Modbus {
         private long mWh;
         private long mAh;
 
+        //无参的构造方法
         public TypedefDisp(){
 
         }
@@ -304,6 +306,7 @@ public class Modbus {
         private byte discharge;
         private byte sue;
 
+        //无参的构造方法
         public TypedefState(){
 
         }
@@ -572,72 +575,72 @@ public class Modbus {
 
     public static  final byte MB_WRITE_MODE = 0x20;             //设置操作模式
 
-    public static  final  byte MB_WRITE_ADDRESS = 0x21;           //设置
+    public static  final  byte MB_WRITE_ADDRESS = 0x21;           //设置新通讯地址
 
-    public static  final  byte MB_WRITE_POWER = 0x22;             //设置操作模式
+    public static  final  byte MB_WRITE_POWER = 0x22;             //设置电源输出状态
 
-    public static  final  byte MB_READ_STATE = 0x23;             //设置操作模式
+    public static  final  byte MB_READ_STATE = 0x23;             //读取状态
 
-    public static  final byte MB_READ_INFO = 0x24;             //设置操作模式
-
-
-    public static  final  byte MB_READ_SYSTEM = 0x25;             //设置操作模式
-
-    public static  final  byte MB_WRITE_SYSTEM = 0x26;             //设置操作模式
+    public static  final byte MB_READ_INFO = 0x24;             //读取产品信息
 
 
-    public static  final  byte MB_READ_M = 0x27;             //设置操作模式
+    public static  final  byte MB_READ_SYSTEM = 0x25;             //读取系统参数
 
-    public static  final  byte MB_WRITE_M = 0x28;             //设置操作模式
-
-
-    public static  final  byte MB_READ_DISPLAY1 = 0x29;             //设置操作模式
-
-    public static  final  byte MB_READ_DISPLAY2 = 0x2A;             //设置操作模式
-
-    public static  final   byte MB_READ_DISPLAY3 = 0x2B;             //设置操作模式
+    public static  final  byte MB_WRITE_SYSTEM = 0x26;             //设置系统参数
 
 
-    public static  final  byte MB_WRITE_DISPLAY = 0x2C;             //设置操作模式
+    public static  final  byte MB_READ_M = 0x27;             //读取当前显示的设定值
+
+    public static  final  byte MB_WRITE_M = 0x28;             //设置设置当前显示的设定值
 
 
-    public static  final  byte MB_READ_M0 = 0x2D;             //设置操作模式
+    public static  final  byte MB_READ_DISPLAY1 = 0x29;             //读取显示
 
-    public static  final  byte MB_WRITE_M0 = 0x2E;             //设置操作模式
+    public static  final  byte MB_READ_DISPLAY2 = 0x2A;             //读取显示
 
-
-    public static  final byte MB_READ_M1 = 0x2F;             //设置操作模式
-
-    public static  final  byte MB_WRITE_M1 = 0x30;             //设置操作模式
+    public static  final   byte MB_READ_DISPLAY3 = 0x2B;             //读取显示
 
 
-    public static  final  byte MB_READ_M2 = 0x31;             //设置操作模式
-
-    public static  final  byte MB_WRITE_M2 = 0x32;             //设置操作模式
+    public static  final  byte MB_WRITE_DISPLAY = 0x2C;             //设置显示
 
 
-    public static  final  byte MB_READ_M3 = 0x33;             //设置操作模式
+    public static  final  byte MB_READ_M0 = 0x2D;             //读取M0
 
-    public static  final byte MB_WRITE_M3 = 0x34;             //设置操作模式
-
-
-    public static  final  byte MB_READ_M4 = 0x35;             //设置操作模式
-
-    public static  final   byte MB_WRITE_M4 = 0x36;             //设置操作模式
+    public static  final  byte MB_WRITE_M0 = 0x2E;             //设置M0
 
 
-    public static  final  byte MB_WRITE_PROTECT = 0x50;             //设置操作模式
+    public static  final byte MB_READ_M1 = 0x2F;             //读取M1
+
+    public static  final  byte MB_WRITE_M1 = 0x30;             //设置M1
 
 
-    public static  final  byte MB_WRITE_ZERO = 0x60;             //设置操作模式
+    public static  final  byte MB_READ_M2 = 0x31;             //读取M2
 
-    public static  final  byte MB_WRITE_RESET = 0x61;             //恢复出厂
+    public static  final  byte MB_WRITE_M2 = 0x32;             //设置M2
+
+
+    public static  final  byte MB_READ_M3 = 0x33;             //读取M3
+
+    public static  final byte MB_WRITE_M3 = 0x34;             //设置M3
+
+
+    public static  final  byte MB_READ_M4 = 0x35;             //读取M4
+
+    public static  final   byte MB_WRITE_M4 = 0x36;             //设置M4
+
+
+    public static  final  byte MB_WRITE_PROTECT = 0x50;             //设置电源校准保护状态
+
+
+    public static  final  byte MB_WRITE_ZERO = 0x60;             //设置电流校零点
+
+    public static  final  byte MB_WRITE_RESET = 0x61;             //恢复出厂默认
 
 
 
     public static  final  int MB_MAX_LENGTH = 120;               //最大数据长度
 
-    public static  final  int MB_SCI_MAX_COUNT = 15;             //指令管道最大存放的指令各数
+    public static  final  int MB_SCI_MAX_COUNT = 15;             //指令管道最大存放的指令个数
 
     public static  final int MB_MAX_REPEAT_COUNT = 3;           //指令最多发送次数
 
@@ -694,7 +697,7 @@ public class Modbus {
     public static byte gNode= (byte) 170;
     public static  int gBaud=9600;
 
-    static byte BCC_CheckSum(byte[] buf,int len){
+    static byte bCC_CheckSum(byte[] buf,int len){
         byte checksum=0;
         int sum=0;
         for(int i=0;i<len;i++){
@@ -763,7 +766,7 @@ public class Modbus {
         res[2] = cmd;
         System.arraycopy(data, 0, res, 3, 16);
 
-        crcVal = BCC_CheckSum(res, 19);
+        crcVal = bCC_CheckSum(res, 19);
         res[19] = crcVal;
         return res;
 
